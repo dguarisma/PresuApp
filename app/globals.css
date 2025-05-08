@@ -1,0 +1,394 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 173 80% 36%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 173 80% 36%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 173 80% 36%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 173 80% 36%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    font-size: 0.9375rem; /* 15px */
+    line-height: 1.5;
+  }
+
+  h1 {
+    font-size: 1.5rem; /* 24px */
+  }
+
+  h2 {
+    font-size: 1.25rem; /* 20px */
+  }
+
+  h3 {
+    font-size: 1.125rem; /* 18px */
+  }
+}
+
+/* Aplicar el multiplicador de tamaño de fuente */
+html {
+  font-size: calc(0.9375rem * var(--font-size-multiplier, 1));
+}
+
+body,
+p,
+span,
+div,
+button,
+input,
+select,
+textarea {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: calc(1.5rem * var(--font-size-multiplier, 1));
+}
+
+h2 {
+  font-size: calc(1.25rem * var(--font-size-multiplier, 1));
+}
+
+h3 {
+  font-size: calc(1.125rem * var(--font-size-multiplier, 1));
+}
+
+/* Reemplazar los estilos del contenedor de teléfono con estos: */
+
+/* Eliminar los estilos de phone-frame, phone-content, etc. y reemplazarlos con: */
+
+.mobile-container {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Estilos para el contenido de la aplicación */
+.container {
+  padding: 16px !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+.animate-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.card-hover {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Estilos de accesibilidad */
+
+/* Alto contraste */
+.high-contrast {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 0%;
+  --card: 0 0% 95%;
+  --card-foreground: 0 0% 0%;
+  --primary: 142.1 100% 25.3%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 90%;
+  --secondary-foreground: 0 0% 0%;
+  --muted: 0 0% 85%;
+  --muted-foreground: 0 0% 20%;
+  --accent: 142.1 100% 25.3%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 100% 40%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 0%;
+  --input: 0 0% 90%;
+  --ring: 142.1 100% 25.3%;
+}
+
+.high-contrast.dark {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --card: 0 0% 10%;
+  --card-foreground: 0 0% 100%;
+  --primary: 142.1 100% 50%;
+  --primary-foreground: 0 0% 0%;
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 0 0% 20%;
+  --muted-foreground: 0 0% 80%;
+  --accent: 142.1 100% 50%;
+  --accent-foreground: 0 0% 0%;
+  --destructive: 0 100% 60%;
+  --destructive-foreground: 0 0% 0%;
+  --border: 0 0% 100%;
+  --input: 0 0% 15%;
+  --ring: 142.1 100% 50%;
+}
+
+/* Texto grande */
+.large-text {
+  font-size: 120%;
+}
+
+.large-text h1 {
+  font-size: 2.5rem;
+}
+
+.large-text h2 {
+  font-size: 2rem;
+}
+
+.large-text h3 {
+  font-size: 1.75rem;
+}
+
+.large-text button,
+.large-text input,
+.large-text select,
+.large-text textarea {
+  font-size: 1.1rem;
+  padding: 0.75rem;
+}
+
+/* Reducir movimiento */
+.reduce-motion * {
+  animation-duration: 0.001ms !important;
+  transition-duration: 0.001ms !important;
+}
+
+.reduce-motion .card-hover:hover {
+  transform: none;
+}
+
+/* Modo de enfoque */
+.focus-mode .card,
+.focus-mode button,
+.focus-mode input,
+.focus-mode select,
+.focus-mode textarea {
+  border-width: 2px;
+}
+
+.focus-mode *:focus {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.focus-mode button:focus,
+.focus-mode input:focus,
+.focus-mode select:focus,
+.focus-mode textarea:focus {
+  box-shadow: 0 0 0 3px hsl(var(--primary));
+}
+
+/* Esquemas de color para daltonismo */
+[data-color-scheme="deuteranopia"] {
+  --primary: 240 100% 50%;
+  --primary-foreground: 0 0% 100%;
+  --accent: 240 100% 90%;
+  --accent-foreground: 240 100% 20%;
+  --ring: 240 100% 50%;
+}
+
+[data-color-scheme="protanopia"] {
+  --primary: 240 100% 50%;
+  --primary-foreground: 0 0% 100%;
+  --accent: 240 100% 90%;
+  --accent-foreground: 240 100% 20%;
+  --ring: 240 100% 50%;
+}
+
+[data-color-scheme="tritanopia"] {
+  --primary: 0 100% 50%;
+  --primary-foreground: 0 0% 100%;
+  --accent: 0 100% 90%;
+  --accent-foreground: 0 100% 20%;
+  --ring: 0 100% 50%;
+}
+
+/* Mejoras de accesibilidad generales */
+button,
+a {
+  transition: all 0.2s ease;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 0;
+  box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--primary) / 0.5);
+}
+
+/* Indicador de estado offline */
+.offline-indicator {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  background-color: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  z-index: 50;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Ajustes para la vista móvil */
+@media (max-width: 480px) {
+  .mobile-container {
+    max-width: 100%;
+  }
+}
+
+/* Estilos para el calendario */
+.rdp-day_selected {
+  background-color: hsl(var(--primary)) !important;
+}
+
+.rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
+  background-color: hsl(var(--secondary)) !important;
+}
+
+/* Estilos para el nuevo menú de navegación */
+.animate-in {
+  animation: animateIn 0.3s ease-out;
+}
+
+@keyframes animateIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Efecto de pulso para el indicador activo */
+.nav-pulse {
+  animation: navPulse 2s infinite;
+}
+
+@keyframes navPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(var(--primary-rgb), 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0);
+  }
+}
+
+/* Variables RGB para animaciones */
+:root {
+  --primary-rgb: 44, 165, 141;
+}
+
+.dark {
+  --primary-rgb: 44, 165, 141;
+}
+
+/* Añadir clases de utilidad para fuentes más pequeñas */
+
+.text-smaller {
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25rem; /* 20px */
+}
+
+.text-smallest {
+  font-size: 0.75rem; /* 12px */
+  line-height: 1rem; /* 16px */
+}
