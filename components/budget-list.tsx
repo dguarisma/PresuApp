@@ -45,10 +45,12 @@ export default function BudgetList() {
   const loadBudgets = () => {
     try {
       // Obtener directamente del localStorage para evitar cualquier problema con la capa db
-      const budgetsJson = localStorage.getItem("budgets")
-      const storedBudgets = budgetsJson ? JSON.parse(budgetsJson) : []
-      console.log("Presupuestos cargados:", storedBudgets)
-      setBudgets(storedBudgets)
+      if (typeof window !== "undefined") {
+        const budgetsJson = localStorage.getItem("budgets")
+        const storedBudgets = budgetsJson ? JSON.parse(budgetsJson) : []
+        console.log("Presupuestos cargados:", storedBudgets)
+        setBudgets(storedBudgets)
+      }
     } catch (error) {
       console.error("Error al cargar presupuestos:", error)
     } finally {
@@ -64,10 +66,12 @@ export default function BudgetList() {
       loadBudgets()
     }
 
-    window.addEventListener("focus", handleFocus)
+    if (typeof window !== "undefined") {
+      window.addEventListener("focus", handleFocus)
 
-    return () => {
-      window.removeEventListener("focus", handleFocus)
+      return () => {
+        window.removeEventListener("focus", handleFocus)
+      }
     }
   }, [])
 
@@ -178,6 +182,18 @@ export default function BudgetList() {
   // Función para obtener un resumen del presupuesto
   const getBudgetSummary = (budgetId: string) => {
     try {
+      if (typeof window === "undefined") {
+        return {
+          amount: 0,
+          spent: 0,
+          totalCategories: 0,
+          categoriesWithItems: [],
+          categoriesWithItemsCount: 0,
+          hasItemsInCategories: false,
+          isConfigured: false,
+        }
+      }
+
       const dataJson = localStorage.getItem(`budget_${budgetId}`)
       const budgetData = dataJson ? JSON.parse(dataJson) : { amount: 0, categories: [] }
 

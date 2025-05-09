@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -27,8 +27,13 @@ export default function FileManager() {
   const [isExporting, setIsExporting] = useState(false)
   const [isImporting, setIsImporting] = useState(false)
   const [selectedBudgetId, setSelectedBudgetId] = useState<string | null>(null)
-  const budgets = db.getAllBudgets()
+  const [budgets, setBudgets] = useState([])
   const t = useTranslations()
+
+  // Usar useEffect para cargar los presupuestos solo en el cliente
+  useEffect(() => {
+    setBudgets(db.getAllBudgets())
+  }, [])
 
   const handleExportAll = async () => {
     try {

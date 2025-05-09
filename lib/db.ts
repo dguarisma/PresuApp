@@ -17,6 +17,9 @@ const BUDGET_DATA_PREFIX = "budget_"
 const TAGS_KEY = "tags"
 const REPORTS_KEY = "reports"
 
+// Verificar si estamos en el navegador
+const isBrowser = typeof window !== "undefined"
+
 // Interfaz para las funciones de la base de datos
 interface DB {
   // Funciones para gestionar presupuestos
@@ -84,6 +87,10 @@ const db: DB = {
   // Funciones para gestionar presupuestos
   getAllBudgets: () => {
     try {
+      if (!isBrowser) {
+        return []
+      }
+
       const budgetsJson = localStorage.getItem(BUDGET_LIST_KEY)
       if (!budgetsJson) {
         return []
@@ -104,6 +111,10 @@ const db: DB = {
 
   getBudget: (id: string) => {
     try {
+      if (!isBrowser) {
+        return null
+      }
+
       const budgets = db.getAllBudgets()
       return budgets.find((budget) => budget.id === id) || null
     } catch (error) {
@@ -114,6 +125,10 @@ const db: DB = {
 
   createBudget: (name: string) => {
     try {
+      if (!isBrowser) {
+        throw new Error("No se puede crear un presupuesto fuera del navegador")
+      }
+
       const budgets = db.getAllBudgets()
       const newBudget: Budget = {
         id: Date.now().toString(),
@@ -147,6 +162,10 @@ const db: DB = {
 
   updateBudget: (id: string, data: Partial<Budget>) => {
     try {
+      if (!isBrowser) {
+        return null
+      }
+
       const budgets = db.getAllBudgets()
       const index = budgets.findIndex((budget) => budget.id === id)
 
@@ -165,6 +184,10 @@ const db: DB = {
 
   deleteBudget: (id: string) => {
     try {
+      if (!isBrowser) {
+        return false
+      }
+
       console.log("Eliminando presupuesto con ID:", id)
 
       // Verificar que el presupuesto existe antes de intentar eliminarlo
@@ -201,6 +224,10 @@ const db: DB = {
   // Funciones para gestionar datos de presupuestos
   getBudgetData: (budgetId: string) => {
     try {
+      if (!isBrowser) {
+        return { amount: 0, categories: [] }
+      }
+
       const dataJson = localStorage.getItem(`${BUDGET_DATA_PREFIX}${budgetId}`)
       const data = dataJson ? JSON.parse(dataJson) : { amount: 0, categories: [] }
 
@@ -221,6 +248,10 @@ const db: DB = {
 
   updateBudgetData: (budgetId: string, data: Partial<BudgetData>) => {
     try {
+      if (!isBrowser) {
+        throw new Error("No se pueden actualizar datos fuera del navegador")
+      }
+
       const currentData = db.getBudgetData(budgetId)
       const updatedData = { ...currentData, ...data }
 
@@ -239,6 +270,10 @@ const db: DB = {
   // Funciones para gestionar categorías
   addCategory: (budgetId: string, name: string) => {
     try {
+      if (!isBrowser) {
+        throw new Error("No se puede añadir categoría fuera del navegador")
+      }
+
       const budgetData = db.getBudgetData(budgetId)
       const newCategory: Category = {
         id: generateUUID(), // Usar UUID en lugar de timestamp
@@ -262,6 +297,10 @@ const db: DB = {
 
   updateCategory: (budgetId: string, categoryId: number, data: Partial<Category>) => {
     try {
+      if (!isBrowser) {
+        return null
+      }
+
       const budgetData = db.getBudgetData(budgetId)
       const categoryIndex = budgetData.categories.findIndex((cat) => cat.id === categoryId)
 
@@ -281,6 +320,10 @@ const db: DB = {
 
   deleteCategory: (budgetId: string, categoryId: number) => {
     try {
+      if (!isBrowser) {
+        return false
+      }
+
       // Obtener los datos actuales del presupuesto
       const dataJson = localStorage.getItem(`budget_${budgetId}`)
       if (!dataJson) return null
@@ -303,6 +346,10 @@ const db: DB = {
   // Funciones para gestionar subcategorías
   addSubCategory: (budgetId: string, categoryId: string, name: string) => {
     try {
+      if (!isBrowser) {
+        throw new Error("No se puede añadir subcategoría fuera del navegador")
+      }
+
       const budgetData = db.getBudgetData(budgetId)
       const categoryIndex = budgetData.categories.findIndex((cat) => cat.id === categoryId)
 
@@ -335,6 +382,10 @@ const db: DB = {
 
   updateSubCategory: (budgetId: string, categoryId: number, subCategoryId: number, data: Partial<SubCategory>) => {
     try {
+      if (!isBrowser) {
+        return null
+      }
+
       const budgetData = db.getBudgetData(budgetId)
       const categoryIndex = budgetData.categories.findIndex((cat) => cat.id === categoryId)
 
@@ -370,6 +421,10 @@ const db: DB = {
 
   deleteSubCategory: (budgetId: string, categoryId: number, subCategoryId: number) => {
     try {
+      if (!isBrowser) {
+        return false
+      }
+
       const budgetData = db.getBudgetData(budgetId)
       const categoryIndex = budgetData.categories.findIndex((cat) => cat.id === categoryId)
 
@@ -403,6 +458,10 @@ const db: DB = {
   // Funciones para gestionar gastos
   addExpense: (budgetId: string, categoryId: string, expense: Omit<ExpenseItem, "id">, subCategoryId?: string) => {
     try {
+      if (!isBrowser) {
+        throw new Error("No se puede añadir gasto fuera del navegador")
+      }
+
       const budgetData = db.getBudgetData(budgetId)
       const categoryIndex = budgetData.categories.findIndex((cat) => cat.id === categoryId)
 
@@ -472,6 +531,10 @@ const db: DB = {
     subCategoryId?: number,
   ) => {
     try {
+      if (!isBrowser) {
+        return null
+      }
+
       const budgetData = db.getBudgetData(budgetId)
       const categoryIndex = budgetData.categories.findIndex((cat) => cat.id === categoryId)
 
@@ -558,6 +621,10 @@ const db: DB = {
 
   deleteExpense: (budgetId: string, categoryId: number, expenseId: number, subCategoryId?: number) => {
     try {
+      if (!isBrowser) {
+        return false
+      }
+
       const budgetData = db.getBudgetData(budgetId)
       const categoryIndex = budgetData.categories.findIndex((cat) => cat.id === categoryId)
 
@@ -617,6 +684,10 @@ const db: DB = {
   // Funciones para filtrar y buscar gastos
   getExpensesByDateRange: (budgetId: string, dateRange: DateRange) => {
     try {
+      if (!isBrowser) {
+        return []
+      }
+
       const budgetData = db.getBudgetData(budgetId)
       const startDate = parseISO(dateRange.startDate)
       const endDate = parseISO(dateRange.endDate)
@@ -662,6 +733,10 @@ const db: DB = {
 
   filterExpenses: (budgetId: string, filters: FilterOptions) => {
     try {
+      if (!isBrowser) {
+        return []
+      }
+
       const budgetData = db.getBudgetData(budgetId)
       let allExpenses: ExpenseItem[] = []
 
@@ -736,6 +811,10 @@ const db: DB = {
   // Funciones para gestionar etiquetas
   getAllTags: () => {
     try {
+      if (!isBrowser) {
+        return []
+      }
+
       const tagsJson = localStorage.getItem(TAGS_KEY)
       return tagsJson ? JSON.parse(tagsJson) : []
     } catch (error) {
@@ -746,6 +825,10 @@ const db: DB = {
 
   addTag: (tag: string) => {
     try {
+      if (!isBrowser) {
+        return
+      }
+
       const tags = db.getAllTags()
       if (!tags.includes(tag)) {
         localStorage.setItem(TAGS_KEY, JSON.stringify([...tags, tag]))
@@ -758,6 +841,10 @@ const db: DB = {
   // Funciones para gestionar reportes
   getSavedReports: () => {
     try {
+      if (!isBrowser) {
+        return []
+      }
+
       const reportsJson = localStorage.getItem(REPORTS_KEY)
       return reportsJson ? JSON.parse(reportsJson) : []
     } catch (error) {
@@ -768,6 +855,10 @@ const db: DB = {
 
   saveReport: (report: ReportConfig) => {
     try {
+      if (!isBrowser) {
+        return
+      }
+
       const reports = db.getSavedReports()
       const existingIndex = reports.findIndex((r) => r.id === report.id)
 
@@ -787,6 +878,10 @@ const db: DB = {
 
   deleteReport: (reportId: string) => {
     try {
+      if (!isBrowser) {
+        return false
+      }
+
       const reports = db.getSavedReports()
       const updatedReports = reports.filter((report) => report.id !== reportId)
 
