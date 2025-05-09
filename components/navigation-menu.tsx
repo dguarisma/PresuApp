@@ -72,13 +72,13 @@ function NavItem({ href, icon, label, isActive }: NavItemProps) {
       href={href}
       className={cn(
         "flex flex-col items-center justify-center py-3 px-4 transition-all duration-200 relative touch-effect",
-        isActive ? "text-emerald-500 scale-110" : "text-muted-foreground hover:text-foreground",
+        isActive ? "text-teal-600 scale-110" : "text-muted-foreground hover:text-foreground",
       )}
     >
       <div
         className={cn(
           "p-2 rounded-full transition-all duration-200",
-          isActive ? "bg-emerald-500/15 shadow-[0_0_8px_rgba(16,185,129,0.4)]" : "hover:bg-muted/50",
+          isActive ? "bg-teal-600/15 shadow-[0_0_8px_rgba(13,148,136,0.4)]" : "hover:bg-muted/50",
         )}
       >
         {icon}
@@ -89,7 +89,7 @@ function NavItem({ href, icon, label, isActive }: NavItemProps) {
 
       {/* Indicador de elemento activo */}
       {isActive && (
-        <span className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+        <span className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-teal-600 rounded-full" />
       )}
     </Link>
   )
