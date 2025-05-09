@@ -5,16 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
 import { format, startOfMonth, endOfMonth } from "date-fns"
-import { es } from "date-fns/locale"
+import { es, enUS } from "date-fns/locale"
 import { ArrowRightLeft } from "lucide-react"
 import type { ExpenseItem, DateRange } from "@/types/expense"
 import db from "@/lib/db"
+import { useTranslation } from "@/hooks/use-translations"
 
 interface ExpenseComparisonProps {
   budgetId: string
 }
 
 export function ExpenseComparison({ budgetId }: ExpenseComparisonProps) {
+  const { t, language } = useTranslation()
   const [period1, setPeriod1] = useState<string>("thisMonth")
   const [period2, setPeriod2] = useState<string>("lastMonth")
   const [period1Data, setPeriod1Data] = useState<any[]>([])
@@ -39,7 +41,7 @@ export function ExpenseComparison({ budgetId }: ExpenseComparisonProps) {
 
     // Generar datos de comparación
     generateComparisonData(period1CategoryData, period2CategoryData, getPeriodLabel(period1), getPeriodLabel(period2))
-  }, [budgetId, period1, period2])
+  }, [budgetId, period1, period2, language])
 
   const getDateRangeForPeriod = (period: string): DateRange => {
     const today = new Date()
@@ -84,22 +86,23 @@ export function ExpenseComparison({ budgetId }: ExpenseComparisonProps) {
 
   const getPeriodLabel = (period: string): string => {
     const today = new Date()
+    const locale = language === "es" ? es : enUS
 
     switch (period) {
       case "thisMonth":
-        return format(today, "MMM yyyy", { locale: es })
+        return format(today, "MMM yyyy", { locale })
       case "lastMonth":
-        return format(new Date(today.getFullYear(), today.getMonth() - 1, 1), "MMM yyyy", { locale: es })
+        return format(new Date(today.getFullYear(), today.getMonth() - 1, 1), "MMM yyyy", { locale })
       case "twoMonthsAgo":
-        return format(new Date(today.getFullYear(), today.getMonth() - 2, 1), "MMM yyyy", { locale: es })
+        return format(new Date(today.getFullYear(), today.getMonth() - 2, 1), "MMM yyyy", { locale })
       case "threeMonthsAgo":
-        return format(new Date(today.getFullYear(), today.getMonth() - 3, 1), "MMM yyyy", { locale: es })
+        return format(new Date(today.getFullYear(), today.getMonth() - 3, 1), "MMM yyyy", { locale })
       case "sixMonthsAgo":
-        return format(new Date(today.getFullYear(), today.getMonth() - 6, 1), "MMM yyyy", { locale: es })
+        return format(new Date(today.getFullYear(), today.getMonth() - 6, 1), "MMM yyyy", { locale })
       case "oneYearAgo":
-        return format(new Date(today.getFullYear() - 1, today.getMonth(), 1), "MMM yyyy", { locale: es })
+        return format(new Date(today.getFullYear() - 1, today.getMonth(), 1), "MMM yyyy", { locale })
       default:
-        return "Período"
+        return t("comparison.period")
     }
   }
 
@@ -154,20 +157,20 @@ export function ExpenseComparison({ budgetId }: ExpenseComparisonProps) {
     <Card className="border shadow-sm">
       <CardHeader className="pb-2 px-3 sm:px-6">
         <div className="flex flex-col space-y-2">
-          <CardTitle className="text-lg sm:text-xl">Comparación de períodos</CardTitle>
+          <CardTitle className="text-lg sm:text-xl">{t("comparison.title")}</CardTitle>
           <div className="flex flex-col space-y-2">
             <div className="flex items-center gap-2">
               <Select value={period1} onValueChange={setPeriod1} className="w-full max-w-[150px]">
                 <SelectTrigger className="h-9 text-sm">
-                  <SelectValue placeholder="Período 1" />
+                  <SelectValue placeholder={t("comparison.period1")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="thisMonth">Este mes</SelectItem>
-                  <SelectItem value="lastMonth">Mes pasado</SelectItem>
-                  <SelectItem value="twoMonthsAgo">Hace 2 meses</SelectItem>
-                  <SelectItem value="threeMonthsAgo">Hace 3 meses</SelectItem>
-                  <SelectItem value="sixMonthsAgo">Hace 6 meses</SelectItem>
-                  <SelectItem value="oneYearAgo">Hace 1 año</SelectItem>
+                  <SelectItem value="thisMonth">{t("comparison.thisMonth")}</SelectItem>
+                  <SelectItem value="lastMonth">{t("comparison.lastMonth")}</SelectItem>
+                  <SelectItem value="twoMonthsAgo">{t("comparison.twoMonthsAgo")}</SelectItem>
+                  <SelectItem value="threeMonthsAgo">{t("comparison.threeMonthsAgo")}</SelectItem>
+                  <SelectItem value="sixMonthsAgo">{t("comparison.sixMonthsAgo")}</SelectItem>
+                  <SelectItem value="oneYearAgo">{t("comparison.oneYearAgo")}</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -177,15 +180,15 @@ export function ExpenseComparison({ budgetId }: ExpenseComparisonProps) {
 
               <Select value={period2} onValueChange={setPeriod2} className="w-full max-w-[150px]">
                 <SelectTrigger className="h-9 text-sm">
-                  <SelectValue placeholder="Período 2" />
+                  <SelectValue placeholder={t("comparison.period2")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="thisMonth">Este mes</SelectItem>
-                  <SelectItem value="lastMonth">Mes pasado</SelectItem>
-                  <SelectItem value="twoMonthsAgo">Hace 2 meses</SelectItem>
-                  <SelectItem value="threeMonthsAgo">Hace 3 meses</SelectItem>
-                  <SelectItem value="sixMonthsAgo">Hace 6 meses</SelectItem>
-                  <SelectItem value="oneYearAgo">Hace 1 año</SelectItem>
+                  <SelectItem value="thisMonth">{t("comparison.thisMonth")}</SelectItem>
+                  <SelectItem value="lastMonth">{t("comparison.lastMonth")}</SelectItem>
+                  <SelectItem value="twoMonthsAgo">{t("comparison.twoMonthsAgo")}</SelectItem>
+                  <SelectItem value="threeMonthsAgo">{t("comparison.threeMonthsAgo")}</SelectItem>
+                  <SelectItem value="sixMonthsAgo">{t("comparison.sixMonthsAgo")}</SelectItem>
+                  <SelectItem value="oneYearAgo">{t("comparison.oneYearAgo")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -217,7 +220,7 @@ export function ExpenseComparison({ budgetId }: ExpenseComparisonProps) {
           >
             <CardContent className="p-3">
               <div className="text-center">
-                <p className="text-xs text-muted-foreground mb-1">Diferencia</p>
+                <p className="text-xs text-muted-foreground mb-1">{t("comparison.difference")}</p>
                 <p className={`text-lg sm:text-xl font-bold ${difference > 0 ? "text-red-500" : "text-green-500"}`}>
                   {difference > 0 ? "+" : ""}
                   {difference.toFixed(2)}
@@ -233,7 +236,7 @@ export function ExpenseComparison({ budgetId }: ExpenseComparisonProps) {
 
         {comparisonData.length === 0 ? (
           <div className="text-center p-4 border rounded-lg bg-muted/30 border-dashed">
-            <p className="text-sm text-muted-foreground">No hay datos suficientes para mostrar la comparación.</p>
+            <p className="text-sm text-muted-foreground">{t("comparison.noData")}</p>
           </div>
         ) : (
           <div className="h-[250px] sm:h-[300px] w-full mt-2">

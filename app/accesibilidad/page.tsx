@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { ModeToggle } from "@/components/mode-toggle"
 import { useLanguage } from "@/hooks/use-language"
 
-export default function ConfiguracionPage() {
+export default function AccesibilidadPage() {
   const [mounted, setMounted] = useState(false)
   const { t } = useLanguage()
 

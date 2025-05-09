@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Trash2, Plus, Receipt } from "lucide-react"
+import { useTranslation } from "@/contexts/translation-context"
 
 interface CategoryListProps {
   categories: Category[]
@@ -17,6 +18,8 @@ interface CategoryListProps {
 }
 
 export default function CategoryList({ categories, onAddItem, onDeleteItem, onDeleteCategory }: CategoryListProps) {
+  const { t } = useTranslation()
+
   // Función específica para manejar la eliminación de una categoría
   const handleDeleteCategory = (categoryId: string) => {
     console.log("Eliminando categoría específica con ID:", categoryId)
@@ -27,7 +30,7 @@ export default function CategoryList({ categories, onAddItem, onDeleteItem, onDe
     <div className="space-y-6">
       {categories.length === 0 ? (
         <div className="text-center p-8 border rounded-lg bg-muted/30 border-dashed">
-          <p className="text-muted-foreground">No hay categorías. Agrega una para comenzar a registrar gastos.</p>
+          <p className="text-muted-foreground">{t("categories.noCategories")}</p>
         </div>
       ) : (
         categories.map((category) => (
@@ -52,6 +55,7 @@ interface CategoryCardProps {
 }
 
 function CategoryCard({ category, onAddItem, onDeleteItem, onDeleteCategory }: CategoryCardProps) {
+  const { t } = useTranslation()
   const [newItemName, setNewItemName] = useState("")
   const [newItemAmount, setNewItemAmount] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -96,7 +100,7 @@ function CategoryCard({ category, onAddItem, onDeleteItem, onDeleteCategory }: C
           className="h-8 w-8 text-destructive hover:text-destructive/90 hover:bg-destructive/10 rounded-full"
         >
           <Trash2 className="h-4 w-4" />
-          <span className="sr-only">Eliminar categoría</span>
+          <span className="sr-only">{t("categories.deleteCategory")}</span>
         </Button>
       </CardHeader>
       <CardContent className="p-0">
@@ -107,7 +111,7 @@ function CategoryCard({ category, onAddItem, onDeleteItem, onDeleteCategory }: C
               <Input
                 value={newItemName}
                 onChange={(e) => setNewItemName(e.target.value)}
-                placeholder="Nombre del gasto"
+                placeholder={t("expenses.expenseName")}
                 className="w-full"
                 disabled={isSubmitting}
               />
@@ -156,7 +160,7 @@ function CategoryCard({ category, onAddItem, onDeleteItem, onDeleteCategory }: C
               ) : (
                 <Plus className="h-5 w-5" />
               )}
-              <span className="sr-only">Agregar gasto</span>
+              <span className="sr-only">{t("expenses.addExpense")}</span>
             </Button>
           </form>
         </div>
@@ -179,8 +183,8 @@ function CategoryCard({ category, onAddItem, onDeleteItem, onDeleteCategory }: C
                   d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                 />
               </svg>
-              <p className="text-sm text-muted-foreground">No hay gastos en esta categoría.</p>
-              <p className="text-xs text-muted-foreground/70 mt-1">Agrega uno usando el formulario de arriba.</p>
+              <p className="text-sm text-muted-foreground">{t("expenses.noExpenses")}</p>
+              <p className="text-xs text-muted-foreground/70 mt-1">{t("expenses.addExpensePrompt")}</p>
             </div>
           ) : (
             <div className="space-y-1 max-h-[250px] overflow-y-auto pr-1 py-2">
@@ -199,7 +203,7 @@ function CategoryCard({ category, onAddItem, onDeleteItem, onDeleteCategory }: C
                       className="h-7 w-7 text-destructive hover:text-destructive/90 hover:bg-destructive/10 rounded-full"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
-                      <span className="sr-only">Eliminar item</span>
+                      <span className="sr-only">{t("actions.delete")}</span>
                     </Button>
                   </div>
                 </div>
@@ -210,7 +214,9 @@ function CategoryCard({ category, onAddItem, onDeleteItem, onDeleteCategory }: C
 
         {category.items.length > 0 && (
           <div className="flex justify-between py-2 px-4 font-medium border-t border-border/30 bg-muted/10 text-sm">
-            <span>Total {category.name}:</span>
+            <span>
+              {t("budget.total")} {category.name}:
+            </span>
             <span className="text-primary font-semibold">${categoryTotal.toFixed(2)}</span>
           </div>
         )}

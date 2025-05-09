@@ -6,6 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts"
 import type { Category } from "@/types/expense"
 import { PieChartIcon as ChartPie, BarChart3 } from "lucide-react"
+import { useTranslation } from "@/contexts/translation-context"
 
 interface ExpenseChartsProps {
   categories: Category[]
@@ -15,6 +16,7 @@ interface ExpenseChartsProps {
 
 export default function ExpenseCharts({ categories, totalBudget, totalSpent }: ExpenseChartsProps) {
   const [activeTab, setActiveTab] = useState("distribution")
+  const { t } = useTranslation()
 
   // Preparar datos para el gráfico de distribución
   const distributionData = categories
@@ -29,23 +31,23 @@ export default function ExpenseCharts({ categories, totalBudget, totalSpent }: E
 
   // Preparar datos para el gráfico de presupuesto
   const budgetData = [
-    { name: "Gastado", value: totalSpent },
-    { name: "Restante", value: Math.max(0, totalBudget - totalSpent) },
+    { name: t("charts.spent"), value: totalSpent },
+    { name: t("charts.remaining"), value: Math.max(0, totalBudget - totalSpent) },
   ]
 
-  // Colores para los gráficos - Tonos de verde
-  const COLORS = [
-    "#10b981", // Verde principal
-    "#34d399",
-    "#6ee7b7",
-    "#a7f3d0",
-    "#059669",
-    "#047857",
-    "#065f46",
-    "#064e3b",
-    "#22c55e",
-    "#16a34a",
-    "#15803d",
+  // Colores para los gráficos - Paleta diversa para categorías
+  const CATEGORY_COLORS = [
+    "#10b981", // Verde (color principal)
+    "#3b82f6", // Azul
+    "#f97316", // Naranja
+    "#8b5cf6", // Púrpura
+    "#ec4899", // Rosa
+    "#06b6d4", // Cian
+    "#f59e0b", // Ámbar
+    "#6366f1", // Índigo
+    "#14b8a6", // Verde azulado
+    "#d946ef", // Fucsia
+    "#84cc16", // Lima
   ]
 
   // Preparar datos para el gráfico de barras
@@ -86,31 +88,34 @@ export default function ExpenseCharts({ categories, totalBudget, totalSpent }: E
     )
   }
 
+  // Generar colores para las barras del gráfico de barras
+  const getBarColor = (index: number) => {
+    return CATEGORY_COLORS[index % CATEGORY_COLORS.length]
+  }
+
   return (
     <Card className="border border-border/50 shadow-sm">
       <CardHeader className="pb-3">
-        <CardTitle className="text-xl">Gráficos</CardTitle>
-        <CardDescription>Visualización de tus gastos y presupuesto</CardDescription>
+        <CardTitle className="text-xl">{t("charts.title")}</CardTitle>
+        <CardDescription>{t("charts.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2 mb-6">
             <TabsTrigger value="distribution" className="flex items-center">
               <ChartPie className="h-4 w-4 mr-2" />
-              Distribución
+              {t("charts.distribution")}
             </TabsTrigger>
             <TabsTrigger value="budget" className="flex items-center">
               <BarChart3 className="h-4 w-4 mr-2" />
-              Presupuesto
+              {t("charts.budget")}
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="distribution" className="pt-2 animate-in">
             {distributionData.length === 0 ? (
               <div className="text-center p-8 border rounded-lg bg-muted/30 border-dashed">
-                <p className="text-muted-foreground">
-                  No hay datos suficientes para mostrar el gráfico. Agrega gastos a tus categorías.
-                </p>
+                <p className="text-muted-foreground">{t("charts.noDataDistribution")}</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -128,7 +133,7 @@ export default function ExpenseCharts({ categories, totalBudget, totalSpent }: E
                         dataKey="value"
                       >
                         {distributionData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} />
                         ))}
                       </Pie>
                       <Tooltip formatter={formatTooltipValue} />
@@ -144,7 +149,11 @@ export default function ExpenseCharts({ categories, totalBudget, totalSpent }: E
                       <YAxis />
                       <Tooltip formatter={formatTooltipValue} />
                       <Legend />
-                      <Bar dataKey="amount" name="Monto" fill="#10b981" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="amount" name={t("charts.amount")} radius={[4, 4, 0, 0]}>
+                        {barData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} />
+                        ))}
+                      </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -155,7 +164,7 @@ export default function ExpenseCharts({ categories, totalBudget, totalSpent }: E
           <TabsContent value="budget" className="pt-2 animate-in">
             {totalBudget === 0 ? (
               <div className="text-center p-8 border rounded-lg bg-muted/30 border-dashed">
-                <p className="text-muted-foreground">Establece un presupuesto para ver el gráfico.</p>
+                <p className="text-muted-foreground">{t("charts.noBudget")}</p>
               </div>
             ) : (
               <div className="h-[300px] flex items-center justify-center">
@@ -171,8 +180,8 @@ export default function ExpenseCharts({ categories, totalBudget, totalSpent }: E
                       fill="#8884d8"
                       dataKey="value"
                     >
-                      <Cell fill="#ef4444" />
-                      <Cell fill="#10b981" />
+                      <Cell fill="#ef4444" /> {/* Rojo para gastado */}
+                      <Cell fill="#10b981" /> {/* Verde para restante */}
                     </Pie>
                     <Tooltip formatter={formatTooltipValue} />
                     <Legend />

@@ -8,19 +8,38 @@ import { Slider } from "@/components/ui/slider"
 import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent } from "@/components/ui/card"
 import { useLanguage } from "@/hooks/use-language"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { RefreshCw } from "lucide-react"
 
 interface AccessibilityControlsProps {
   inMenu?: boolean
 }
 
+// Valores predeterminados de accesibilidad
+const DEFAULT_ACCESSIBILITY_SETTINGS = {
+  highContrast: false,
+  largeText: false,
+  reducedMotion: false,
+  fontSize: 100,
+}
+
 export function AccessibilityControls({ inMenu = false }: AccessibilityControlsProps) {
   const { toast } = useToast()
-  const { t } = useLanguage()
-  const [highContrast, setHighContrast] = useState(false)
-  const [largeText, setLargeText] = useState(false)
-  const [reducedMotion, setReducedMotion] = useState(false)
-  const [fontSize, setFontSize] = useState(100)
-  const [open, setOpen] = useState(false)
+  const { t, language } = useLanguage()
+  const [highContrast, setHighContrast] = useState(DEFAULT_ACCESSIBILITY_SETTINGS.highContrast)
+  const [largeText, setLargeText] = useState(DEFAULT_ACCESSIBILITY_SETTINGS.largeText)
+  const [reducedMotion, setReducedMotion] = useState(DEFAULT_ACCESSIBILITY_SETTINGS.reducedMotion)
+  const [fontSize, setFontSize] = useState(DEFAULT_ACCESSIBILITY_SETTINGS.fontSize)
+  const [showResetConfirm, setShowResetConfirm] = useState(false)
 
   useEffect(() => {
     // Cargar configuraciones guardadas
@@ -29,18 +48,18 @@ export function AccessibilityControls({ inMenu = false }: AccessibilityControlsP
         const savedSettings = localStorage.getItem("accessibility")
         if (savedSettings) {
           const settings = JSON.parse(savedSettings)
-          setHighContrast(settings.highContrast || false)
-          setLargeText(settings.largeText || false)
-          setReducedMotion(settings.reducedMotion || false)
-          setFontSize(settings.fontSize || 100)
+          setHighContrast(settings.highContrast ?? DEFAULT_ACCESSIBILITY_SETTINGS.highContrast)
+          setLargeText(settings.largeText ?? DEFAULT_ACCESSIBILITY_SETTINGS.largeText)
+          setReducedMotion(settings.reducedMotion ?? DEFAULT_ACCESSIBILITY_SETTINGS.reducedMotion)
+          setFontSize(settings.fontSize ?? DEFAULT_ACCESSIBILITY_SETTINGS.fontSize)
         }
       } catch (error) {
-        console.error(t("accessibility.errors.loadSettings"), error)
+        console.error("Error al cargar configuración de accesibilidad:", error)
       }
     }
 
     loadSettings()
-  }, [t])
+  }, [])
 
   useEffect(() => {
     // Aplicar configuraciones de accesibilidad
@@ -81,8 +100,34 @@ export function AccessibilityControls({ inMenu = false }: AccessibilityControlsP
       title: t("accessibility.toast.saved.title"),
       description: t("accessibility.toast.saved.description"),
     })
+  }
 
-    setOpen(false)
+  const handleResetSettings = () => {
+    console.log("Restableciendo configuración de accesibilidad...")
+
+    // Restablecer valores predeterminados
+    setHighContrast(DEFAULT_ACCESSIBILITY_SETTINGS.highContrast)
+    setLargeText(DEFAULT_ACCESSIBILITY_SETTINGS.largeText)
+    setReducedMotion(DEFAULT_ACCESSIBILITY_SETTINGS.reducedMotion)
+    setFontSize(DEFAULT_ACCESSIBILITY_SETTINGS.fontSize)
+
+    // Eliminar la configuración del localStorage
+    localStorage.removeItem("accessibility")
+
+    // Aplicar los cambios inmediatamente al DOM
+    document.documentElement.style.setProperty(
+      "--font-size-multiplier",
+      `${DEFAULT_ACCESSIBILITY_SETTINGS.fontSize / 100}`,
+    )
+    document.documentElement.classList.remove("high-contrast", "large-text", "reduced-motion")
+
+    toast({
+      title: t("accessibility.toast.reset.title"),
+      description: t("accessibility.toast.reset.description"),
+    })
+
+    // Cerrar el diálogo de confirmación
+    setShowResetConfirm(false)
   }
 
   const renderMenuContent = () => {
@@ -120,9 +165,28 @@ export function AccessibilityControls({ inMenu = false }: AccessibilityControlsP
             className="mt-2"
           />
         </div>
-        <Button size="sm" className="w-full mt-2 h-8" onClick={handleSaveSettings}>
-          {t("accessibility.saveSettings")}
-        </Button>
+        <div className="flex gap-2 mt-2">
+          <Button size="sm" className="flex-1 h-8" onClick={handleSaveSettings}>
+            {t("actions.save")}
+          </Button>
+          <Button size="sm" variant="outline" className="h-8" onClick={() => setShowResetConfirm(true)}>
+            <RefreshCw className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+
+        {/* Diálogo de confirmación para restablecer */}
+        <AlertDialog open={showResetConfirm} onOpenChange={setShowResetConfirm}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("accessibility.resetConfirm.title")}</AlertDialogTitle>
+              <AlertDialogDescription>{t("accessibility.resetConfirm.description")}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{t("actions.cancel")}</AlertDialogCancel>
+              <AlertDialogAction onClick={handleResetSettings}>{t("common.reset")}</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     )
   }
@@ -227,9 +291,32 @@ export function AccessibilityControls({ inMenu = false }: AccessibilityControlsP
           </CardContent>
         </Card>
 
-        <Button className="w-full" onClick={handleSaveSettings}>
-          {t("accessibility.saveAllChanges")}
-        </Button>
+        <div className="flex gap-4">
+          <Button className="flex-1" onClick={handleSaveSettings}>
+            {t("accessibility.saveAllChanges")}
+          </Button>
+
+          <Button variant="outline" onClick={() => setShowResetConfirm(true)}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            {t("accessibility.resetDefaults")}
+          </Button>
+
+          {/* Diálogo de confirmación para restablecer */}
+          <AlertDialog open={showResetConfirm} onOpenChange={setShowResetConfirm}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>{t("accessibility.resetConfirm.title")}</AlertDialogTitle>
+                <AlertDialogDescription>{t("accessibility.resetConfirm.description")}</AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>{t("actions.cancel")}</AlertDialogCancel>
+                <Button variant="destructive" onClick={handleResetSettings}>
+                  {t("common.reset")}
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </div>
     )
   }

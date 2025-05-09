@@ -1,19 +1,22 @@
 import type React from "react"
-import "./globals.css"
+import "@/app/globals.css"
 import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
-import { Toaster } from "@/components/ui/toaster"
+import { TranslationProvider } from "@/contexts/translation-context"
 import { LoadingProvider } from "@/components/loading-overlay"
+import { Toaster } from "@/components/ui/toaster"
 import Script from "next/script"
 import { NavigationMenu } from "@/components/navigation-menu"
-import { TranslationProvider } from "@/contexts/translation-context"
+
+// Importar el NotificationProvider en lugar del NotificationChecker
+import { NotificationProvider } from "@/components/notification-provider"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "PresuApp - Control de Gastos",
-  description: "Aplicación para gestionar presupuestos y controlar gastos",
+  title: "PresuApp - Gestión de Gastos",
+  description: "Aplicación para gestionar tus gastos y presupuestos",
   manifest: "/manifest.json",
   icons: [
     { rel: "icon", url: "/favicon.png" },
@@ -40,18 +43,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-title" content="PresuApp" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="theme-color" content="#1e9b8a" />
+        <meta name="theme-color" content="#10b981" />
       </head>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-          <TranslationProvider>
+        <TranslationProvider>
+          <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
             <LoadingProvider>
               <div className="mobile-container pb-16">{children}</div>
               <NavigationMenu />
               <Toaster />
+              {/* Colocar el NotificationProvider dentro de los contextos adecuados */}
+              <NotificationProvider />
             </LoadingProvider>
-          </TranslationProvider>
-        </ThemeProvider>
+          </ThemeProvider>
+        </TranslationProvider>
         <Script src="/register-sw.js" strategy="afterInteractive" />
       </body>
     </html>

@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, type ReactNode, useRef, useEffect } from "react"
-import { useTranslation } from "@/hooks/use-translations"
+import { useTranslation } from "@/contexts/translation-context"
 
 // Crear contexto para el estado de carga global
 interface LoadingContextType {
@@ -30,7 +30,7 @@ export function LoadingProvider({ children }: { children: ReactNode }) {
       timeoutRef.current = setTimeout(() => {
         console.log("Timeout de seguridad activado - desactivando carga")
         setIsLoadingState(false)
-      }, 500) // 500ms como máximo de carga (reducido de 5000ms)
+      }, 5000) // 5 segundos como máximo de carga
     }
 
     setIsLoadingState(loading)

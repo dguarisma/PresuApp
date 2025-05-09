@@ -23,7 +23,7 @@ export default function ExpenseSummary({ budget, totalSpent, remaining }: Expens
   const getProgressColor = () => {
     if (percentSpent >= 90) return "bg-red-500"
     if (percentSpent >= 70) return "bg-yellow-500"
-    return "bg-green-500"
+    return "bg-emerald-500" // Usar emerald-500 que corresponde a #10b981
   }
 
   return (
@@ -59,7 +59,7 @@ export default function ExpenseSummary({ budget, totalSpent, remaining }: Expens
           <div className="flex justify-between text-xs">
             <span>{t("budget.progress")}</span>
             <span
-              className={`font-medium ${percentSpent >= 90 ? "text-red-500" : percentSpent >= 70 ? "text-yellow-500" : "text-green-500"}`}
+              className={`font-medium ${percentSpent >= 90 ? "text-red-500" : percentSpent >= 70 ? "text-yellow-500" : "text-emerald-500"}`}
             >
               {percentSpent.toFixed(1)}%
             </span>

@@ -12,6 +12,23 @@ if ("serviceWorker" in navigator) {
   })
 }
 
+// Verificar si la app ya está instalada
+function checkIfInstalled() {
+  // Para navegadores modernos
+  if (window.matchMedia("(display-mode: standalone)").matches) {
+    console.log("La aplicación está instalada (display-mode: standalone)")
+    return true
+  }
+
+  // Para iOS Safari
+  if (navigator.standalone === true) {
+    console.log("La aplicación está instalada (iOS standalone)")
+    return true
+  }
+
+  return false
+}
+
 // Solicitar permiso para notificaciones
 async function requestNotificationPermission() {
   if (!("Notification" in window)) {
@@ -66,8 +83,40 @@ function updateOnlineStatus() {
 window.addEventListener("online", updateOnlineStatus)
 window.addEventListener("offline", updateOnlineStatus)
 
+// Detectar si es iOS
+function isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream
+}
+
+// Mostrar instrucciones para iOS
+function showIOSInstallInstructions() {
+  if (isIOS() && !checkIfInstalled()) {
+    console.log("Mostrando instrucciones de instalación para iOS")
+    // Aquí podrías mostrar un elemento UI con instrucciones
+    // o disparar un evento personalizado que el componente React pueda escuchar
+    window.dispatchEvent(new CustomEvent("showIOSInstallPrompt"))
+  }
+}
+
 // Exponer funciones globalmente
 window.pwa = {
   requestNotificationPermission,
   showNotification,
+  checkIfInstalled,
+  isIOS,
+  showIOSInstallInstructions,
 }
+
+// Verificar si debemos mostrar instrucciones para iOS
+// Esperar un poco para que la página se cargue completamente
+setTimeout(() => {
+  if (isIOS() && !checkIfInstalled()) {
+    // Solo mostrar después de que el usuario haya interactuado con la página por un tiempo
+    const hasVisitedBefore = localStorage.getItem("hasVisitedBefore")
+    if (!hasVisitedBefore) {
+      localStorage.setItem("hasVisitedBefore", "true")
+    } else {
+      showIOSInstallInstructions()
+    }
+  }
+}, 3000)

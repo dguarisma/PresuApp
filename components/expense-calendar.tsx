@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import type { ExpenseItem } from "@/types/expense"
 
+// Importar el hook de traducción
+import { useTranslation } from "@/hooks/use-translations"
+
 interface ExpenseCalendarProps {
   expenses: ExpenseItem[]
 }
@@ -107,8 +110,19 @@ export function ExpenseCalendar({ expenses }: ExpenseCalendarProps) {
     return date.toLocaleDateString("es", { month: "long", year: "numeric" })
   }
 
+  // Dentro del componente ExpenseCalendar, añadir:
+  const { t } = useTranslation()
+
   // Formatear día de la semana
-  const weekDays = ["lu", "ma", "mi", "ju", "vi", "sá", "do"]
+  const weekDays = [
+    t("expenseCalendar.weekDays.mon"),
+    t("expenseCalendar.weekDays.tue"),
+    t("expenseCalendar.weekDays.wed"),
+    t("expenseCalendar.weekDays.thu"),
+    t("expenseCalendar.weekDays.fri"),
+    t("expenseCalendar.weekDays.sat"),
+    t("expenseCalendar.weekDays.sun"),
+  ]
 
   // Obtener gastos del día seleccionado
   const selectedDateKey = `${selectedDate.getFullYear()}-${selectedDate.getMonth()}-${selectedDate.getDate()}`
@@ -128,7 +142,7 @@ export function ExpenseCalendar({ expenses }: ExpenseCalendarProps) {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold">Calendario de gastos</h2>
+      <h2 className="text-2xl font-bold">{t("expenseCalendar.title")}</h2>
 
       <div className="flex items-center justify-between mb-4">
         <Button variant="outline" size="icon" onClick={goToPrevMonth} className="h-8 w-8">
@@ -196,7 +210,7 @@ export function ExpenseCalendar({ expenses }: ExpenseCalendarProps) {
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground text-sm">No hay gastos en esta fecha</p>
+            <p className="text-muted-foreground text-sm">{t("expenseCalendar.noExpensesOnDate")}</p>
           )}
         </CardContent>
       </Card>
@@ -204,11 +218,11 @@ export function ExpenseCalendar({ expenses }: ExpenseCalendarProps) {
       <div className="flex items-center gap-2 mt-4 text-xs text-muted-foreground">
         <div className="flex items-center">
           <div className="w-2 h-2 rounded-full bg-background border mr-1"></div>
-          <span>Pocos gastos</span>
+          <span>{t("expenseCalendar.fewExpenses")}</span>
         </div>
         <div className="flex items-center">
           <div className="w-2 h-2 rounded-full bg-teal-500 mr-1"></div>
-          <span>Muchos gastos</span>
+          <span>{t("expenseCalendar.manyExpenses")}</span>
         </div>
       </div>
     </div>

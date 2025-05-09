@@ -7,12 +7,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { FolderPlus } from "lucide-react"
+import { useTranslation } from "@/contexts/translation-context"
 
 interface AddCategoryFormProps {
   onAddCategory: (name: string) => void
 }
 
 export default function AddCategoryForm({ onAddCategory }: AddCategoryFormProps) {
+  const { t } = useTranslation()
   const [categoryName, setCategoryName] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -31,9 +33,9 @@ export default function AddCategoryForm({ onAddCategory }: AddCategoryFormProps)
       <CardHeader className="pb-3">
         <CardTitle className="text-xl flex items-center">
           <FolderPlus className="h-5 w-5 mr-2 text-primary" />
-          Categorías
+          {t("categories.title")}
         </CardTitle>
-        <p className="text-sm text-muted-foreground">Crea categorías para organizar tus gastos</p>
+        <p className="text-sm text-muted-foreground">{t("categories.createDescription")}</p>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -42,11 +44,11 @@ export default function AddCategoryForm({ onAddCategory }: AddCategoryFormProps)
               type="text"
               value={categoryName}
               onChange={(e) => setCategoryName(e.target.value)}
-              placeholder="Nombre de la categoría"
+              placeholder={t("categories.namePlaceholder")}
               className="w-full"
               disabled={isSubmitting}
             />
-            <p className="text-xs text-muted-foreground">Ejemplos: Comida, Servicios, Transporte</p>
+            <p className="text-xs text-muted-foreground">{t("categories.examples")}</p>
           </div>
           <Button
             type="submit"
@@ -68,10 +70,10 @@ export default function AddCategoryForm({ onAddCategory }: AddCategoryFormProps)
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-                Agregando...
+                {t("categories.adding")}
               </span>
             ) : (
-              "Agregar Categoría"
+              t("categories.addButton")
             )}
           </Button>
         </form>

@@ -16,6 +16,9 @@ import type { ExpenseItem, DateRange } from "@/types/expense"
 import db from "@/lib/db"
 import Link from "next/link"
 
+// Importar el hook de traducción
+import { useTranslation } from "@/hooks/use-translations"
+
 export default function AnalysisPage() {
   const params = useParams()
   const router = useRouter()
@@ -36,6 +39,9 @@ export default function AnalysisPage() {
   const [expenses, setExpenses] = useState<ExpenseItem[]>([])
   const [categories, setCategories] = useState<any[]>([])
   const [searchResults, setSearchResults] = useState<ExpenseItem[]>([])
+
+  // Dentro del componente AnalysisPage, añadir:
+  const { t } = useTranslation()
 
   useEffect(() => {
     // Cargar nombre del presupuesto
@@ -83,7 +89,8 @@ export default function AnalysisPage() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="text-center">
-            <h1 className="text-xl font-bold">Análisis de Gastos</h1>
+            {/* Reemplazar el título "Análisis de Gastos" con: */}
+            <h1 className="text-xl font-bold">{t("analysis.title")}</h1>
           </div>
           <ModeToggle />
         </div>
@@ -96,32 +103,33 @@ export default function AnalysisPage() {
       <main className="px-4 pb-20">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-3 w-full mb-4">
+            {/* Reemplazar los nombres de las pestañas con traducciones: */}
             <TabsTrigger value="calendar" className="flex items-center justify-center py-2">
               <Calendar className="h-4 w-4 mr-2" />
-              <span>Calendario</span>
+              <span>{t("analysis.calendar")}</span>
             </TabsTrigger>
             <TabsTrigger value="trends" className="flex items-center justify-center py-2">
               <TrendingUp className="h-4 w-4 mr-2" />
-              <span>Tendencias</span>
+              <span>{t("analysis.trends")}</span>
             </TabsTrigger>
             <TabsTrigger value="reports" className="flex items-center justify-center py-2">
               <FileText className="h-4 w-4 mr-2" />
-              <span>Reportes</span>
+              <span>{t("analysis.reports")}</span>
             </TabsTrigger>
           </TabsList>
 
           <TabsList className="grid grid-cols-3 w-full mb-6">
             <TabsTrigger value="comparison" className="flex items-center justify-center py-2">
               <ArrowRightLeft className="h-4 w-4 mr-2" />
-              <span>Comparación</span>
+              <span>{t("analysis.comparison")}</span>
             </TabsTrigger>
             <TabsTrigger value="prediction" className="flex items-center justify-center py-2">
               <Calculator className="h-4 w-4 mr-2" />
-              <span>Predicción</span>
+              <span>{t("analysis.prediction")}</span>
             </TabsTrigger>
             <TabsTrigger value="search" className="flex items-center justify-center py-2">
               <BarChart3 className="h-4 w-4 mr-2" />
-              <span>Resultados</span>
+              <span>{t("analysis.results")}</span>
             </TabsTrigger>
           </TabsList>
 
@@ -148,11 +156,13 @@ export default function AnalysisPage() {
           <TabsContent value="search" className="mt-0">
             {searchResults.length === 0 ? (
               <div className="text-center p-6 border rounded-lg bg-muted/30 border-dashed">
-                <p className="text-muted-foreground">Realiza una búsqueda para ver los resultados aquí.</p>
+                {/* Reemplazar el mensaje cuando no hay resultados de búsqueda: */}
+                <p className="text-muted-foreground">{t("analysis.noSearchResults")}</p>
               </div>
             ) : (
               <div className="space-y-4">
-                <h2 className="text-lg font-semibold">Resultados de búsqueda</h2>
+                {/* Reemplazar el título de resultados de búsqueda: */}
+                <h2 className="text-lg font-semibold">{t("analysis.searchResults")}</h2>
                 <p className="text-muted-foreground text-sm">
                   Se encontraron {searchResults.length} gastos por un total de $
                   {searchResults.reduce((sum, expense) => sum + expense.amount, 0).toFixed(2)}

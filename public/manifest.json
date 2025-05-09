@@ -5,7 +5,9 @@
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#1e9b8a",
+  "theme_color": "#10b981",
+  "orientation": "portrait",
+  "scope": "/",
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
@@ -54,6 +56,24 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/screen1.png",
+      "sizes": "1280x720",
+      "type": "image/png"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Nuevo Presupuesto",
+      "short_name": "Nuevo",
+      "description": "Crear un nuevo presupuesto",
+      "url": "/budget/new",
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
     }
   ]
 }

@@ -10,6 +10,7 @@ import type { ExpenseItem, BudgetData } from "@/types/expense"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
 import db from "@/lib/db"
+import { useTranslation } from "@/hooks/use-translations"
 
 interface ExpenseTrackerProps {
   budgetId: string
@@ -23,6 +24,7 @@ export default function ExpenseTracker({ budgetId }: ExpenseTrackerProps) {
   const [totalSpent, setTotalSpent] = useState<number>(0)
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("dashboard")
+  const { t } = useTranslation()
 
   // Cargar datos del presupuesto
   useEffect(() => {
@@ -96,7 +98,7 @@ export default function ExpenseTracker({ budgetId }: ExpenseTrackerProps) {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-6">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="categories">Categorías</TabsTrigger>
+          <TabsTrigger value="categories">{t("categories.categoryTab")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="dashboard" className="animate-in">

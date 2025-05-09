@@ -17,15 +17,20 @@ import {
 } from "recharts"
 import { format, parseISO, addMonths, subMonths, startOfMonth } from "date-fns"
 import { es } from "date-fns/locale"
+import { enUS } from "date-fns/locale"
 import { TrendingUp, Calculator } from "lucide-react"
 import type { PredictionConfig } from "@/types/expense"
 import db from "@/lib/db"
+import { useTranslation } from "@/hooks/use-translations"
 
 interface ExpensePredictionProps {
   budgetId: string
 }
 
 export function ExpensePrediction({ budgetId }: ExpensePredictionProps) {
+  const { t, language } = useTranslation()
+  const locale = language === "es" ? es : enUS
+
   const [predictionConfig, setPredictionConfig] = useState<PredictionConfig>({
     months: 3,
     basedOn: "last3months",
@@ -79,7 +84,7 @@ export function ExpensePrediction({ budgetId }: ExpensePredictionProps) {
     // Convertir a array para el gráfico
     const historicalDataArray = Object.entries(monthlyExpenses).map(([month, amount]) => ({
       month,
-      formattedMonth: format(parseISO(`${month}-01`), "MMMM yyyy", { locale: es }),
+      formattedMonth: format(parseISO(`${month}-01`), "MMMM yyyy", { locale }),
       amount,
       type: "historical",
     }))
@@ -88,7 +93,7 @@ export function ExpensePrediction({ budgetId }: ExpensePredictionProps) {
 
     // Generar predicciones
     generatePredictions(historicalDataArray, predictionConfig.months)
-  }, [budgetId, predictionConfig])
+  }, [budgetId, predictionConfig, language])
 
   const generatePredictions = (historicalData: any[], months: number) => {
     if (historicalData.length === 0) {
@@ -129,7 +134,7 @@ export function ExpensePrediction({ budgetId }: ExpensePredictionProps) {
 
       predictions.push({
         month: monthKey,
-        formattedMonth: format(predictionDate, "MMMM yyyy", { locale: es }),
+        formattedMonth: format(predictionDate, "MMMM yyyy", { locale }),
         amount: Number(predictedAmount.toFixed(2)),
         type: "prediction",
       })
@@ -147,20 +152,20 @@ export function ExpensePrediction({ budgetId }: ExpensePredictionProps) {
     <Card className="border shadow-sm">
       <CardHeader className="pb-3">
         <div className="flex flex-col space-y-3">
-          <CardTitle className="text-xl">Predicción de gastos futuros</CardTitle>
+          <CardTitle className="text-xl">{t("prediction.title")}</CardTitle>
           <div className="flex flex-col sm:flex-row gap-3">
             <Select
               value={predictionConfig.basedOn}
               onValueChange={(value: any) => setPredictionConfig({ ...predictionConfig, basedOn: value })}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Basado en" />
+                <SelectValue placeholder={t("prediction.basedOn")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="last3months">Últimos 3 meses</SelectItem>
-                <SelectItem value="last6months">Últimos 6 meses</SelectItem>
-                <SelectItem value="lastyear">Último año</SelectItem>
-                <SelectItem value="average">Promedio histórico</SelectItem>
+                <SelectItem value="last3months">{t("prediction.last3months")}</SelectItem>
+                <SelectItem value="last6months">{t("prediction.last6months")}</SelectItem>
+                <SelectItem value="lastyear">{t("prediction.lastyear")}</SelectItem>
+                <SelectItem value="average">{t("prediction.average")}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -169,19 +174,19 @@ export function ExpensePrediction({ budgetId }: ExpensePredictionProps) {
               onValueChange={(value) => setPredictionConfig({ ...predictionConfig, months: Number.parseInt(value) })}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Meses a predecir" />
+                <SelectValue placeholder={t("prediction.monthsToPredict")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1">1 mes</SelectItem>
-                <SelectItem value="3">3 meses</SelectItem>
-                <SelectItem value="6">6 meses</SelectItem>
-                <SelectItem value="12">12 meses</SelectItem>
+                <SelectItem value="1">{t("prediction.oneMonth")}</SelectItem>
+                <SelectItem value="3">{t("prediction.threeMonths")}</SelectItem>
+                <SelectItem value="6">{t("prediction.sixMonths")}</SelectItem>
+                <SelectItem value="12">{t("prediction.twelveMonths")}</SelectItem>
               </SelectContent>
             </Select>
 
             <Button variant="outline" className="w-full sm:w-auto">
               <Calculator className="h-4 w-4 mr-2" />
-              Recalcular
+              {t("prediction.recalculate")}
             </Button>
           </div>
         </div>
@@ -189,7 +194,7 @@ export function ExpensePrediction({ budgetId }: ExpensePredictionProps) {
       <CardContent>
         {combinedData.length === 0 ? (
           <div className="text-center p-6 border rounded-lg bg-muted/30 border-dashed">
-            <p className="text-muted-foreground">No hay suficientes datos históricos para generar predicciones.</p>
+            <p className="text-muted-foreground">{t("prediction.noData")}</p>
           </div>
         ) : (
           <>
@@ -204,12 +209,12 @@ export function ExpensePrediction({ budgetId }: ExpensePredictionProps) {
                   x={historicalData[historicalData.length - 1]?.formattedMonth}
                   stroke="#888"
                   strokeDasharray="3 3"
-                  label={{ value: "Actual / Predicción", position: "top" }}
+                  label={{ value: language === "es" ? "Actual / Predicción" : "Actual / Prediction", position: "top" }}
                 />
                 <Line
                   type="monotone"
                   dataKey="amount"
-                  name="Gastos"
+                  name={language === "es" ? "Gastos" : "Expenses"}
                   stroke="#10b981"
                   activeDot={{ r: 8 }}
                   strokeWidth={2}
@@ -231,21 +236,21 @@ export function ExpensePrediction({ budgetId }: ExpensePredictionProps) {
 
             <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-4 border rounded-md bg-muted/10">
-                <h3 className="text-lg font-medium mb-1">Gasto promedio histórico</h3>
+                <h3 className="text-lg font-medium mb-1">{t("prediction.historicalAverage")}</h3>
                 <p className="text-2xl font-bold text-primary">
                   ${(historicalData.reduce((sum, item) => sum + item.amount, 0) / historicalData.length).toFixed(2)}
                 </p>
               </div>
 
               <div className="p-4 border rounded-md bg-muted/10">
-                <h3 className="text-lg font-medium mb-1">Gasto promedio predicho</h3>
+                <h3 className="text-lg font-medium mb-1">{t("prediction.predictedAverage")}</h3>
                 <p className="text-2xl font-bold text-primary">
                   ${(predictionData.reduce((sum, item) => sum + item.amount, 0) / predictionData.length).toFixed(2)}
                 </p>
               </div>
 
               <div className="p-4 border rounded-md bg-muted/10">
-                <h3 className="text-lg font-medium mb-1">Tendencia</h3>
+                <h3 className="text-lg font-medium mb-1">{t("prediction.trend")}</h3>
                 <div className="flex items-center">
                   <TrendingUp
                     className={`h-6 w-6 mr-2 ${
@@ -258,8 +263,8 @@ export function ExpensePrediction({ budgetId }: ExpensePredictionProps) {
                   <p className="text-2xl font-bold">
                     {predictionData[predictionData.length - 1]?.amount >
                     historicalData[historicalData.length - 1]?.amount
-                      ? "Ascendente"
-                      : "Descendente"}
+                      ? t("prediction.ascending")
+                      : t("prediction.descending")}
                   </p>
                 </div>
               </div>

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { DollarSign } from "lucide-react"
+import { useTranslation } from "@/contexts/translation-context"
 
 interface BudgetFormProps {
   budget: number
@@ -14,6 +15,7 @@ interface BudgetFormProps {
 }
 
 export default function BudgetForm({ budget, onBudgetChange }: BudgetFormProps) {
+  const { t } = useTranslation()
   const [inputBudget, setInputBudget] = useState(budget.toString())
   const [isEditing, setIsEditing] = useState(budget === 0)
 
@@ -35,9 +37,9 @@ export default function BudgetForm({ budget, onBudgetChange }: BudgetFormProps) 
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center text-base">
           <DollarSign className="h-5 w-5 mr-1 text-primary" />
-          Presupuesto
+          {t("budget.budget")}
         </CardTitle>
-        <CardDescription>Establece el monto total de tu presupuesto</CardDescription>
+        <CardDescription>{t("budget.setBudgetAmount")}</CardDescription>
       </CardHeader>
       <CardContent>
         {isEditing ? (
@@ -53,14 +55,14 @@ export default function BudgetForm({ budget, onBudgetChange }: BudgetFormProps) 
                   step="0.01"
                   value={inputBudget}
                   onChange={(e) => setInputBudget(e.target.value)}
-                  placeholder="Ingresa tu presupuesto"
+                  placeholder={t("budget.enterBudget")}
                   className="pl-8 text-base py-2"
                 />
               </div>
             </div>
             <div className="flex gap-2">
               <Button type="submit" className="flex-1">
-                Guardar
+                {t("actions.save")}
               </Button>
               {budget > 0 && (
                 <Button
@@ -71,7 +73,7 @@ export default function BudgetForm({ budget, onBudgetChange }: BudgetFormProps) 
                     setIsEditing(false)
                   }}
                 >
-                  Cancelar
+                  {t("actions.cancel")}
                 </Button>
               )}
             </div>
@@ -79,11 +81,11 @@ export default function BudgetForm({ budget, onBudgetChange }: BudgetFormProps) 
         ) : (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Monto:</span>
+              <span className="text-muted-foreground">{t("budget.amount")}:</span>
               <span className="text-2xl font-bold">${budget.toFixed(2)}</span>
             </div>
             <Button variant="outline" className="w-full" onClick={() => setIsEditing(true)}>
-              Editar Presupuesto
+              {t("budget.editBudget")}
             </Button>
           </div>
         )}

@@ -29,6 +29,7 @@ import { es } from "date-fns/locale"
 import { FileText, Save, BarChart3, LineChartIcon, PieChartIcon } from "lucide-react"
 import type { ExpenseItem, FilterOptions, ReportConfig, DateRange, Category } from "@/types/expense"
 import db from "@/lib/db"
+import { useTranslation } from "@/hooks/use-translations"
 
 interface CustomReportProps {
   budgetId: string
@@ -36,6 +37,8 @@ interface CustomReportProps {
 }
 
 export function CustomReport({ budgetId, categories }: CustomReportProps) {
+  const { t } = useTranslation()
+
   const [reportName, setReportName] = useState("")
   const [dateRange, setDateRange] = useState<DateRange>(() => {
     const today = new Date()
@@ -119,7 +122,7 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
         data = Object.entries(byWeek).map(([week, amount]) => {
           const [weekNum, year] = week.split("-")
           return {
-            name: `Semana ${weekNum}, ${year}`,
+            name: `${t("reports.week")} ${weekNum}, ${year}`,
             value: amount,
           }
         })
@@ -168,7 +171,7 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
               byTag[tag] = (byTag[tag] || 0) + expense.amount
             })
           } else {
-            byTag["Sin etiqueta"] = (byTag["Sin etiqueta"] || 0) + expense.amount
+            byTag[t("reports.noTagsAvailable")] = (byTag[t("reports.noTagsAvailable")] || 0) + expense.amount
           }
         })
 
@@ -238,7 +241,7 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
     if (chartData.length === 0) {
       return (
         <div className="flex items-center justify-center p-6 border rounded-lg bg-muted/30 border-dashed h-[200px]">
-          <p className="text-muted-foreground text-center">No hay datos para mostrar con los filtros seleccionados.</p>
+          <p className="text-muted-foreground text-center">{t("reports.noData")}</p>
         </div>
       )
     }
@@ -266,7 +269,7 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
               <YAxis />
               <Tooltip formatter={(value) => `$${(value as number).toFixed(2)}`} />
               <Legend />
-              <Bar dataKey="value" name="Monto" fill="#10b981" />
+              <Bar dataKey="value" name={t("expenses.amount")} fill="#10b981" />
             </BarChart>
           </ResponsiveContainer>
         )
@@ -280,7 +283,7 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
               <YAxis />
               <Tooltip formatter={(value) => `$${(value as number).toFixed(2)}`} />
               <Legend />
-              <Line type="monotone" dataKey="value" name="Monto" stroke="#10b981" activeDot={{ r: 8 }} />
+              <Line type="monotone" dataKey="value" name={t("expenses.amount")} stroke="#10b981" activeDot={{ r: 8 }} />
             </LineChart>
           </ResponsiveContainer>
         )
@@ -314,27 +317,27 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
   return (
     <Card className="border shadow-sm">
       <CardHeader className="pb-3">
-        <CardTitle className="text-xl">Reportes personalizados</CardTitle>
+        <CardTitle className="text-xl">{t("reports.title")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Sección de carga/guardado de reportes */}
         <div className="space-y-3">
           <div className="flex flex-col space-y-2">
-            <Label htmlFor="report-name">Nombre del reporte</Label>
+            <Label htmlFor="report-name">{t("reports.reportName")}</Label>
             <Input
               id="report-name"
               value={reportName}
               onChange={(e) => setReportName(e.target.value)}
-              placeholder="Mi reporte personalizado"
+              placeholder={t("reports.reportNamePlaceholder")}
             />
           </div>
 
           <div className="flex flex-col space-y-2">
-            <Label>Cargar reporte</Label>
+            <Label>{t("reports.loadReport")}</Label>
             <div className="flex flex-col space-y-2">
               <Select value={selectedReport} onValueChange={handleLoadReport}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Cargar reporte guardado" />
+                  <SelectValue placeholder={t("reports.loadReportPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   {savedReports.map((report) => (
@@ -351,7 +354,7 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
                 onClick={() => handleDeleteReport(selectedReport)}
                 disabled={!selectedReport}
               >
-                Eliminar
+                {t("reports.delete")}
               </Button>
             </div>
           </div>
@@ -359,20 +362,20 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
 
         {/* Sección de filtros */}
         <div className="space-y-4 pt-2">
-          <h3 className="text-lg font-medium">Filtros</h3>
+          <h3 className="text-lg font-medium">{t("reports.filters")}</h3>
 
           <div className="space-y-3">
             <div className="space-y-2">
-              <Label>Rango de fechas</Label>
+              <Label>{t("reports.dateRange")}</Label>
               <Select defaultValue="custom">
                 <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar período" />
+                  <SelectValue placeholder={t("dateRange.selectPeriod")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="custom">Personalizado</SelectItem>
-                  <SelectItem value="month">Este mes</SelectItem>
-                  <SelectItem value="lastMonth">Mes anterior</SelectItem>
-                  <SelectItem value="year">Este año</SelectItem>
+                  <SelectItem value="custom">{t("dateRange.custom")}</SelectItem>
+                  <SelectItem value="month">{t("dateRange.thisMonth")}</SelectItem>
+                  <SelectItem value="lastMonth">{t("dateRange.lastMonth")}</SelectItem>
+                  <SelectItem value="year">{t("dateRange.thisYear")}</SelectItem>
                 </SelectContent>
               </Select>
               <div className="mt-2">
@@ -381,18 +384,18 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="search-text">Buscar texto</Label>
+              <Label htmlFor="search-text">{t("reports.searchText")}</Label>
               <Input
                 id="search-text"
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
-                placeholder="Buscar en nombre o notas"
+                placeholder={t("reports.searchTextPlaceholder")}
               />
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-2">
-                <Label htmlFor="min-amount">Monto mínimo</Label>
+                <Label htmlFor="min-amount">{t("reports.minAmount")}</Label>
                 <Input
                   id="min-amount"
                   type="number"
@@ -405,7 +408,7 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="max-amount">Monto máximo</Label>
+                <Label htmlFor="max-amount">{t("reports.maxAmount")}</Label>
                 <Input
                   id="max-amount"
                   type="number"
@@ -413,7 +416,7 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
                   step="0.01"
                   value={maxAmount}
                   onChange={(e) => setMaxAmount(e.target.value)}
-                  placeholder="Sin límite"
+                  placeholder={t("reports.maxAmountPlaceholder")}
                 />
               </div>
             </div>
@@ -422,7 +425,7 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
 
         {/* Sección de categorías */}
         <div className="space-y-3 pt-2">
-          <h3 className="text-lg font-medium">Categorías</h3>
+          <h3 className="text-lg font-medium">{t("reports.categories")}</h3>
           <ScrollArea className="h-[150px] border rounded-md p-4">
             <div className="space-y-2">
               {categories.length > 0 ? (
@@ -445,7 +448,7 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-muted-foreground">No hay categorías disponibles</p>
+                <p className="text-sm text-muted-foreground">{t("reports.noCategoriesAvailable")}</p>
               )}
             </div>
           </ScrollArea>
@@ -453,7 +456,7 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
 
         {/* Sección de etiquetas */}
         <div className="space-y-3 pt-2">
-          <h3 className="text-lg font-medium">Etiquetas</h3>
+          <h3 className="text-lg font-medium">{t("reports.tags")}</h3>
           <ScrollArea className="h-[150px] border rounded-md p-4">
             <div className="space-y-2">
               {availableTags.length > 0 ? (
@@ -476,7 +479,7 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-muted-foreground">No hay etiquetas disponibles</p>
+                <p className="text-sm text-muted-foreground">{t("reports.noTagsAvailable")}</p>
               )}
             </div>
           </ScrollArea>
@@ -484,26 +487,26 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
 
         {/* Sección de visualización */}
         <div className="space-y-3 pt-2">
-          <h3 className="text-lg font-medium">Visualización</h3>
+          <h3 className="text-lg font-medium">{t("reports.visualization")}</h3>
 
           <div className="space-y-2">
-            <Label htmlFor="group-by">Agrupar por</Label>
+            <Label htmlFor="group-by">{t("reports.groupBy")}</Label>
             <Select value={groupBy} onValueChange={(value: any) => setGroupBy(value)}>
               <SelectTrigger id="group-by">
-                <SelectValue placeholder="Seleccionar agrupación" />
+                <SelectValue placeholder={t("reports.groupBy")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="day">Día</SelectItem>
-                <SelectItem value="week">Semana</SelectItem>
-                <SelectItem value="month">Mes</SelectItem>
-                <SelectItem value="category">Categoría</SelectItem>
-                <SelectItem value="tag">Etiqueta</SelectItem>
+                <SelectItem value="day">{t("reports.day")}</SelectItem>
+                <SelectItem value="week">{t("reports.week")}</SelectItem>
+                <SelectItem value="month">{t("reports.month")}</SelectItem>
+                <SelectItem value="category">{t("reports.category")}</SelectItem>
+                <SelectItem value="tag">{t("reports.tag")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label>Tipo de gráfico</Label>
+            <Label>{t("reports.chartType")}</Label>
             <div className="grid grid-cols-3 gap-2">
               <Button
                 type="button"
@@ -512,7 +515,7 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
                 onClick={() => setChartType("bar")}
               >
                 <BarChart3 className="h-4 w-4 mr-2" />
-                Barras
+                {t("reports.bar")}
               </Button>
               <Button
                 type="button"
@@ -521,7 +524,7 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
                 onClick={() => setChartType("line")}
               >
                 <LineChartIcon className="h-4 w-4 mr-2" />
-                Línea
+                {t("reports.line")}
               </Button>
               <Button
                 type="button"
@@ -530,7 +533,7 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
                 onClick={() => setChartType("pie")}
               >
                 <PieChartIcon className="h-4 w-4 mr-2" />
-                Circular
+                {t("reports.pie")}
               </Button>
             </div>
           </div>
@@ -539,7 +542,7 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
         {/* Botón de guardar */}
         <Button className="w-full mt-4" onClick={handleSaveReport} disabled={!reportName.trim()}>
           <Save className="h-4 w-4 mr-2" />
-          Guardar reporte
+          {t("reports.saveReport")}
         </Button>
 
         {/* Resultados */}
@@ -548,8 +551,10 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
           <div className="mt-4 p-3 bg-muted rounded-md">
             <p className="text-sm text-muted-foreground">
               <FileText className="h-4 w-4 inline mr-1" />
-              {filteredExpenses.length} gastos encontrados por un total de $
-              {filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0).toFixed(2)}
+              {t("reports.expensesFound", {
+                count: filteredExpenses.length,
+                amount: filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0).toFixed(2),
+              })}
             </p>
           </div>
         </div>

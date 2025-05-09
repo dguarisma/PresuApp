@@ -33,6 +33,7 @@ import {
 import { es } from "date-fns/locale"
 import type { ExpenseItem } from "@/types/expense"
 import { TrendingUp, BarChart3, PieChart } from "lucide-react"
+import { useTranslation } from "@/hooks/use-translations"
 
 interface TrendAnalysisProps {
   expenses: ExpenseItem[]
@@ -40,6 +41,7 @@ interface TrendAnalysisProps {
 }
 
 export function TrendAnalysis({ expenses, dateRange }: TrendAnalysisProps) {
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState("daily")
   const [dailyData, setDailyData] = useState<any[]>([])
   const [weeklyData, setWeeklyData] = useState<any[]>([])
@@ -119,29 +121,29 @@ export function TrendAnalysis({ expenses, dateRange }: TrendAnalysisProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Análisis de tendencias</CardTitle>
+        <CardTitle className="text-xl">{t("trends.title")}</CardTitle>
       </CardHeader>
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="daily" className="flex items-center">
               <BarChart3 className="h-4 w-4 mr-2" />
-              Diario
+              {t("trends.daily")}
             </TabsTrigger>
             <TabsTrigger value="weekly" className="flex items-center">
               <TrendingUp className="h-4 w-4 mr-2" />
-              Semanal
+              {t("trends.weekly")}
             </TabsTrigger>
             <TabsTrigger value="monthly" className="flex items-center">
               <PieChart className="h-4 w-4 mr-2" />
-              Mensual
+              {t("trends.monthly")}
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="daily" className="pt-2">
             {dailyData.length === 0 ? (
               <div className="text-center p-8 border rounded-lg bg-muted/30 border-dashed">
-                <p className="text-muted-foreground">No hay datos suficientes para mostrar tendencias diarias.</p>
+                <p className="text-muted-foreground">{t("trends.noDataDaily")}</p>
               </div>
             ) : (
               <ResponsiveContainer width="100%" height={400}>
@@ -151,7 +153,7 @@ export function TrendAnalysis({ expenses, dateRange }: TrendAnalysisProps) {
                   <YAxis />
                   <Tooltip formatter={formatTooltipValue} />
                   <Legend />
-                  <Bar dataKey="total" name="Gasto total" fill="#10b981" />
+                  <Bar dataKey="total" name={t("trends.totalExpense")} fill="#10b981" />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -160,7 +162,7 @@ export function TrendAnalysis({ expenses, dateRange }: TrendAnalysisProps) {
           <TabsContent value="weekly" className="pt-2">
             {weeklyData.length === 0 ? (
               <div className="text-center p-8 border rounded-lg bg-muted/30 border-dashed">
-                <p className="text-muted-foreground">No hay datos suficientes para mostrar tendencias semanales.</p>
+                <p className="text-muted-foreground">{t("trends.noDataWeekly")}</p>
               </div>
             ) : (
               <ResponsiveContainer width="100%" height={400}>
@@ -170,7 +172,13 @@ export function TrendAnalysis({ expenses, dateRange }: TrendAnalysisProps) {
                   <YAxis />
                   <Tooltip formatter={formatTooltipValue} />
                   <Legend />
-                  <Line type="monotone" dataKey="total" name="Gasto total" stroke="#10b981" activeDot={{ r: 8 }} />
+                  <Line
+                    type="monotone"
+                    dataKey="total"
+                    name={t("trends.totalExpense")}
+                    stroke="#10b981"
+                    activeDot={{ r: 8 }}
+                  />
                 </LineChart>
               </ResponsiveContainer>
             )}
@@ -179,7 +187,7 @@ export function TrendAnalysis({ expenses, dateRange }: TrendAnalysisProps) {
           <TabsContent value="monthly" className="pt-2">
             {monthlyData.length === 0 ? (
               <div className="text-center p-8 border rounded-lg bg-muted/30 border-dashed">
-                <p className="text-muted-foreground">No hay datos suficientes para mostrar tendencias mensuales.</p>
+                <p className="text-muted-foreground">{t("trends.noDataMonthly")}</p>
               </div>
             ) : (
               <ResponsiveContainer width="100%" height={400}>
@@ -192,7 +200,7 @@ export function TrendAnalysis({ expenses, dateRange }: TrendAnalysisProps) {
                   <Area
                     type="monotone"
                     dataKey="total"
-                    name="Gasto total"
+                    name={t("trends.totalExpense")}
                     fill="#10b981"
                     stroke="#10b981"
                     fillOpacity={0.3}

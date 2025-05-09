@@ -1,12 +1,13 @@
-// Nombre del caché
-const CACHE_NAME = "gastos-app-v1"
+// Nombre de la caché
+const CACHE_NAME = "presuapp-v1"
 
-// Recursos para cachear inicialmente
+// Archivos a cachear inicialmente
 const urlsToCache = [
   "/",
-  "/docs",
-  "/budget/new",
+  "/index.html",
   "/manifest.json",
+  "/favicon.png",
+  "/register-sw.js",
   "/icons/icon-72x72.png",
   "/icons/icon-96x96.png",
   "/icons/icon-128x128.png",
@@ -15,41 +16,60 @@ const urlsToCache = [
   "/icons/icon-192x192.png",
   "/icons/icon-384x384.png",
   "/icons/icon-512x512.png",
+  // Añadir aquí otros recursos estáticos importantes
 ]
 
-// Instalación del Service Worker
+// Instalar el Service Worker
 self.addEventListener("install", (event) => {
+  console.log("Service Worker: Instalando...")
+
+  // Esperar hasta que la promesa se resuelva
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log("Cache abierto")
-      return cache.addAll(urlsToCache)
-    }),
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => {
+        console.log("Service Worker: Abriendo caché")
+        return cache.addAll(urlsToCache)
+      })
+      .then(() => {
+        console.log("Service Worker: Recursos iniciales cacheados")
+        return self.skipWaiting()
+      }),
   )
 })
 
-// Activación del Service Worker
+// Activar el Service Worker
 self.addEventListener("activate", (event) => {
-  const cacheWhitelist = [CACHE_NAME]
+  console.log("Service Worker: Activando...")
+
+  // Limpiar cachés antiguas
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName)
-          }
-        }),
-      )
-    }),
+    caches
+      .keys()
+      .then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (cacheName !== CACHE_NAME) {
+              console.log("Service Worker: Eliminando caché antigua", cacheName)
+              return caches.delete(cacheName)
+            }
+          }),
+        )
+      })
+      .then(() => {
+        console.log("Service Worker: Ahora está activo y controlando la página")
+        return self.clients.claim()
+      }),
   )
 })
 
-// Estrategia de caché: Network First, fallback to cache
+// Estrategia de caché: Network first, falling back to cache
 self.addEventListener("fetch", (event) => {
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Si la respuesta es válida, clonarla y guardarla en el caché
-        if (event.request.method === "GET" && response && response.status === 200) {
+        // Si la respuesta es válida, clonarla y guardarla en caché
+        if (response && response.status === 200 && response.type === "basic") {
           const responseToCache = response.clone()
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseToCache)
@@ -58,32 +78,38 @@ self.addEventListener("fetch", (event) => {
         return response
       })
       .catch(() => {
-        // Si falla la red, intentar desde el caché
+        // Si la red falla, intentar desde la caché
         return caches.match(event.request)
       }),
   )
 })
 
-// Manejo de notificaciones push
+// Agregar este manejador de eventos para notificaciones push
 self.addEventListener("push", (event) => {
-  const data = event.data.json()
-  const options = {
-    body: data.body,
-    icon: "/icons/icon-192x192.png",
-    badge: "/icons/icon-72x72.png",
-    vibrate: [100, 50, 100],
-    data: {
-      url: data.url || "/",
-    },
-  }
+  if (event.data) {
+    const data = event.data.json()
+    const options = {
+      body: data.body,
+      icon: data.icon || "/icons/icon-192x192.png",
+      badge: "/icons/icon-72x72.png",
+      vibrate: [100, 50, 100],
+      data: {
+        url: data.url || "/",
+      },
+    }
 
-  event.waitUntil(self.registration.showNotification(data.title, options))
+    event.waitUntil(self.registration.showNotification(data.title, options))
+  }
 })
 
-// Manejo de clic en notificaciones
+// Manejar clics en las notificaciones
 self.addEventListener("notificationclick", (event) => {
   event.notification.close()
-  event.waitUntil(clients.openWindow(event.notification.data.url))
+
+  // Navegar a la URL especificada en la notificación
+  if (event.notification.data && event.notification.data.url) {
+    event.waitUntil(clients.openWindow(event.notification.data.url))
+  }
 })
 
 // Sincronización en segundo plano

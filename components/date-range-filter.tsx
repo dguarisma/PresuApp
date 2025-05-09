@@ -11,12 +11,17 @@ import { cn } from "@/lib/utils"
 import type { DateRange } from "@/types/expense"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
+// Importar el hook de traducción
+import { useTranslation } from "@/hooks/use-translations"
+
 interface DateRangeFilterProps {
   onChange: (dateRange: DateRange) => void
   initialDateRange?: DateRange
 }
 
 export function DateRangeFilter({ onChange, initialDateRange }: DateRangeFilterProps) {
+  // Dentro del componente DateRangeFilter, añadir:
+  const { t } = useTranslation()
   const [dateRange, setDateRange] = useState<DateRange>(() => {
     if (initialDateRange) return initialDateRange
 
@@ -106,19 +111,21 @@ export function DateRangeFilter({ onChange, initialDateRange }: DateRangeFilterP
     <div className="grid grid-cols-2 gap-2">
       <Select onValueChange={handlePresetChange}>
         <SelectTrigger>
-          <SelectValue placeholder="Seleccionar período" />
+          {/* Reemplazar "Seleccionar período" con: */}
+          <SelectValue placeholder={t("dateRange.selectPeriod")} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="today">Hoy</SelectItem>
-          <SelectItem value="yesterday">Ayer</SelectItem>
-          <SelectItem value="thisWeek">Esta semana</SelectItem>
-          <SelectItem value="lastWeek">Semana pasada</SelectItem>
-          <SelectItem value="thisMonth">Este mes</SelectItem>
-          <SelectItem value="lastMonth">Mes pasado</SelectItem>
-          <SelectItem value="thisQuarter">Este trimestre</SelectItem>
-          <SelectItem value="lastQuarter">Trimestre pasado</SelectItem>
-          <SelectItem value="thisYear">Este año</SelectItem>
-          <SelectItem value="lastYear">Año pasado</SelectItem>
+          {/* Reemplazar los nombres de los períodos predefinidos: */}
+          <SelectItem value="today">{t("dateRange.today")}</SelectItem>
+          <SelectItem value="yesterday">{t("dateRange.yesterday")}</SelectItem>
+          <SelectItem value="thisWeek">{t("dateRange.thisWeek")}</SelectItem>
+          <SelectItem value="lastWeek">{t("dateRange.lastWeek")}</SelectItem>
+          <SelectItem value="thisMonth">{t("dateRange.thisMonth")}</SelectItem>
+          <SelectItem value="lastMonth">{t("dateRange.lastMonth")}</SelectItem>
+          <SelectItem value="thisQuarter">{t("dateRange.thisQuarter")}</SelectItem>
+          <SelectItem value="lastQuarter">{t("dateRange.lastQuarter")}</SelectItem>
+          <SelectItem value="thisYear">{t("dateRange.thisYear")}</SelectItem>
+          <SelectItem value="lastYear">{t("dateRange.lastYear")}</SelectItem>
         </SelectContent>
       </Select>
 
@@ -135,7 +142,8 @@ export function DateRangeFilter({ onChange, initialDateRange }: DateRangeFilterP
                 {format(new Date(dateRange.endDate), "dd/MM/yyyy", { locale: es })}
               </span>
             ) : (
-              <span>Seleccionar fechas</span>
+              // Reemplazar "Seleccionar fechas" con:
+              <span>{t("dateRange.selectDates")}</span>
             )}
           </Button>
         </PopoverTrigger>

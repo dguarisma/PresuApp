@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Settings, Accessibility } from "lucide-react"
+import { Home, Settings, Accessibility, Target } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useLanguage } from "@/hooks/use-language"
 
@@ -39,6 +39,13 @@ export function NavigationMenu() {
         />
 
         <NavItem
+          href="/metas-ahorro"
+          icon={<Target className="h-5 w-5" />}
+          label={t("menu.goals")}
+          isActive={pathname === "/metas-ahorro" || pathname.includes("/metas")}
+        />
+
+        <NavItem
           href="/opciones"
           icon={<Settings className="h-5 w-5" />}
           label={t("menu.settings")}
@@ -62,10 +69,10 @@ function NavItem({ href, icon, label, isActive }: NavItemProps) {
       href={href}
       className={cn(
         "flex flex-col items-center justify-center py-3 px-6 transition-colors",
-        isActive ? "text-primary" : "text-muted-foreground hover:text-foreground",
+        isActive ? "text-emerald-500" : "text-muted-foreground hover:text-foreground",
       )}
     >
-      <div className={cn("p-2 rounded-full transition-colors", isActive ? "bg-primary/10" : "")}>{icon}</div>
+      <div className={cn("p-2 rounded-full transition-colors", isActive ? "bg-emerald-500/10" : "")}>{icon}</div>
       <span className="text-[10px] font-medium mt-0.5">{label}</span>
     </Link>
   )

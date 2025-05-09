@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react"
 import BudgetList from "@/components/budget-list"
 import { ModeToggle } from "@/components/mode-toggle"
-import { Toaster } from "@/components/ui/toaster"
-import { useLanguage } from "@/hooks/use-language"
+import { PWAInstaller } from "@/components/pwa-installer"
+import { useTranslation } from "@/contexts/translation-context"
 
 export default function Home() {
-  const { t } = useLanguage()
+  const { t } = useTranslation()
   const [isOffline, setIsOffline] = useState(false)
   const [key, setKey] = useState(Date.now()) // Añadimos un key para forzar re-renderizado
 
@@ -56,13 +56,13 @@ export default function Home() {
             <ModeToggle />
           </div>
         </header>
+        <PWAInstaller />
         <main className="flex-1">
           <main className="container mx-auto px-4 py-6 max-w-5xl">
             <BudgetList key={key} /> {/* Usamos key para forzar re-renderizado */}
           </main>
         </main>
       </div>
-      <Toaster />
     </div>
   )
 }
