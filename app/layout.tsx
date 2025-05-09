@@ -8,6 +8,9 @@ import { LoadingProvider } from "@/components/loading-overlay"
 import { Toaster } from "@/components/ui/toaster"
 import Script from "next/script"
 import { NavigationMenu } from "@/components/navigation-menu"
+import { SplashScreen } from "@/components/splash-screen"
+import { StatusBar } from "@/components/status-bar"
+import { PageTransition } from "@/components/page-transition"
 
 // Importar el NotificationProvider en lugar del NotificationChecker
 import { NotificationProvider } from "@/components/notification-provider"
@@ -25,12 +28,14 @@ export const metadata: Metadata = {
     generator: 'v0.dev'
 }
 
+// Modificar la etiqueta meta viewport para permitir escalado en iOS
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  maximumScale: 5,
+  userScalable: true,
   themeColor: "#ffffff",
+  viewportFit: "cover",
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -49,7 +54,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <TranslationProvider>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
             <LoadingProvider>
-              <div className="mobile-container pb-16">{children}</div>
+              {/* La pantalla de carga ahora solo se muestra en la primera carga de la sesión */}
+              <SplashScreen />
+              <StatusBar />
+              <div className="bg-background transition-colors duration-300">
+                <PageTransition>
+                  <div className="mobile-container pb-16">{children}</div>
+                </PageTransition>
+              </div>
               <NavigationMenu />
               <Toaster />
               {/* Colocar el NotificationProvider dentro de los contextos adecuados */}
@@ -58,6 +70,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </ThemeProvider>
         </TranslationProvider>
         <Script src="/register-sw.js" strategy="afterInteractive" />
+
+        {/* Script para limpiar sessionStorage al cerrar la pestaña o navegador */}
+        <Script id="clear-session-on-unload">
+          {`
+            window.addEventListener('beforeunload', function() {
+              // Si el usuario cierra la pestaña o navegador, limpiar para que la próxima vez se muestre el splash
+              if (!window.performance.navigation.type === 1) { // No es una recarga
+                sessionStorage.removeItem('appHasLoaded');
+              }
+            });
+          `}
+        </Script>
       </body>
     </html>
   )

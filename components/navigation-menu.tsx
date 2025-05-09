@@ -22,32 +22,35 @@ export function NavigationMenu() {
   if (!mounted) return null
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border">
-      <div className="max-w-md mx-auto flex items-center justify-between">
+    <div className="fixed bottom-0 left-0 right-0 z-50 nav-glass shadow-lg">
+      {/* Línea de indicador de "home" para simular iOS */}
+      <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-10 h-1 bg-muted rounded-full" />
+
+      <div className="max-w-md mx-auto flex items-center justify-between px-2">
         <NavItem
           href="/"
-          icon={<Home className="h-5 w-5" />}
+          icon={<Home className="h-6 w-6" />}
           label={t("menu.home")}
           isActive={pathname === "/" || pathname.startsWith("/budget")}
         />
 
         <NavItem
           href="/configuracion"
-          icon={<Accessibility className="h-5 w-5" />}
+          icon={<Accessibility className="h-6 w-6" />}
           label={t("menu.accessibility")}
           isActive={pathname === "/configuracion"}
         />
 
         <NavItem
           href="/metas-ahorro"
-          icon={<Target className="h-5 w-5" />}
+          icon={<Target className="h-6 w-6" />}
           label={t("menu.goals")}
           isActive={pathname === "/metas-ahorro" || pathname.includes("/metas")}
         />
 
         <NavItem
           href="/opciones"
-          icon={<Settings className="h-5 w-5" />}
+          icon={<Settings className="h-6 w-6" />}
           label={t("menu.settings")}
           isActive={pathname === "/opciones"}
         />
@@ -68,12 +71,26 @@ function NavItem({ href, icon, label, isActive }: NavItemProps) {
     <Link
       href={href}
       className={cn(
-        "flex flex-col items-center justify-center py-3 px-6 transition-colors",
-        isActive ? "text-emerald-500" : "text-muted-foreground hover:text-foreground",
+        "flex flex-col items-center justify-center py-3 px-4 transition-all duration-200 relative touch-effect",
+        isActive ? "text-emerald-500 scale-110" : "text-muted-foreground hover:text-foreground",
       )}
     >
-      <div className={cn("p-2 rounded-full transition-colors", isActive ? "bg-emerald-500/10" : "")}>{icon}</div>
-      <span className="text-[10px] font-medium mt-0.5">{label}</span>
+      <div
+        className={cn(
+          "p-2 rounded-full transition-all duration-200",
+          isActive ? "bg-emerald-500/15 shadow-[0_0_8px_rgba(16,185,129,0.4)]" : "hover:bg-muted/50",
+        )}
+      >
+        {icon}
+      </div>
+      <span className={cn("text-[10px] font-medium mt-1 transition-all duration-200", isActive ? "font-semibold" : "")}>
+        {label}
+      </span>
+
+      {/* Indicador de elemento activo */}
+      {isActive && (
+        <span className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+      )}
     </Link>
   )
 }

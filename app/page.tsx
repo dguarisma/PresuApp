@@ -10,8 +10,14 @@ export default function Home() {
   const { t } = useTranslation()
   const [isOffline, setIsOffline] = useState(false)
   const [key, setKey] = useState(Date.now()) // Añadimos un key para forzar re-renderizado
+  const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
+    // Marcar como cargado después de un pequeño retraso para asegurar que la splash screen se muestre
+    const timer = setTimeout(() => {
+      setLoaded(true)
+    }, 300)
+
     // Verificar estado de conexión
     setIsOffline(!navigator.onLine)
     const handleOnline = () => setIsOffline(false)
@@ -35,6 +41,7 @@ export default function Home() {
       window.removeEventListener("online", handleOnline)
       window.removeEventListener("offline", handleOffline)
       document.removeEventListener("visibilitychange", handleVisibilityChange)
+      clearTimeout(timer)
     }
   }, [])
 
@@ -47,7 +54,7 @@ export default function Home() {
       )}
 
       <div className="max-w-md mx-auto p-4 flex flex-col min-h-[100vh]">
-        <header className="flex justify-center items-center py-4 mb-4">
+        <header className="flex justify-center items-center py-4 mb-4 fade-in-up">
           <div className="flex flex-col items-center">
             <img src="/logo.png" alt="PresuApp Logo" className="h-16 mb-2" />
             <p className="text-sm text-muted-foreground mt-1">{t("app.slogan")}</p>
@@ -59,7 +66,9 @@ export default function Home() {
         <PWAInstaller />
         <main className="flex-1">
           <main className="container mx-auto px-4 py-6 max-w-5xl">
-            <BudgetList key={key} /> {/* Usamos key para forzar re-renderizado */}
+            <div className="stagger-item stagger-delay-1">
+              <BudgetList key={key} /> {/* Usamos key para forzar re-renderizado */}
+            </div>
           </main>
         </main>
       </div>

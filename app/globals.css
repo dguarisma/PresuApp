@@ -102,7 +102,6 @@ h3 {
 }
 
 /* Reemplazar los estilos del contenedor de teléfono con estos: */
-
 /* Eliminar los estilos de phone-frame, phone-content, etc. y reemplazarlos con: */
 
 .mobile-container {
@@ -110,6 +109,7 @@ h3 {
   margin: 0 auto;
   min-height: 100vh;
   position: relative;
+  padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
 }
 
 /* Estilos para el contenido de la aplicación */
@@ -124,7 +124,7 @@ h3 {
 }
 
 .animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: logoGlow 2s infinite;
 }
 
 @keyframes fadeIn {
@@ -138,13 +138,15 @@ h3 {
   }
 }
 
-@keyframes pulse {
+@keyframes logoGlow {
   0%,
   100% {
     opacity: 1;
+    transform: scale(1);
   }
   50% {
-    opacity: 0.7;
+    opacity: 0.85;
+    transform: scale(0.98);
   }
 }
 
@@ -391,4 +393,424 @@ textarea:focus-visible {
 .text-smallest {
   font-size: 0.75rem; /* 12px */
   line-height: 1rem; /* 16px */
+}
+
+/* Añadir estos estilos al final del archivo globals.css */
+
+/* Estilos para el menú de navegación nativo */
+.fixed.bottom-0 {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Efecto de presión para botones nativos */
+@media (hover: hover) {
+  .nav-item:active {
+    transform: scale(0.95);
+  }
+}
+
+/* Animación para el indicador activo */
+@keyframes pulse-native {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+/* Ajuste para dispositivos iOS */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .fixed.bottom-0 {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Efecto de cristal para el menú de navegación */
+.fixed.bottom-0 {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.dark .fixed.bottom-0 {
+  background-color: rgba(17, 24, 39, 0.8);
+}
+
+/* Estilos para simular una aplicación nativa */
+/* Eliminar el rebote de scroll en iOS */
+html {
+  overflow: hidden;
+  height: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+body {
+  overflow: auto;
+  height: 100%;
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Ocultar elementos del navegador en modo standalone */
+@media all and (display-mode: standalone) {
+  .browser-ui-element {
+    display: none !important;
+  }
+}
+
+/* Animaciones de transición entre páginas */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.page-transition-exit {
+  opacity: 1;
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transition: opacity 200ms;
+}
+
+/* Efecto de pulsación para elementos interactivos */
+.touch-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.touch-effect::after {
+  content: "";
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.3) 10%, transparent 10.01%);
+  background-repeat: no-repeat;
+  background-position: 50%;
+  transform: scale(10, 10);
+  opacity: 0;
+  transition: transform 0.5s, opacity 0.8s;
+}
+
+.touch-effect:active::after {
+  transform: scale(0, 0);
+  opacity: 0.3;
+  transition: 0s;
+}
+
+/* Estilo para la barra de estado en modo standalone */
+@media all and (display-mode: standalone) {
+  .status-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: env(safe-area-inset-top, 20px);
+    background-color: hsl(var(--background));
+    z-index: 9999;
+  }
+
+  .dark .status-bar {
+    background-color: hsl(var(--background));
+  }
+}
+
+/* Pantalla de carga inicial (splash screen) */
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: hsl(var(--background));
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.splash-screen.hidden {
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+}
+
+.splash-logo {
+  width: 120px;
+  height: 120px;
+  margin-bottom: 24px;
+  animation: pulse 2s infinite;
+}
+
+.splash-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(var(--primary-rgb), 0.3);
+  border-radius: 50%;
+  border-top-color: hsl(var(--primary));
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Estilo para los botones nativos */
+.btn-native {
+  -webkit-appearance: none;
+  border-radius: 8px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  padding: 12px 16px;
+  transition: all 0.2s;
+}
+
+.btn-native:active {
+  transform: scale(0.97);
+}
+
+/* Estilo para inputs nativos */
+.input-native {
+  -webkit-appearance: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 16px; /* Evita el zoom en iOS */
+}
+
+/* Pull to refresh indicator */
+.pull-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-100%);
+  transition: transform 0.2s;
+}
+
+.pull-indicator.visible {
+  transform: translateY(0);
+}
+
+.pull-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(var(--primary-rgb), 0.3);
+  border-radius: 50%;
+  border-top-color: hsl(var(--primary));
+  animation: spin 1s linear infinite;
+}
+
+/* Estilo para las tarjetas con efecto de profundidad */
+.card-native {
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.dark .card-native {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.card-native:active {
+  transform: scale(0.98);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo para el menú de navegación con efecto de cristal mejorado */
+.nav-glass {
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 0.5px solid rgba(0, 0, 0, 0.1);
+}
+
+.dark .nav-glass {
+  background-color: rgba(17, 24, 39, 0.8);
+  border-top: 0.5px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Animación de entrada para elementos de la interfaz */
+.fade-in-up {
+  animation: fadeInUp 0.5s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animación para elementos que aparecen en secuencia */
+.stagger-item {
+  opacity: 0;
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.stagger-delay-1 {
+  animation-delay: 0.1s;
+}
+.stagger-delay-2 {
+  animation-delay: 0.2s;
+}
+.stagger-delay-3 {
+  animation-delay: 0.3s;
+}
+.stagger-delay-4 {
+  animation-delay: 0.4s;
+}
+.stagger-delay-5 {
+  animation-delay: 0.5s;
+}
+
+/* Estilo para listas nativas */
+.list-native {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.list-native li {
+  padding: 16px;
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.1);
+}
+
+.dark .list-native li {
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.1);
+}
+
+.list-native li:last-child {
+  border-bottom: none;
+}
+
+/* Estilo para segmentos de control (como en iOS) */
+.segmented-control {
+  display: flex;
+  background-color: hsl(var(--secondary));
+  border-radius: 8px;
+  padding: 2px;
+  position: relative;
+}
+
+.segmented-control-option {
+  flex: 1;
+  text-align: center;
+  padding: 8px 0;
+  z-index: 1;
+  transition: color 0.3s;
+}
+
+.segmented-control-option.active {
+  color: hsl(var(--background));
+}
+
+.segmented-control-slider {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  bottom: 2px;
+  background-color: hsl(var(--primary));
+  border-radius: 6px;
+  transition: transform 0.3s ease;
+}
+
+/* Añadir esta animación para la barra de progreso */
+@keyframes progress {
+  0% {
+    width: 0%;
+  }
+  20% {
+    width: 20%;
+  }
+  50% {
+    width: 50%;
+  }
+  70% {
+    width: 70%;
+  }
+  90% {
+    width: 90%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.animate-progress {
+  animation: progress 2s ease-in-out;
+}
+
+/* Estilos para mejorar las transiciones entre páginas */
+.page-transition-container {
+  min-height: 100vh;
+  background-color: hsl(var(--background));
+  transition: background-color 0.3s ease;
+}
+
+/* Evitar el flash blanco durante las transiciones */
+.page-content {
+  will-change: opacity, transform;
+}
+
+/* Animación de deslizamiento para transiciones de página */
+.slide-in-right {
+  animation: slideInRight 0.3s forwards;
+}
+
+.slide-out-left {
+  animation: slideOutLeft 0.3s forwards;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutLeft {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+/* Asegurar que el fondo siempre tenga el color correcto */
+html,
+body {
+  background-color: hsl(var(--background));
+  transition: background-color 0.3s ease;
 }
