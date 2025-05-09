@@ -118,6 +118,3 @@ Tu aplicación ya cuenta con una base sólida, pero aquí hay varias caracterís
 - **Notificaciones push**: Alertas sobre límites de presupuesto, recordatorios, etc.
 - **Modo offline**: Funcionalidad completa sin conexión a internet
 - **Accesibilidad mejorada**: Asegurar que la app sea usable por personas con discapacidades
-\`\`\`
-
-También voy a crear un archivo de documentación para la aplicación:

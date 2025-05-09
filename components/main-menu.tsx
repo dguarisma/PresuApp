@@ -53,7 +53,11 @@ export function MainMenu() {
               <h3 className="px-2 text-xs font-medium text-muted-foreground mb-1">{t("menu.navigation")}</h3>
               <div className="space-y-1">
                 <Link href="/" onClick={handleClose}>
-                  <Button variant={isActive("/") ? "secondary" : "ghost"} size="sm" className="w-full justify-start">
+                  <Button
+                    variant={isActive("/") ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-start ${isActive("/") ? "bg-teal-600 hover:bg-teal-700 text-white" : ""}`}
+                  >
                     <Home className="h-4 w-4 mr-2" />
                     {t("menu.home")}
                   </Button>
@@ -113,9 +117,9 @@ export function MainMenu() {
 
                 <Link href="/docs" onClick={handleClose}>
                   <Button
-                    variant={isActive("/docs") ? "secondary" : "ghost"}
+                    variant={isActive("/docs") ? "default" : "ghost"}
                     size="sm"
-                    className="w-full justify-start"
+                    className={`w-full justify-start ${isActive("/docs") ? "bg-teal-600 hover:bg-teal-700 text-white" : ""}`}
                   >
                     <Info className="h-4 w-4 mr-2" />
                     {t("settings.about")}

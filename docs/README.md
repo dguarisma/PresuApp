@@ -76,6 +76,3 @@ Esta aplicación de control de gastos permite a los usuarios gestionar múltiple
 ## Mejoras Planificadas
 
 Ver el archivo CHANGELOG.md para conocer las mejoras planificadas y el historial de cambios.
-\`\`\`
-
-Ahora, vamos a crear un componente para mostrar la documentación en la aplicación:

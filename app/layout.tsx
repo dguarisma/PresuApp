@@ -11,6 +11,7 @@ import { NavigationMenu } from "@/components/navigation-menu"
 import { SplashScreen } from "@/components/splash-screen"
 import { StatusBar } from "@/components/status-bar"
 import { PageTransition } from "@/components/page-transition"
+import { RoutePrefetcher } from "@/components/route-prefetcher"
 
 // Importar el NotificationProvider en lugar del NotificationChecker
 import { NotificationProvider } from "@/components/notification-provider"
@@ -64,6 +65,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </div>
               <NavigationMenu />
               <Toaster />
+              {/* Componente para precargar rutas */}
+              <RoutePrefetcher />
               {/* Colocar el NotificationProvider dentro de los contextos adecuados */}
               <NotificationProvider />
             </LoadingProvider>

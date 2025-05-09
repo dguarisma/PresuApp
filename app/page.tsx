@@ -1,10 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import BudgetList from "@/components/budget-list"
 import { ModeToggle } from "@/components/mode-toggle"
 import { PWAInstaller } from "@/components/pwa-installer"
 import { useTranslation } from "@/contexts/translation-context"
+import { SkeletonLoader } from "@/components/skeleton-loader"
+import { DataPrefetcher } from "@/components/data-prefetcher"
 
 export default function Home() {
   const { t } = useTranslation()
@@ -47,6 +49,9 @@ export default function Home() {
 
   return (
     <div className="min-h-full bg-background">
+      {/* Componente invisible para precargar datos */}
+      <DataPrefetcher />
+
       {isOffline && (
         <div className="offline-indicator" role="alert" aria-live="assertive">
           <span>{t("app.offlineMode")}</span>
@@ -67,7 +72,9 @@ export default function Home() {
         <main className="flex-1">
           <main className="container mx-auto px-4 py-6 max-w-5xl">
             <div className="stagger-item stagger-delay-1">
-              <BudgetList key={key} /> {/* Usamos key para forzar re-renderizado */}
+              <Suspense fallback={<SkeletonLoader type="list" />}>
+                <BudgetList key={key} /> {/* Usamos key para forzar re-renderizado */}
+              </Suspense>
             </div>
           </main>
         </main>

@@ -15,6 +15,9 @@ export function getAllSavingsGoals(): SavingsGoal[] {
   }
 }
 
+// Alias para mantener compatibilidad con el código existente
+export const getSavingsGoals = getAllSavingsGoals
+
 // Obtener metas de ahorro por ID de presupuesto
 export function getSavingsGoalsByBudget(budgetId: string): SavingsGoal[] {
   try {

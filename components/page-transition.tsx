@@ -1,6 +1,6 @@
 "use client"
 
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState, useRef, type ReactNode } from "react"
 import { useTheme } from "next-themes"
 
@@ -10,6 +10,7 @@ interface PageTransitionProps {
 
 export function PageTransition({ children }: PageTransitionProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const [displayChildren, setDisplayChildren] = useState(children)
   const [transitioning, setTransitioning] = useState(false)
   const previousPathRef = useRef<string | null>(null)
