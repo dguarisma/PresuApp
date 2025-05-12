@@ -284,8 +284,8 @@ export const es = {
     exampleText: "Este es un ejemplo de texto con el tamaño actual.",
     adjustSlider: "Ajusta el control deslizante para cambiar el tamaño del texto en toda la aplicación.",
     saveSettings: "Guardar configuración",
-    saveAllChanges: "Guardar todos los cambios",
-    resetDefaults: "Restablecer valores",
+    saveAllChanges: "Guardar cambios",
+    resetDefaults: "Restablecer",
     resetSettings: "Restablecer configuración",
     resetConfirm: {
       title: "Restablecer configuración",
