@@ -49,6 +49,13 @@ export function NavigationMenu() {
         />
 
         <NavItem
+          href="/metas-ahorro"
+          icon={<Target className="h-5 w-5" />}
+          label="Metas"
+          isActive={isActive("/metas-ahorro")}
+        />
+
+        <NavItem
           href="/deudas"
           icon={<CreditCard className="h-5 w-5" />}
           label="Deudas"
@@ -60,13 +67,6 @@ export function NavigationMenu() {
           icon={<Accessibility className="h-5 w-5" />}
           label="Accesibilidad"
           isActive={isActive("/accesibilidad")}
-        />
-
-        <NavItem
-          href="/metas-ahorro"
-          icon={<Target className="h-5 w-5" />}
-          label="Metas"
-          isActive={isActive("/metas-ahorro")}
         />
 
         <NavItem
@@ -91,9 +91,8 @@ function NavItem({ href, icon, label, isActive }: NavItemProps) {
   return (
     <Link
       href={href}
-      className={`flex flex-col items-center justify-center py-2 transition-all duration-200 ${
-        isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
-      }`}
+      className={`flex flex-col items-center justify-center py-2 transition-all duration-200 ${isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+        }`}
     >
       <div
         className={`p-1.5 rounded-full transition-all duration-200 ${isActive ? "bg-primary/10" : "hover:bg-muted/50"}`}

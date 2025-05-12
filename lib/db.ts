@@ -1,5 +1,4 @@
 import type {
-  Budget,
   BudgetData,
   Category,
   ExpenseItem,
@@ -21,6 +20,17 @@ const REPORTS_KEY = "reports"
 const isBrowser = typeof window !== "undefined"
 
 // Interfaz para las funciones de la base de datos
+
+export interface Budget {
+  id: string
+  name: string
+  description?: string
+  createdAt: string
+  updatedAt: string
+  associatedIncomeIds?: string[]
+  associatedDebtIds?: string[]
+}
+
 interface DB {
   // Funciones para gestionar presupuestos
   getAllBudgets: () => Budget[]
@@ -36,18 +46,18 @@ interface DB {
 
   // Funciones para gestionar categorías
   addCategory: (budgetId: string, name: string) => Category
-  updateCategory: (budgetId: string, categoryId: number, data: Partial<Category>) => Category | null
-  deleteCategory: (budgetId: string, categoryId: number) => boolean
+  updateCategory: (budgetId: string, categoryId: string, data: Partial<Category>) => Category | null
+  deleteCategory: (budgetId: string, categoryId: string) => boolean
 
   // Funciones para gestionar subcategorías
   addSubCategory: (budgetId: string, categoryId: string, name: string) => SubCategory
   updateSubCategory: (
     budgetId: string,
-    categoryId: number,
-    subCategoryId: number,
+    categoryId: string,
+    subCategoryId: string,
     data: Partial<SubCategory>,
   ) => SubCategory | null
-  deleteSubCategory: (budgetId: string, categoryId: number, subCategoryId: number) => boolean
+  deleteSubCategory: (budgetId: string, categoryId: string, subCategoryId: string) => boolean
 
   // Funciones para gestionar gastos
   addExpense: (
@@ -58,12 +68,12 @@ interface DB {
   ) => ExpenseItem
   updateExpense: (
     budgetId: string,
-    categoryId: number,
-    expenseId: number,
+    categoryId: string,
+    expenseId: string,
     data: Partial<ExpenseItem>,
-    subCategoryId?: number,
+    subCategoryId?: string,
   ) => ExpenseItem | null
-  deleteExpense: (budgetId: string, categoryId: number, expenseId: number, subCategoryId?: number) => boolean
+  deleteExpense: (budgetId: string, categoryId: string, expenseId: string, subCategoryId?: string) => boolean
 
   // Funciones para filtrar y buscar gastos
   getExpensesByDateRange: (budgetId: string, dateRange: DateRange) => ExpenseItem[]
@@ -134,6 +144,7 @@ const db: DB = {
         id: Date.now().toString(),
         name: name.trim(),
         createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       }
 
       // Guardar en la lista de presupuestos
@@ -162,22 +173,25 @@ const db: DB = {
 
   updateBudget: (id: string, data: Partial<Budget>) => {
     try {
-      if (!isBrowser) {
-        return null
-      }
+      if (!isBrowser) return null
 
       const budgets = db.getAllBudgets()
-      const index = budgets.findIndex((budget) => budget.id === id)
+      const budgetIndex = budgets.findIndex((budget) => budget.id === id)
 
-      if (index === -1) return null
+      if (budgetIndex === -1) return null
 
-      const updatedBudget = { ...budgets[index], ...data }
-      budgets[index] = updatedBudget
+      const updatedBudget = {
+        ...budgets[budgetIndex],
+        ...data,
+        updatedAt: new Date().toISOString(),
+      }
 
+      budgets[budgetIndex] = updatedBudget
       localStorage.setItem(BUDGET_LIST_KEY, JSON.stringify(budgets))
+
       return updatedBudget
     } catch (error) {
-      console.error(`Error al actualizar presupuesto ${id}:`, error)
+      console.error(`Error updating budget ${id}:`, error)
       return null
     }
   },
@@ -295,7 +309,7 @@ const db: DB = {
     }
   },
 
-  updateCategory: (budgetId: string, categoryId: number, data: Partial<Category>) => {
+  updateCategory: (budgetId: string, categoryId: string, data: Partial<Category>) => {
     try {
       if (!isBrowser) {
         return null
@@ -318,7 +332,7 @@ const db: DB = {
     }
   },
 
-  deleteCategory: (budgetId: string, categoryId: number) => {
+  deleteCategory: (budgetId: string, categoryId: string) => {
     try {
       if (!isBrowser) {
         return false
@@ -380,7 +394,7 @@ const db: DB = {
     }
   },
 
-  updateSubCategory: (budgetId: string, categoryId: number, subCategoryId: number, data: Partial<SubCategory>) => {
+  updateSubCategory: (budgetId: string, categoryId: string, subCategoryId: string, data: Partial<SubCategory>) => {
     try {
       if (!isBrowser) {
         return null
@@ -419,7 +433,7 @@ const db: DB = {
     }
   },
 
-  deleteSubCategory: (budgetId: string, categoryId: number, subCategoryId: number) => {
+  deleteSubCategory: (budgetId: string, categoryId: string, subCategoryId: string) => {
     try {
       if (!isBrowser) {
         return false
@@ -525,10 +539,10 @@ const db: DB = {
 
   updateExpense: (
     budgetId: string,
-    categoryId: number,
-    expenseId: number,
+    categoryId: string,
+    expenseId: string,
     data: Partial<ExpenseItem>,
-    subCategoryId?: number,
+    subCategoryId?: string,
   ) => {
     try {
       if (!isBrowser) {
@@ -619,7 +633,7 @@ const db: DB = {
     }
   },
 
-  deleteExpense: (budgetId: string, categoryId: number, expenseId: number, subCategoryId?: number) => {
+  deleteExpense: (budgetId: string, categoryId: string, expenseId: string, subCategoryId?: string) => {
     try {
       if (!isBrowser) {
         return false

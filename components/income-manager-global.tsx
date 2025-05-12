@@ -1,18 +1,22 @@
 "use client"
 
+import { CardTitle } from "@/components/ui/card"
+import { CardHeader } from "@/components/ui/card"
 import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Progress } from "@/components/ui/progress"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
-import { Plus, RefreshCw } from "lucide-react"
+import { Plus, RefreshCw, DollarSign, TrendingUp, ArrowUpRight, TrendingDown } from "lucide-react"
 import type { IncomeItem, IncomeSource } from "@/types/income"
 import incomeDB from "@/lib/db-income"
 import { IncomeFormGlobal } from "@/components/income-form-global"
 import { useTranslation } from "@/hooks/use-translations"
 import { useToast } from "@/hooks/use-toast"
+import { useCurrency } from "@/hooks/use-currency"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,7 +31,11 @@ import {
 // Constante para el ID global de ingresos
 export const GLOBAL_INCOME_ID = "global_income"
 
-export function IncomeManager() {
+interface IncomeManagerProps {
+  onIncomeChange?: () => void
+}
+
+export function IncomeManager(props: IncomeManagerProps) {
   const [incomeItems, setIncomeItems] = useState<IncomeItem[]>([])
   const [incomeSources, setIncomeSources] = useState<IncomeSource[]>([])
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
@@ -39,8 +47,10 @@ export function IncomeManager() {
   const [deletingSourceId, setDeletingSourceId] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("all")
   const [totalIncome, setTotalIncome] = useState(0)
+  const [showSummary, setShowSummary] = useState(true)
   const { t } = useTranslation()
   const { toast } = useToast()
+  const { formatCurrency } = useCurrency()
 
   // Cargar datos de ingresos
   useEffect(() => {
@@ -60,14 +70,17 @@ export function IncomeManager() {
       loadIncomeData()
       setIsAddDialogOpen(false)
       toast({
-        title: "Ingreso añadido",
-        description: "El ingreso ha sido añadido correctamente",
+        title: t("income.addedSuccessfully") || "Ingreso añadido",
+        description: t("income.incomeAdded") || "El ingreso ha sido añadido correctamente",
       })
+      if (props.onIncomeChange) {
+        props.onIncomeChange()
+      }
     } catch (error) {
       console.error("Error al añadir ingreso:", error)
       toast({
-        title: "Error",
-        description: "No se pudo añadir el ingreso",
+        title: t("common.error") || "Error",
+        description: t("income.addError") || "No se pudo añadir el ingreso",
         variant: "destructive",
       })
     }
@@ -86,15 +99,18 @@ export function IncomeManager() {
         setEditingIncome(null)
         setIsEditDialogOpen(false)
         toast({
-          title: "Ingreso actualizado",
-          description: "El ingreso ha sido actualizado correctamente",
+          title: t("income.updatedSuccessfully") || "Ingreso actualizado",
+          description: t("income.incomeUpdated") || "El ingreso ha sido actualizado correctamente",
         })
+        if (props.onIncomeChange) {
+          props.onIncomeChange()
+        }
       }
     } catch (error) {
       console.error("Error al actualizar ingreso:", error)
       toast({
-        title: "Error",
-        description: "No se pudo actualizar el ingreso",
+        title: t("common.error") || "Error",
+        description: t("income.updateError") || "No se pudo actualizar el ingreso",
         variant: "destructive",
       })
     }
@@ -113,16 +129,19 @@ export function IncomeManager() {
         setDeletingIncomeId(null)
         setIsDeleteDialogOpen(false)
         toast({
-          title: "Ingreso eliminado",
-          description: "El ingreso ha sido eliminado correctamente",
-          variant: "destructive",
+          title: t("income.deleted") || "Income deleted",
+          description: t("income.deleteSourceSuccess") || "Income source has been deleted successfully",
+          variant: "default",
         })
+        if (props.onIncomeChange) {
+          props.onIncomeChange()
+        }
       }
     } catch (error) {
       console.error("Error al eliminar ingreso:", error)
       toast({
-        title: "Error",
-        description: "No se pudo eliminar el ingreso",
+        title: t("common.error") || "Error",
+        description: t("income.deleteError") || "No se pudo eliminar el ingreso",
         variant: "destructive",
       })
     }
@@ -142,19 +161,22 @@ export function IncomeManager() {
         setDeletingSourceId(null)
         setIsDeleteSourceDialogOpen(false)
         toast({
-          title: "Fuente eliminada",
-          description: "La fuente de ingresos ha sido eliminada correctamente",
-          variant: "destructive",
+          title: t("income.sourceDeletedSuccessfully") || "Fuente eliminada",
+          description: t("income.sourceDeleted") || "La fuente de ingresos ha sido eliminada correctamente",
         })
       }
     } catch (error) {
       console.error("Error al eliminar fuente:", error)
       toast({
-        title: "Error",
-        description: "No se pudo eliminar la fuente de ingresos",
+        title: t("common.error") || "Error",
+        description: t("income.deleteSourceError") || "No se pudo eliminar la fuente de ingresos",
         variant: "destructive",
       })
     }
+  }
+
+  const toggleSummary = () => {
+    setShowSummary(!showSummary)
   }
 
   // Filtrar ingresos por pestaña activa
@@ -172,144 +194,208 @@ export function IncomeManager() {
   const currentSourceExists =
     activeTab !== "all" && activeTab !== "recurring" && incomeSources.some((source) => source.id === activeTab)
 
-  return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">{t("income.manageIncome") || "Administrar Ingresos"}</h2>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button
-              className="bg-teal-500 hover:bg-teal-600 text-white h-10 px-4 py-2 text-sm rounded-md flex items-center"
-              onClick={() => setIsAddDialogOpen(true)}
-            >
-              <Plus className="h-5 w-5 mr-2" />
-              {t("income.addNew") || "Añadir ingreso"}
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-[92vw] sm:max-w-[500px] p-4">
-            <DialogHeader>
-              <DialogTitle className="text-lg">{t("income.addNew") || "Añadir ingreso"}</DialogTitle>
-            </DialogHeader>
-            <IncomeFormGlobal onSubmit={handleAddIncome} onCancel={() => setIsAddDialogOpen(false)} />
-          </DialogContent>
-        </Dialog>
-      </div>
+  // Calcular ingresos recurrentes mensuales
+  const getMonthlyRecurringIncome = () => {
+    return incomeItems
+      .filter((item) => item.isRecurring)
+      .reduce((total, income) => {
+        // Simplificado para mostrar solo el total
+        return total + income.amount
+      }, 0)
+  }
 
-      <Card className="border border-border/50 shadow-sm">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">{t("income.total") || "Total de ingresos"}:</span>
-            <span className="text-xl font-bold">${totalIncome.toFixed(2)}</span>
+  return (
+    <div className="space-y-4">
+      {/* Botón flotante para añadir ingreso */}
+      <Button
+        onClick={() => setIsAddDialogOpen(true)}
+        className="fixed bottom-20 right-4 z-10 rounded-full w-14 h-14 shadow-lg bg-teal-500 hover:bg-teal-600 text-white"
+        aria-label={t("income.addNew") || "Añadir ingreso"}
+      >
+        <Plus className="h-6 w-6" />
+      </Button>
+
+      {/* Resumen financiero */}
+      <Card className="shadow-sm border border-border/40 overflow-hidden">
+        <CardHeader className="pb-2 px-4 pt-4 cursor-pointer" onClick={toggleSummary}>
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-lg flex items-center">
+              <DollarSign className="h-5 w-5 mr-2 text-teal-500" />
+              {t("income.summary") || "Resumen de ingresos"}
+            </CardTitle>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              {showSummary ? <TrendingDown className="h-4 w-4" /> : <ArrowUpRight className="h-4 w-4" />}
+            </Button>
           </div>
-        </CardContent>
+        </CardHeader>
+
+        {showSummary && (
+          <CardContent className="px-4 pb-4 pt-0">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-muted/30 p-3 rounded-lg">
+                <div className="text-xs text-muted-foreground mb-1">{t("income.total") || "Total de ingresos"}</div>
+                <div className="text-xl font-bold">{formatCurrency(totalIncome)}</div>
+                <div className="text-xs text-muted-foreground mt-2">
+                  {t("income.monthlyIncome") || "Ingresos mensuales"}
+                </div>
+                <div className="text-base font-medium">{formatCurrency(getMonthlyRecurringIncome())}</div>
+              </div>
+
+              <div className="bg-muted/30 p-3 rounded-lg">
+                <div className="text-xs text-muted-foreground mb-1">{t("income.sources") || "Fuentes de ingreso"}</div>
+                <div className="text-xl font-bold">{incomeSources.length}</div>
+                <div className="mt-2">
+                  <Progress value={incomeSources.length * 10} max={100} className="h-2 bg-teal-500" />
+                </div>
+                <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                  <span>{t("income.activeIncome") || "Ingresos activos"}</span>
+                  <span>{incomeItems.length}</span>
+                </div>
+              </div>
+            </div>
+
+            {incomeItems.length > 0 && (
+              <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded-md flex items-start">
+                <TrendingUp className="h-4 w-4 text-blue-500 mt-0.5 mr-2 flex-shrink-0" />
+                <p className="text-xs text-blue-800">
+                  {t("income.summaryTip") ||
+                    "Consejo: Diversificar tus fuentes de ingresos puede ayudarte a tener mayor estabilidad financiera."}
+                </p>
+              </div>
+            )}
+          </CardContent>
+        )}
       </Card>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-3 overflow-auto w-full h-10 p-1">
-          <TabsTrigger value="all" className="text-sm">
-            {t("common.all") || "Todos"}
-          </TabsTrigger>
-          <TabsTrigger value="recurring" className="text-sm">
-            <RefreshCw className="h-3.5 w-3.5 mr-1" />
-            {t("common.recurring") || "Recurrentes"}
-          </TabsTrigger>
-          {incomeSources.map((source) => (
-            <TabsTrigger key={source.id} value={source.id} className="text-sm">
-              {source.name}
+      {/* Pestañas de tipos de ingreso */}
+      <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mt-4">
+        <div className="bg-white sticky top-0 z-10 pb-2">
+          <TabsList className="w-full overflow-x-auto flex-nowrap justify-start h-auto p-1 bg-muted/30 rounded-xl">
+            <TabsTrigger
+              value="all"
+              className="flex items-center gap-1 text-xs py-1.5 px-3 rounded-lg data-[state=active]:bg-background"
+            >
+              <span className="h-3.5 w-3.5 flex items-center justify-center">•</span>
+              <span>{t("common.all") || "Todos"}</span>
             </TabsTrigger>
-          ))}
-        </TabsList>
+            <TabsTrigger
+              value="recurring"
+              className="flex items-center gap-1 text-xs py-1.5 px-3 rounded-lg data-[state=active]:bg-background"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              <span>{t("common.recurring") || "Recurrentes"}</span>
+            </TabsTrigger>
+            {incomeSources.map((source) => (
+              <TabsTrigger
+                key={source.id}
+                value={source.id}
+                className="flex items-center gap-1 text-xs py-1.5 px-3 rounded-lg data-[state=active]:bg-background"
+              >
+                <DollarSign className="h-3.5 w-3.5" />
+                <span>{source.name}</span>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
 
-        <TabsContent value={activeTab} className="mt-0">
+        <TabsContent value={activeTab} className="mt-2">
           {!currentSourceExists && activeTab !== "all" && activeTab !== "recurring" ? (
             // Si la fuente seleccionada ya no existe, mostrar mensaje y redirigir
             <div className="text-center p-6 border rounded-lg bg-muted/30 border-dashed">
-              <p className="text-sm text-muted-foreground">Esta fuente de ingresos ya no existe.</p>
+              <p className="text-sm text-muted-foreground">
+                {t("income.sourceNotExist") || "Esta fuente de ingresos ya no existe."}
+              </p>
               <Button variant="outline" className="mt-4 text-sm h-9" onClick={() => setActiveTab("all")}>
-                Volver a todos los ingresos
+                {t("income.backToAll") || "Volver a todos los ingresos"}
               </Button>
             </div>
           ) : sortedIncomes.length === 0 ? (
-            <div className="text-center p-6 border rounded-lg bg-muted/30 border-dashed">
-              <p className="text-sm text-muted-foreground">
-                {activeTab === "all"
+            <EmptyIncomeState
+              onAddClick={() => setIsAddDialogOpen(true)}
+              message={
+                activeTab === "all"
                   ? t("income.noIncome") || "No hay ingresos registrados"
                   : activeTab === "recurring"
                     ? t("income.noRecurringIncome") || "No hay ingresos recurrentes"
-                    : t("income.noIncomeInSource") || "No hay ingresos en esta fuente"}
-              </p>
-              <Button variant="outline" className="mt-4 text-sm h-9" onClick={() => setIsAddDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-1.5" />
-                {t("income.addFirst") || "Añadir primer ingreso"}
-              </Button>
-            </div>
+                    : t("income.noIncomeInSource") || "No hay ingresos en esta fuente"
+              }
+            />
           ) : (
             <div className="space-y-3">
               {sortedIncomes.map((income) => (
-                <Card key={income.id} className="overflow-hidden">
-                  <div className="p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h3 className="font-medium text-base">{income.sourceName}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {format(new Date(income.date), "PPP", { locale: es })}
-                        </p>
+                <Card key={income.id} className="overflow-hidden border border-border/40">
+                  <div className="p-3">
+                    <div className="flex items-start gap-3">
+                      <div className="bg-muted/30 p-2 rounded-full">
+                        <DollarSign className="h-5 w-5 text-teal-500" />
                       </div>
-                      <div className="text-right">
-                        <p className="font-bold text-lg">${income.amount.toFixed(2)}</p>
-                      </div>
-                    </div>
 
-                    {income.isRecurring && (
-                      <div className="mb-3 p-2 bg-muted/30 rounded-md text-xs">
-                        <RefreshCw className="h-3 w-3 inline mr-1" />
-                        <span>
-                          {income.recurringConfig?.frequency === "daily" &&
-                            `${t("frequency.every") || "Cada"} ${income.recurringConfig.interval} ${t("period.days") || "día(s)"}`}
-                          {income.recurringConfig?.frequency === "weekly" &&
-                            `${t("frequency.every") || "Cada"} ${income.recurringConfig.interval} ${t("period.weeks") || "semana(s)"}`}
-                          {income.recurringConfig?.frequency === "monthly" &&
-                            `${t("frequency.every") || "Cada"} ${income.recurringConfig.interval} ${t("period.months") || "mes(es)"}`}
-                          {income.recurringConfig?.frequency === "yearly" &&
-                            `${t("frequency.every") || "Cada"} ${income.recurringConfig.interval} ${t("period.years") || "año(s)"}`}
-                          {income.recurringConfig?.endDate &&
-                            ` ${t("common.until") || "hasta"} ${format(new Date(income.recurringConfig.endDate), "PPP", { locale: es })}`}
-                        </span>
-                      </div>
-                    )}
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-medium text-sm">{income.sourceName}</h3>
+                            <p className="text-xs text-muted-foreground">
+                              {format(new Date(income.date), "PPP", { locale: es })}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold text-base">{formatCurrency(income.amount)}</p>
+                          </div>
+                        </div>
 
-                    {income.notes && (
-                      <div className="mb-3">
-                        <h4 className="text-sm font-medium mb-1">{t("common.notes") || "Notas"}:</h4>
-                        <p className="text-sm text-muted-foreground">{income.notes}</p>
-                      </div>
-                    )}
+                        {income.isRecurring && (
+                          <div className="mt-2 p-1.5 bg-muted/30 rounded-md text-xs inline-flex items-center">
+                            <RefreshCw className="h-3 w-3 mr-1" />
+                            <span>
+                              {income.recurringConfig?.frequency === "daily" &&
+                                `${t("frequency.every") || "Cada"} ${income.recurringConfig.interval} ${t("period.days") || "día(s)"}`}
+                              {income.recurringConfig?.frequency === "weekly" &&
+                                `${t("frequency.every") || "Cada"} ${income.recurringConfig.interval} ${t("period.weeks") || "semana(s)"}`}
+                              {income.recurringConfig?.frequency === "monthly" &&
+                                `${t("frequency.every") || "Cada"} ${income.recurringConfig.interval} ${t("period.months") || "mes(es)"}`}
+                              {income.recurringConfig?.frequency === "yearly" &&
+                                `${t("frequency.every") || "Cada"} ${income.recurringConfig.interval} ${t("period.years") || "año(s)"}`}
+                            </span>
+                          </div>
+                        )}
 
-                    {income.tags && income.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mb-3">
-                        {income.tags.map((tag) => (
-                          <span key={tag} className="px-1.5 py-0.5 bg-muted rounded-md text-xs">
-                            {tag}
-                          </span>
-                        ))}
+                        <div className="mt-2 pt-2 border-t border-border/30">
+                          <div className="flex justify-between items-center">
+                            <div className="flex flex-wrap gap-1.5">
+                              {income.tags &&
+                                income.tags.length > 0 &&
+                                income.tags.slice(0, 2).map((tag) => (
+                                  <span key={tag} className="px-1.5 py-0.5 bg-muted rounded-md text-xs">
+                                    {tag}
+                                  </span>
+                                ))}
+                              {income.tags && income.tags.length > 2 && (
+                                <span className="px-1.5 py-0.5 bg-muted rounded-md text-xs">
+                                  +{income.tags.length - 2}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex space-x-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleEditClick(income)}
+                                className="h-7 text-xs px-2 rounded-md"
+                              >
+                                {t("common.edit") || "Editar"}
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => handleDeleteClick(income.id)}
+                                className="h-7 text-xs px-2 rounded-md bg-red-500 hover:bg-red-600"
+                              >
+                                {t("common.delete") || "Eliminar"}
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    )}
-
-                    <div className="flex justify-end gap-2 mt-2">
-                      <Button
-                        variant="outline"
-                        className="h-9 px-4 py-2 text-sm bg-white"
-                        onClick={() => handleEditClick(income)}
-                      >
-                        Editar
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        className="h-9 px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white"
-                        onClick={() => handleDeleteClick(income.id)}
-                      >
-                        Eliminar
-                      </Button>
                     </div>
                   </div>
                 </Card>
@@ -328,6 +414,16 @@ export function IncomeManager() {
           {t("income.deleteSource") || "Eliminar esta fuente"}
         </Button>
       )}
+
+      {/* Diálogo de añadir/editar ingreso */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="max-w-[92vw] sm:max-w-[500px] p-4">
+          <DialogHeader>
+            <DialogTitle className="text-lg">{t("income.addNew") || "Añadir ingreso"}</DialogTitle>
+          </DialogHeader>
+          <IncomeFormGlobal onSubmit={handleAddIncome} onCancel={() => setIsAddDialogOpen(false)} />
+        </DialogContent>
+      </Dialog>
 
       {/* Diálogo de edición */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
@@ -408,3 +504,23 @@ export function IncomeManager() {
     </div>
   )
 }
+
+// Componente para estado vacío
+function EmptyIncomeState({ onAddClick, message = "income.noIncome" }: { onAddClick: () => void; message?: string }) {
+  const { t } = useTranslation()
+
+  return (
+    <div className="text-center py-8 px-4 border border-dashed rounded-xl bg-muted/10">
+      <div className="bg-muted/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+        <DollarSign className="h-8 w-8 text-muted-foreground" />
+      </div>
+      <p className="text-muted-foreground text-sm mb-4">{message}</p>
+      <Button onClick={onAddClick} variant="outline" className="mx-auto flex items-center border-dashed">
+        <Plus className="h-4 w-4 mr-1" />
+        <span>{t("income.addFirst") || "Añadir primer ingreso"}</span>
+      </Button>
+    </div>
+  )
+}
+
+export default IncomeManager

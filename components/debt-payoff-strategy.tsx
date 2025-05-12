@@ -177,14 +177,16 @@ export function DebtPayoffStrategy() {
         <CardHeader>
           <CardTitle className="text-xl flex items-center gap-2">
             <ArrowDownAZ className="h-5 w-5 text-primary" />
-            {t("debt.payoffStrategy")}
+            {t("debt.payoffStrategy") || "Debt Payoff Strategy"}
           </CardTitle>
-          <CardDescription>{t("debt.payoffStrategyDescription")}</CardDescription>
+          <CardDescription>
+            {t("debt.payoffStrategyDescription") || "Compare different methods to pay off your debts"}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>{t("debt.useExistingDebts")}</Label>
+              <Label>{t("debt.useExistingDebts") || "Use Existing Debts"}</Label>
               <RadioGroup
                 value={useExistingDebts ? "existing" : "custom"}
                 onValueChange={(v) => setUseExistingDebts(v === "existing")}
@@ -192,20 +194,20 @@ export function DebtPayoffStrategy() {
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="existing" id="existing" />
-                  <Label htmlFor="existing">{t("debt.existingDebts")}</Label>
+                  <Label htmlFor="existing">{t("debt.existingDebts") || "Existing Debts"}</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="custom" id="custom" />
-                  <Label htmlFor="custom">{t("debt.customDebts")}</Label>
+                  <Label htmlFor="custom">{t("debt.customDebts") || "Custom Debts"}</Label>
                 </div>
               </RadioGroup>
             </div>
 
             {useExistingDebts ? (
               <div className="space-y-2">
-                <Label>{t("debt.yourDebts")}</Label>
+                <Label>{t("debt.yourDebts") || "Your Debts"}</Label>
                 {debts.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">{t("debt.noDebtsFound")}</p>
+                  <p className="text-sm text-muted-foreground">{t("debt.noDebtsFound") || "No debts found"}</p>
                 ) : (
                   <div className="space-y-2 max-h-60 overflow-y-auto">
                     {debts.map((debt) => (
@@ -216,10 +218,10 @@ export function DebtPayoffStrategy() {
                         </div>
                         <div className="flex justify-between text-xs text-muted-foreground mt-1">
                           <span>
-                            {t("debt.interestRate")}: {debt.interestRate || 0}%
+                            {t("debt.interestRate") || "Interest Rate"}: {debt.interestRate || 0}%
                           </span>
                           <span>
-                            {t("debt.minimumPayment")}: {formatCurrency(debt.minimumPayment || 0)}
+                            {t("debt.minimumPayment") || "Minimum Payment"}: {formatCurrency(debt.minimumPayment || 0)}
                           </span>
                         </div>
                       </div>
@@ -229,7 +231,7 @@ export function DebtPayoffStrategy() {
               </div>
             ) : (
               <div className="space-y-3">
-                <Label>{t("debt.customDebts")}</Label>
+                <Label>{t("debt.customDebts") || "Custom Debts"}</Label>
 
                 <div className="space-y-2 max-h-60 overflow-y-auto">
                   {customDebts.map((debt) => (
@@ -241,10 +243,10 @@ export function DebtPayoffStrategy() {
                         </div>
                         <div className="flex justify-between text-xs text-muted-foreground mt-1">
                           <span>
-                            {t("debt.interestRate")}: {debt.interestRate}%
+                            {t("debt.interestRate") || "Interest Rate"}: {debt.interestRate}%
                           </span>
                           <span>
-                            {t("debt.minimumPayment")}: {formatCurrency(debt.minimumPayment)}
+                            {t("debt.minimumPayment") || "Minimum Payment"}: {formatCurrency(debt.minimumPayment)}
                           </span>
                         </div>
                       </div>
@@ -263,19 +265,19 @@ export function DebtPayoffStrategy() {
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1">
                     <Label htmlFor="debtName" className="text-xs">
-                      {t("debt.name")}
+                      {t("debt.name") || "Name"}
                     </Label>
                     <Input
                       id="debtName"
                       value={newDebtName}
                       onChange={(e) => setNewDebtName(e.target.value)}
-                      placeholder={t("debt.namePlaceholder")}
+                      placeholder={t("debt.namePlaceholder") || "Debt name"}
                       className="h-9"
                     />
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor="debtBalance" className="text-xs">
-                      {t("debt.balance")}
+                      {t("debt.balance") || "Balance"}
                     </Label>
                     <Input
                       id="debtBalance"
@@ -288,7 +290,7 @@ export function DebtPayoffStrategy() {
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor="debtInterest" className="text-xs">
-                      {t("debt.interestRate")}
+                      {t("debt.interestRate") || "Interest Rate"}
                     </Label>
                     <Input
                       id="debtInterest"
@@ -301,7 +303,7 @@ export function DebtPayoffStrategy() {
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor="debtPayment" className="text-xs">
-                      {t("debt.minimumPayment")}
+                      {t("debt.minimumPayment") || "Minimum Payment"}
                     </Label>
                     <Input
                       id="debtPayment"
@@ -321,13 +323,13 @@ export function DebtPayoffStrategy() {
                   className="w-full flex items-center justify-center gap-1"
                 >
                   <Plus className="h-4 w-4" />
-                  <span>{t("debt.addDebt")}</span>
+                  <span>{t("debt.addDebt") || "Add Debt"}</span>
                 </Button>
               </div>
             )}
 
             <div className="space-y-2 pt-2">
-              <Label htmlFor="extraPayment">{t("debt.extraMonthlyPayment")}</Label>
+              <Label htmlFor="extraPayment">{t("debt.extraMonthlyPayment") || "Extra Monthly Payment"}</Label>
               <Input
                 id="extraPayment"
                 type="number"
@@ -336,11 +338,13 @@ export function DebtPayoffStrategy() {
                 placeholder="0.00"
                 className="h-10"
               />
-              <p className="text-xs text-muted-foreground">{t("debt.extraPaymentDescription")}</p>
+              <p className="text-xs text-muted-foreground">
+                {t("debt.extraPaymentDescription") || "Additional amount to pay each month beyond the minimum payments"}
+              </p>
             </div>
 
             <div className="space-y-2 pt-2">
-              <Label>{t("debt.payoffMethod")}</Label>
+              <Label>{t("debt.payoffMethod") || "Payoff Method"}</Label>
               <RadioGroup
                 value={strategy}
                 onValueChange={(v) => setStrategy(v as "avalanche" | "snowball")}
@@ -351,9 +355,12 @@ export function DebtPayoffStrategy() {
                   <div>
                     <Label htmlFor="avalanche" className="flex items-center gap-1.5">
                       <Flame className="h-4 w-4 text-red-500" />
-                      {t("debt.avalancheMethod")}
+                      {t("debt.avalancheMethod") || "Avalanche Method"}
                     </Label>
-                    <p className="text-xs text-muted-foreground mt-1">{t("debt.avalancheDescription")}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {t("debt.avalancheDescription") ||
+                        "Pay highest interest rate debts first to minimize interest costs"}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-2 p-3 bg-muted/30 rounded-lg">
@@ -361,9 +368,11 @@ export function DebtPayoffStrategy() {
                   <div>
                     <Label htmlFor="snowball" className="flex items-center gap-1.5">
                       <Snowflake className="h-4 w-4 text-blue-500" />
-                      {t("debt.snowballMethod")}
+                      {t("debt.snowballMethod") || "Snowball Method"}
                     </Label>
-                    <p className="text-xs text-muted-foreground mt-1">{t("debt.snowballDescription")}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {t("debt.snowballDescription") || "Pay smallest balance debts first for psychological wins"}
+                    </p>
                   </div>
                 </div>
               </RadioGroup>
@@ -374,7 +383,7 @@ export function DebtPayoffStrategy() {
               className="w-full"
               disabled={(useExistingDebts && debts.length === 0) || (!useExistingDebts && customDebts.length === 0)}
             >
-              {t("debt.calculatePayoff")}
+              {t("debt.calculatePayoff") || "Calculate Payoff"}
             </Button>
           </div>
         </CardContent>
@@ -383,29 +392,29 @@ export function DebtPayoffStrategy() {
       {results && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl">{t("debt.payoffResults")}</CardTitle>
+            <CardTitle className="text-xl">{t("debt.payoffResults") || "Payoff Results"}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 bg-muted/30 rounded-lg">
                 <div className="flex items-center gap-2 mb-3">
                   <Flame className="h-5 w-5 text-red-500" />
-                  <h3 className="font-semibold">{t("debt.avalancheMethod")}</h3>
+                  <h3 className="font-semibold">{t("debt.avalancheMethod") || "Avalanche Method"}</h3>
                 </div>
                 <div className="space-y-3">
                   <div>
-                    <div className="text-sm text-muted-foreground">{t("debt.totalInterest")}</div>
+                    <div className="text-sm text-muted-foreground">{t("debt.totalInterest") || "Total Interest"}</div>
                     <div className="text-xl font-bold">{formatCurrency(results.avalanche.totalInterest)}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-muted-foreground">{t("debt.timeToPayoff")}</div>
+                    <div className="text-sm text-muted-foreground">{t("debt.timeToPayoff") || "Time to Payoff"}</div>
                     <div className="text-xl font-bold">
-                      {Math.floor(results.avalanche.monthsToPayoff / 12)} {t("common.years")}{" "}
-                      {results.avalanche.monthsToPayoff % 12} {t("common.months")}
+                      {Math.floor(results.avalanche.monthsToPayoff / 12)} {t("common.years") || "years"}{" "}
+                      {results.avalanche.monthsToPayoff % 12} {t("common.months") || "months"}
                     </div>
                   </div>
                   <div>
-                    <div className="text-sm text-muted-foreground mb-1">{t("debt.payoffOrder")}</div>
+                    <div className="text-sm text-muted-foreground mb-1">{t("debt.payoffOrder") || "Payoff Order"}</div>
                     <ol className="list-decimal list-inside text-sm">
                       {results.avalanche.payoffOrder.map((debt, index) => (
                         <li key={index} className="mb-1">
@@ -420,22 +429,22 @@ export function DebtPayoffStrategy() {
               <div className="p-4 bg-muted/30 rounded-lg">
                 <div className="flex items-center gap-2 mb-3">
                   <Snowflake className="h-5 w-5 text-blue-500" />
-                  <h3 className="font-semibold">{t("debt.snowballMethod")}</h3>
+                  <h3 className="font-semibold">{t("debt.snowballMethod") || "Snowball Method"}</h3>
                 </div>
                 <div className="space-y-3">
                   <div>
-                    <div className="text-sm text-muted-foreground">{t("debt.totalInterest")}</div>
+                    <div className="text-sm text-muted-foreground">{t("debt.totalInterest") || "Total Interest"}</div>
                     <div className="text-xl font-bold">{formatCurrency(results.snowball.totalInterest)}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-muted-foreground">{t("debt.timeToPayoff")}</div>
+                    <div className="text-sm text-muted-foreground">{t("debt.timeToPayoff") || "Time to Payoff"}</div>
                     <div className="text-xl font-bold">
-                      {Math.floor(results.snowball.monthsToPayoff / 12)} {t("common.years")}{" "}
-                      {results.snowball.monthsToPayoff % 12} {t("common.months")}
+                      {Math.floor(results.snowball.monthsToPayoff / 12)} {t("common.years") || "years"}{" "}
+                      {results.snowball.monthsToPayoff % 12} {t("common.months") || "months"}
                     </div>
                   </div>
                   <div>
-                    <div className="text-sm text-muted-foreground mb-1">{t("debt.payoffOrder")}</div>
+                    <div className="text-sm text-muted-foreground mb-1">{t("debt.payoffOrder") || "Payoff Order"}</div>
                     <ol className="list-decimal list-inside text-sm">
                       {results.snowball.payoffOrder.map((debt, index) => (
                         <li key={index} className="mb-1">
@@ -449,52 +458,55 @@ export function DebtPayoffStrategy() {
             </div>
 
             <div className="mt-4 p-4 bg-muted/10 border border-border/40 rounded-lg">
-              <h3 className="font-semibold mb-2">{t("debt.comparison")}</h3>
+              <h3 className="font-semibold mb-2">{t("debt.comparison") || "Comparison"}</h3>
 
               <div className="space-y-3">
                 <div>
                   <div className="flex justify-between text-sm mb-1">
-                    <span>{t("debt.interestSavings")}</span>
+                    <span>{t("debt.interestSavings") || "Interest Savings"}</span>
                     <span className="font-medium">
                       {formatCurrency(Math.abs(results.avalanche.totalInterest - results.snowball.totalInterest))}
                     </span>
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {results.avalanche.totalInterest < results.snowball.totalInterest
-                      ? t("debt.avalancheSavesMore")
+                      ? t("debt.avalancheSavesMore") || "Avalanche method saves more interest"
                       : results.snowball.totalInterest < results.avalanche.totalInterest
-                        ? t("debt.snowballSavesMore")
-                        : t("debt.methodsEqual")}
+                        ? t("debt.snowballSavesMore") || "Snowball method saves more interest"
+                        : t("debt.methodsEqual") || "Both methods cost the same"}
                   </div>
                 </div>
 
                 <div>
                   <div className="flex justify-between text-sm mb-1">
-                    <span>{t("debt.timeDifference")}</span>
+                    <span>{t("debt.timeDifference") || "Time Difference"}</span>
                     <span className="font-medium">
                       {Math.abs(results.avalanche.monthsToPayoff - results.snowball.monthsToPayoff)}{" "}
-                      {t("common.months")}
+                      {t("common.months") || "months"}
                     </span>
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {results.avalanche.monthsToPayoff < results.snowball.monthsToPayoff
-                      ? t("debt.avalancheFaster")
+                      ? t("debt.avalancheFaster") || "Avalanche method is faster"
                       : results.snowball.monthsToPayoff < results.avalanche.monthsToPayoff
-                        ? t("debt.snowballFaster")
-                        : t("debt.sameTime")}
+                        ? t("debt.snowballFaster") || "Snowball method is faster"
+                        : t("debt.sameTime") || "Both methods take the same time"}
                   </div>
                 </div>
 
                 <div className="pt-2">
-                  <div className="text-sm mb-2">{t("debt.recommendation")}</div>
+                  <div className="text-sm mb-2">{t("debt.recommendation") || "Recommendation"}</div>
                   <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
                     {strategy === "avalanche" ? (
                       <div className="flex items-start gap-2">
                         <Flame className="h-5 w-5 text-red-500 mt-0.5" />
                         <div>
-                          <p className="font-medium">{t("debt.avalancheRecommended")}</p>
+                          <p className="font-medium">
+                            {t("debt.avalancheRecommended") || "Avalanche Method Recommended"}
+                          </p>
                           <p className="text-xs text-muted-foreground mt-1">
-                            {t("debt.avalancheRecommendationReason")}
+                            {t("debt.avalancheRecommendationReason") ||
+                              "This method will save you the most money in interest over time."}
                           </p>
                         </div>
                       </div>
@@ -502,8 +514,13 @@ export function DebtPayoffStrategy() {
                       <div className="flex items-start gap-2">
                         <Snowflake className="h-5 w-5 text-blue-500 mt-0.5" />
                         <div>
-                          <p className="font-medium">{t("debt.snowballRecommended")}</p>
-                          <p className="text-xs text-muted-foreground mt-1">{t("debt.snowballRecommendationReason")}</p>
+                          <p className="font-medium">
+                            {t("debt.snowballRecommended") || "Snowball Method Recommended"}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {t("debt.snowballRecommendationReason") ||
+                              "This method provides quick wins to keep you motivated."}
+                          </p>
                         </div>
                       </div>
                     )}

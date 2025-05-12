@@ -23,12 +23,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { toast } from "@/components/ui/use-toast"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Badge } from "@/components/ui/badge"
 
 interface IncomeManagerProps {
   budgetId: string
+  onIncomeChange?: () => void
 }
 
-export default function IncomeManager({ budgetId }: IncomeManagerProps) {
+export default function IncomeManager({ budgetId, onIncomeChange }: IncomeManagerProps) {
   const [incomeItems, setIncomeItems] = useState<IncomeItem[]>([])
   const [incomeSources, setIncomeSources] = useState<IncomeSource[]>([])
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
@@ -37,9 +41,33 @@ export default function IncomeManager({ budgetId }: IncomeManagerProps) {
   const [totalIncome, setTotalIncome] = useState(0)
   const { t } = useTranslation()
 
+  // Estados para ingresos globales
+  const [globalIncomes, setGlobalIncomes] = useState<IncomeItem[]>([])
+  const [showGlobalIncomes, setShowGlobalIncomes] = useState(false)
+  const [selectedGlobalIncomes, setSelectedGlobalIncomes] = useState<string[]>([])
+  const [isGlobalIncome, setIsGlobalIncome] = useState(false)
+
   // Cargar datos de ingresos
   useEffect(() => {
     loadIncomeData()
+
+    // Cargar ingresos globales
+    const GLOBAL_INCOME_ID = "global_income"
+    const globalIncomeData = incomeDB.getIncomeData(GLOBAL_INCOME_ID)
+
+    // Filtrar ingresos globales que no estén ya en este presupuesto
+    // (comparando por sourceId, amount y date para identificar duplicados)
+    const budgetIncomeData = incomeDB.getIncomeData(budgetId)
+    const filteredGlobalIncomes = globalIncomeData.items.filter((globalIncome) => {
+      return !budgetIncomeData.items.some(
+        (budgetIncome) =>
+          budgetIncome.sourceId === globalIncome.sourceId &&
+          budgetIncome.amount === globalIncome.amount &&
+          budgetIncome.date === globalIncome.date,
+      )
+    })
+
+    setGlobalIncomes(filteredGlobalIncomes)
   }, [budgetId])
 
   const loadIncomeData = () => {
@@ -50,9 +78,26 @@ export default function IncomeManager({ budgetId }: IncomeManagerProps) {
   }
 
   const handleAddIncome = (income: Omit<IncomeItem, "id">) => {
+    // Si es un ingreso global, añadirlo también a los ingresos globales
+    if (isGlobalIncome) {
+      const GLOBAL_INCOME_ID = "global_income"
+      incomeDB.addIncome(GLOBAL_INCOME_ID, income)
+    }
+
+    // Añadir al presupuesto actual
     incomeDB.addIncome(budgetId, income)
     loadIncomeData()
     setIsAddDialogOpen(false)
+
+    // Notificar al componente padre sobre el cambio
+    if (onIncomeChange) {
+      onIncomeChange()
+    }
+
+    // Recargar ingresos globales
+    const GLOBAL_INCOME_ID = "global_income"
+    const globalIncomeData = incomeDB.getIncomeData(GLOBAL_INCOME_ID)
+    setGlobalIncomes(globalIncomeData.items)
   }
 
   const handleUpdateIncome = (income: Omit<IncomeItem, "id">) => {
@@ -60,17 +105,80 @@ export default function IncomeManager({ budgetId }: IncomeManagerProps) {
       incomeDB.updateIncome(budgetId, editingIncome.id, income)
       loadIncomeData()
       setEditingIncome(null)
+
+      // Notificar al componente padre sobre el cambio
+      if (onIncomeChange) {
+        onIncomeChange()
+      }
     }
   }
 
   const handleDeleteIncome = (incomeId: string) => {
     incomeDB.deleteIncome(budgetId, incomeId)
     loadIncomeData()
+    toast({
+      title: t("income.deleted") || "Income deleted",
+      description: t("income.deleteSourceSuccess") || "Income source has been deleted successfully",
+      variant: "default",
+    })
+
+    // Notificar al componente padre sobre el cambio
+    if (onIncomeChange) {
+      onIncomeChange()
+    }
   }
 
   const handleDeleteSource = (sourceId: string) => {
     incomeDB.deleteIncomeSource(budgetId, sourceId)
     loadIncomeData()
+  }
+
+  // Función para importar ingresos globales seleccionados
+  const handleImportGlobalIncomes = () => {
+    if (selectedGlobalIncomes.length > 0) {
+      const GLOBAL_INCOME_ID = "global_income"
+      const globalIncomeData = incomeDB.getIncomeData(GLOBAL_INCOME_ID)
+
+      selectedGlobalIncomes.forEach((incomeId) => {
+        const income = globalIncomeData.items.find((item) => item.id === incomeId)
+        if (income) {
+          // Añadir el ingreso al presupuesto actual
+          incomeDB.addIncome(budgetId, {
+            sourceId: income.sourceId,
+            sourceName: income.sourceName,
+            amount: income.amount,
+            date: income.date,
+            isRecurring: income.isRecurring,
+            recurringConfig: income.recurringConfig,
+            notes: income.notes,
+            tags: income.tags,
+          })
+        }
+      })
+
+      // Recargar datos
+      loadIncomeData()
+      setSelectedGlobalIncomes([])
+      setShowGlobalIncomes(false)
+
+      toast({
+        title: t("income.imported") || "Ingresos importados",
+        description: t("income.importSuccess") || "Los ingresos seleccionados han sido importados correctamente",
+        variant: "default",
+      })
+
+      // Notificar al componente padre sobre el cambio
+      if (onIncomeChange) {
+        onIncomeChange()
+      }
+    }
+  }
+
+  // Función para manejar la selección de ingresos globales
+  const handleToggleGlobalIncome = (incomeId: string) => {
+    setSelectedGlobalIncomes((prev) =>
+      prev.includes(incomeId) ? prev.filter((id) => id !== incomeId) : [...prev, incomeId],
+    )
   }
 
   // Filtrar ingresos por pestaña activa
@@ -100,6 +208,22 @@ export default function IncomeManager({ budgetId }: IncomeManagerProps) {
             <DialogHeader>
               <DialogTitle>{t("income.addNew")}</DialogTitle>
             </DialogHeader>
+            <div className="mb-4 pb-4 border-b">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="global-income"
+                  checked={isGlobalIncome}
+                  onCheckedChange={() => setIsGlobalIncome(!isGlobalIncome)}
+                />
+                <label htmlFor="global-income" className="text-sm cursor-pointer">
+                  {t("income.registerAsGlobal") || "Registrar como ingreso global"}
+                </label>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1 ml-6">
+                {t("income.globalIncomeDescription") ||
+                  "Los ingresos globales estarán disponibles para todos los presupuestos"}
+              </p>
+            </div>
             <IncomeForm budgetId={budgetId} onSubmit={handleAddIncome} onCancel={() => setIsAddDialogOpen(false)} />
           </DialogContent>
         </Dialog>
@@ -117,6 +241,101 @@ export default function IncomeManager({ budgetId }: IncomeManagerProps) {
           </div>
         </CardHeader>
       </Card>
+
+      {globalIncomes.length > 0 && (
+        <div className="mt-4">
+          <div
+            className="flex items-center justify-between cursor-pointer p-2 border rounded-md"
+            onClick={() => setShowGlobalIncomes(!showGlobalIncomes)}
+          >
+            <h3 className="text-sm font-medium flex items-center">
+              <DollarSign className="h-4 w-4 mr-1 text-primary" />
+              {t("income.availableGlobalIncomes") || "Ingresos globales disponibles"}
+              <Badge className="ml-2" variant="outline">
+                {globalIncomes.length}
+              </Badge>
+            </h3>
+            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+              {showGlobalIncomes ? "-" : "+"}
+            </Button>
+          </div>
+
+          {showGlobalIncomes && (
+            <Card className="mt-2 border border-border/50">
+              <CardContent className="p-4">
+                {globalIncomes.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-4">
+                    {t("income.noGlobalIncomesAvailable") || "No hay ingresos globales disponibles"}
+                  </p>
+                ) : (
+                  <>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-sm font-medium">
+                        {t("income.selectToImport") || "Selecciona los ingresos a importar"}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 text-xs"
+                        onClick={() => {
+                          if (selectedGlobalIncomes.length === globalIncomes.length) {
+                            setSelectedGlobalIncomes([])
+                          } else {
+                            setSelectedGlobalIncomes(globalIncomes.map((income) => income.id))
+                          }
+                        }}
+                      >
+                        {selectedGlobalIncomes.length === globalIncomes.length
+                          ? t("actions.deselectAll") || "Deseleccionar todos"
+                          : t("actions.selectAll") || "Seleccionar todos"}
+                      </Button>
+                    </div>
+
+                    <div className="max-h-60 overflow-y-auto border rounded-md">
+                      {globalIncomes.map((income) => (
+                        <div key={income.id} className="flex items-center space-x-2 p-2 border-b last:border-0">
+                          <Checkbox
+                            id={`global-income-${income.id}`}
+                            checked={selectedGlobalIncomes.includes(income.id)}
+                            onCheckedChange={() => handleToggleGlobalIncome(income.id)}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <label
+                              htmlFor={`global-income-${income.id}`}
+                              className="text-sm font-medium cursor-pointer flex justify-between"
+                            >
+                              <div className="truncate">
+                                <span>{income.sourceName}</span>
+                                <span className="text-xs text-muted-foreground ml-2">
+                                  {format(new Date(income.date), "dd/MM/yy", { locale: es })}
+                                </span>
+                              </div>
+                              <span className="font-bold">${income.amount.toFixed(2)}</span>
+                            </label>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {selectedGlobalIncomes.length > 0 && (
+                      <div className="mt-4 flex justify-between items-center">
+                        <div className="text-sm">
+                          <span>{t("income.selectedIncomes") || "Seleccionados"}: </span>
+                          <span className="font-bold">{selectedGlobalIncomes.length}</span>
+                        </div>
+                        <Button onClick={handleImportGlobalIncomes} size="sm">
+                          {t("income.importSelected") || "Importar seleccionados"}
+                        </Button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-4 overflow-auto">

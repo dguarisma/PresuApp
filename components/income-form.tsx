@@ -20,6 +20,7 @@ import type { RecurringConfig } from "@/types/expense"
 import db from "@/lib/db"
 import incomeDB from "@/lib/db-income"
 import { useTranslation } from "@/hooks/use-translations"
+import { toast } from "@/components/ui/use-toast"
 
 interface IncomeFormProps {
   budgetId: string
@@ -139,6 +140,12 @@ export function IncomeForm({ budgetId, onSubmit, onCancel, initialData }: Income
     }
 
     onSubmit(incomeData)
+
+    toast({
+      title: t("income.added") || "Income added",
+      description: t("income.addSuccess") || "Income has been added successfully",
+      variant: "default",
+    })
   }
 
   return (

@@ -7,10 +7,11 @@ import { ArrowLeft } from "lucide-react"
 import { ModeToggle } from "@/components/mode-toggle"
 import { Skeleton } from "@/components/ui/skeleton"
 import db from "@/lib/db"
-import IncomeManager from "@/components/income-manager"
-import IncomeOpportunities from "@/components/income-opportunities"
 import { useTranslation } from "@/hooks/use-translations"
 import Link from "next/link"
+import { IncomeManager } from "@/components/income-manager-global"
+import { Card } from "@/components/ui/card"
+import BudgetIncomeSelector from "@/components/budget-income-selector"
 
 export default function IncomePage() {
   const params = useParams()
@@ -18,6 +19,7 @@ export default function IncomePage() {
   const budgetId = params.id as string
   const [budgetName, setBudgetName] = useState<string>("")
   const [isLoading, setIsLoading] = useState(true)
+  const [refreshKey, setRefreshKey] = useState(0)
   const { t } = useTranslation()
 
   useEffect(() => {
@@ -27,7 +29,7 @@ export default function IncomePage() {
       setBudgetName(currentBudget.name)
     }
     setIsLoading(false)
-  }, [budgetId])
+  }, [budgetId, refreshKey])
 
   return (
     <div className="min-h-full">
@@ -65,8 +67,13 @@ export default function IncomePage() {
         </header>
 
         <main className="flex-1 space-y-8">
-          <IncomeManager budgetId={budgetId} />
-          <IncomeOpportunities budgetId={budgetId} />
+          {/* Selector de ingresos para el presupuesto */}
+          <BudgetIncomeSelector budgetId={budgetId} refreshKey={refreshKey} />
+
+          {/* Gestor de ingresos global */}
+          <Card className="border shadow-sm">
+            <IncomeManager onIncomeChange={() => setRefreshKey((prev) => prev + 1)} />
+          </Card>
         </main>
       </div>
     </div>

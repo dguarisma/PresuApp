@@ -23,6 +23,7 @@ export default function BudgetForm({ budget, budgetId, onBudgetChange }: BudgetF
   const [inputBudget, setInputBudget] = useState(budget.toString())
   const [isEditing, setIsEditing] = useState(budget === 0)
   const [useIncome, setUseIncome] = useState(false)
+  const [useIncomeAsBudget, setUseIncomeAsBudget] = useState(false)
   const [totalIncome, setTotalIncome] = useState(0)
 
   // Cargar ingresos totales
@@ -60,6 +61,32 @@ export default function BudgetForm({ budget, budgetId, onBudgetChange }: BudgetF
       setInputBudget(income.toString())
       onBudgetChange(income)
     }
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Implement handleInputChange function
+  }
+
+  const [formData, setFormData] = useState({ budget: budget })
+
+  const handleUseIncomeChange = (useIncome: boolean, total: number) => {
+    setUseIncomeAsBudget(useIncome)
+    setTotalIncome(total)
+
+    if (useIncome) {
+      // Si se activa, usar el total de ingresos como presupuesto
+      setFormData((prev) => ({
+        ...prev,
+        budget: total,
+      }))
+    }
+  }
+
+  const BudgetIncomeSelector = ({
+    budgetId,
+    onUseIncomeChange,
+  }: { budgetId: string; onUseIncomeChange: (useIncome: boolean, total: number) => void }) => {
+    return <div>{/* Implement BudgetIncomeSelector component */}</div>
   }
 
   return (

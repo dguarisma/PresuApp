@@ -136,6 +136,28 @@ export const debtDB = {
       return 0
     }
   },
+
+  // Obtener todas las deudas (global)
+  getAllDebts: (): DebtItem[] => {
+    if (!isBrowser) return []
+
+    // Obtener todas las claves de localStorage que empiezan con el prefijo de deudas
+    const keys = Object.keys(localStorage).filter((key) => key.startsWith(DEBT_DATA_PREFIX))
+
+    // Obtener todas las deudas de todos los presupuestos
+    const allDebts: DebtItem[] = []
+    keys.forEach((key) => {
+      try {
+        const budgetId = key.replace(DEBT_DATA_PREFIX, "")
+        const debtData = debtDB.getDebtData(budgetId)
+        allDebts.push(...debtData.items)
+      } catch (error) {
+        console.error(`Error al obtener deudas de ${key}:`, error)
+      }
+    })
+
+    return allDebts
+  },
 }
 
 // Exportar funciones individuales para facilitar su uso
@@ -146,27 +168,6 @@ export const updateDebt = debtDB.updateDebt
 export const deleteDebt = debtDB.deleteDebt
 export const getTotalDebt = debtDB.getTotalDebt
 export const getTotalMinimumPayments = debtDB.getTotalMinimumPayments
-
-// Exportar también funciones para obtener todas las deudas (global)
-export const getAllDebts = (): DebtItem[] => {
-  if (!isBrowser) return []
-
-  // Obtener todas las claves de localStorage que empiezan con el prefijo de deudas
-  const keys = Object.keys(localStorage).filter((key) => key.startsWith(DEBT_DATA_PREFIX))
-
-  // Obtener todas las deudas de todos los presupuestos
-  const allDebts: DebtItem[] = []
-  keys.forEach((key) => {
-    try {
-      const budgetId = key.replace(DEBT_DATA_PREFIX, "")
-      const debtData = debtDB.getDebtData(budgetId)
-      allDebts.push(...debtData.items)
-    } catch (error) {
-      console.error(`Error al obtener deudas de ${key}:`, error)
-    }
-  })
-
-  return allDebts
-}
+export const getAllDebts = debtDB.getAllDebts
 
 export default debtDB

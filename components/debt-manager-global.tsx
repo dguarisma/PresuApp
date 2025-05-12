@@ -38,8 +38,14 @@ import {
 } from "@/components/ui/alert-dialog"
 import type { JSX } from "react"
 import Link from "next/link"
+import db from "@/lib/db"
 
-export function DebtManagerGlobal() {
+interface DebtManagerGlobalProps {
+  budgetId?: string
+  onDebtChange?: () => void
+}
+
+export function DebtManagerGlobal({ budgetId, onDebtChange }: DebtManagerGlobalProps) {
   const { t } = useLanguage()
   const { formatCurrency } = useCurrency()
   const { toast } = useToast()
@@ -55,11 +61,22 @@ export function DebtManagerGlobal() {
   useEffect(() => {
     loadDebts()
     loadIncomes()
-  }, [])
+  }, [budgetId])
 
   const loadDebts = async () => {
     try {
-      const allDebts = await getAllDebts()
+      let allDebts = await getAllDebts()
+
+      // Si hay un budgetId, filtrar solo las deudas asociadas a ese presupuesto
+      if (budgetId) {
+        const budget = db.getBudget(budgetId)
+        const associatedDebtIds = budget?.associatedDebtIds || []
+
+        if (associatedDebtIds.length > 0) {
+          allDebts = allDebts.filter((debt) => associatedDebtIds.includes(debt.id))
+        }
+      }
+
       setDebts(allDebts)
     } catch (error) {
       toast({
@@ -72,8 +89,23 @@ export function DebtManagerGlobal() {
 
   const loadIncomes = async () => {
     try {
-      const allIncomes = await getAllIncomes()
-      setIncomes(allIncomes)
+      if (budgetId) {
+        // Si hay un budgetId, cargar solo los ingresos asociados a ese presupuesto
+        const budget = db.getBudget(budgetId)
+        const associatedIncomeIds = budget?.associatedIncomeIds || []
+
+        if (associatedIncomeIds.length > 0) {
+          const allIncomes = await getAllIncomes()
+          const filteredIncomes = allIncomes.filter((income) => associatedIncomeIds.includes(income.id))
+          setIncomes(filteredIncomes)
+        } else {
+          setIncomes([])
+        }
+      } else {
+        // Si no hay budgetId, cargar todos los ingresos
+        const allIncomes = await getAllIncomes()
+        setIncomes(allIncomes)
+      }
     } catch (error) {
       console.error("Error loading incomes:", error)
     }
@@ -87,6 +119,10 @@ export function DebtManagerGlobal() {
       title: editingDebt ? t("debt.updated") : t("debt.added"),
       description: editingDebt ? t("debt.updateSuccess") : t("debt.addSuccess"),
     })
+
+    if (onDebtChange) {
+      onDebtChange()
+    }
   }
 
   const handleEditDebt = (debt: Debt) => {
@@ -103,12 +139,26 @@ export function DebtManagerGlobal() {
     if (!debtToDelete) return
 
     try {
-      await deleteDebt("global", debtToDelete)
+      await deleteDebt(budgetId || "global", debtToDelete)
+
+      // Si estamos en un presupuesto específico, también eliminar la asociación
+      if (budgetId) {
+        const budget = db.getBudget(budgetId)
+        if (budget && budget.associatedDebtIds) {
+          const updatedAssociatedDebtIds = budget.associatedDebtIds.filter((id) => id !== debtToDelete)
+          db.updateBudget(budgetId, { associatedDebtIds: updatedAssociatedDebtIds })
+        }
+      }
+
       loadDebts()
       toast({
         title: t("debt.deleted"),
         description: t("debt.deleteSuccess"),
       })
+
+      if (onDebtChange) {
+        onDebtChange()
+      }
     } catch (error) {
       toast({
         title: t("common.error"),
@@ -216,6 +266,7 @@ export function DebtManagerGlobal() {
             setEditingDebt(null)
           }}
           editingDebt={editingDebt}
+          budgetId={budgetId}
         />
       ) : (
         <>

@@ -1,72 +1,51 @@
 "use client"
 
-import { useParams, useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
-import { ModeToggle } from "@/components/mode-toggle"
-import { Skeleton } from "@/components/ui/skeleton"
+import { useParams } from "next/navigation"
+import DebtManagerGlobal from "@/components/debt-manager-global"
+import { PageHeader } from "@/components/page-header"
+import { CreditCard } from "lucide-react"
+import { useLanguage } from "@/hooks/use-language"
+import { BudgetDebtSelector } from "@/components/budget-debt-selector"
 import db from "@/lib/db"
-import DebtManager from "@/components/debt-manager"
-import { useTranslation } from "@/hooks/use-translations"
-import Link from "next/link"
 
-export default function DebtPage() {
+export default function BudgetDebtsPage() {
   const params = useParams()
-  const router = useRouter()
   const budgetId = params.id as string
-  const [budgetName, setBudgetName] = useState<string>("")
-  const [isLoading, setIsLoading] = useState(true)
-  const { t } = useTranslation()
+  const { t } = useLanguage()
+  const [budget, setBudget] = useState<any>(null)
+  const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
-    // Cargar el nombre del presupuesto
-    const currentBudget = db.getBudget(budgetId)
-    if (currentBudget) {
-      setBudgetName(currentBudget.name)
+    if (budgetId) {
+      const budgetData = db.getBudget(budgetId)
+      setBudget(budgetData)
     }
-    setIsLoading(false)
   }, [budgetId])
 
+  const handleDebtChange = () => {
+    // Actualizar el refreshKey para forzar la recarga del selector de deudas
+    setRefreshKey((prev) => prev + 1)
+  }
+
+  if (!budget) {
+    return <div className="p-4">Cargando...</div>
+  }
+
   return (
-    <div className="min-h-full">
-      <div className="p-4 flex flex-col min-h-[100vh]">
-        <div className="flex justify-center py-2 mb-2">
-          <Link href="/">
-            <img src="/logo.png" alt="PresuApp Logo" className="h-10" />
-          </Link>
-        </div>
+    <div className="p-4 pb-20">
+      <PageHeader
+        title={`${budget.name} - ${t("debt.title")}`}
+        icon={<CreditCard className="h-6 w-6 text-primary" />}
+      />
 
-        <header className="flex flex-col gap-3 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9 rounded-full mr-1"
-                onClick={() => router.push(`/budget/${budgetId}`)}
-                aria-label={t("common.back")}
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-              {isLoading ? (
-                <Skeleton className="h-8 w-48 ml-2" />
-              ) : (
-                <div className="flex items-center gap-2 ml-2">
-                  <h1 className="text-xl font-bold truncate">
-                    {budgetName} - {t("debt.title")}
-                  </h1>
-                </div>
-              )}
-            </div>
-            <ModeToggle />
-          </div>
-        </header>
-
-        <main className="flex-1">
-          <DebtManager budgetId={budgetId} />
-        </main>
+      {/* Selector de deudas para el presupuesto */}
+      <div className="mb-6">
+        <BudgetDebtSelector budgetId={budgetId} refreshKey={refreshKey} onDebtSelectionChange={handleDebtChange} />
       </div>
+
+      {/* Gestor de deudas */}
+      <DebtManagerGlobal budgetId={budgetId} onDebtChange={handleDebtChange} />
     </div>
   )
 }

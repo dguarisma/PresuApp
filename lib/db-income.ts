@@ -1,3 +1,5 @@
+"use client"
+
 import type { IncomeItem, IncomeSource, IncomeData } from "@/types/income"
 import { generateUUID } from "@/lib/uuid"
 
@@ -8,7 +10,7 @@ const INCOME_DATA_PREFIX = "income_"
 const isBrowser = typeof window !== "undefined"
 
 // Funciones para gestionar ingresos
-export const incomeDB = {
+const incomeDB = {
   // Obtener todos los datos de ingresos para un presupuesto
   getIncomeData: (budgetId: string): IncomeData => {
     try {
@@ -165,78 +167,41 @@ export const incomeDB = {
   },
 
   // Obtener el total de ingresos para un período
-  getTotalIncome: (budgetId: string, startDate?: Date, endDate?: Date): number => {
+  getTotalIncome: (budgetId: string): number => {
     try {
       if (!isBrowser) return 0
 
       const incomeData = incomeDB.getIncomeData(budgetId)
-
-      // Si no se especifican fechas, devolver el total de todos los ingresos
-      if (!startDate && !endDate) {
-        return incomeData.items.reduce((total, item) => total + item.amount, 0)
-      }
-
-      // Filtrar por fechas si se especifican
-      const start = startDate ? startDate.getTime() : 0
-      const end = endDate ? endDate.getTime() : Date.now()
-
-      return incomeData.items
-        .filter((item) => {
-          const itemDate = new Date(item.date).getTime()
-          return itemDate >= start && itemDate <= end
-        })
-        .reduce((total, item) => total + item.amount, 0)
+      return incomeData.items.reduce((total, item) => total + item.amount, 0)
     } catch (error) {
       console.error(`Error al calcular total de ingresos para presupuesto ${budgetId}:`, error)
       return 0
     }
   },
-}
 
-// Función para obtener todos los presupuestos
-export const getAllBudgetIds = (): string[] => {
-  if (!isBrowser) return []
+  // Añadir esta función al objeto incomeDB
+  getAllIncomes: (): IncomeItem[] => {
+    if (!isBrowser) return []
 
-  try {
-    const keys = Object.keys(localStorage)
-    return keys.filter((key) => key.startsWith(INCOME_DATA_PREFIX)).map((key) => key.replace(INCOME_DATA_PREFIX, ""))
-  } catch (error) {
-    console.error("Error al obtener IDs de presupuestos:", error)
-    return []
-  }
-}
+    // Obtener todas las claves de localStorage que empiezan con el prefijo de ingresos
+    const keys = Object.keys(localStorage).filter((key) => key.startsWith(INCOME_DATA_PREFIX))
 
-// Función para obtener todos los ingresos de todos los presupuestos
-export const getAllIncomes = (): IncomeItem[] => {
-  if (!isBrowser) return []
-
-  try {
-    const budgetIds = getAllBudgetIds()
-    let allIncomes: IncomeItem[] = []
-
-    // Obtener ingresos de cada presupuesto
-    budgetIds.forEach((budgetId) => {
-      const incomeData = incomeDB.getIncomeData(budgetId)
-      // Añadir el ID del presupuesto a cada ingreso para referencia
-      const incomesWithBudgetId = incomeData.items.map((item) => ({
-        ...item,
-        budgetId,
-      }))
-      allIncomes = [...allIncomes, ...incomesWithBudgetId]
+    // Obtener todos los ingresos de todos los presupuestos
+    const allIncomes: IncomeItem[] = []
+    keys.forEach((key) => {
+      try {
+        const budgetId = key.replace(INCOME_DATA_PREFIX, "")
+        const incomeData = incomeDB.getIncomeData(budgetId)
+        allIncomes.push(...incomeData.items)
+      } catch (error) {
+        console.error(`Error al obtener ingresos de ${key}:`, error)
+      }
     })
 
-    // Añadir también los ingresos globales si existen
-    const globalIncomeData = incomeDB.getIncomeData("global")
-    const globalIncomes = globalIncomeData.items.map((item) => ({
-      ...item,
-      budgetId: "global",
-    }))
-
-    return [...allIncomes, ...globalIncomes]
-  } catch (error) {
-    console.error("Error al obtener todos los ingresos:", error)
-    return []
-  }
+    return allIncomes
+  },
 }
 
+export const getTotalIncome = incomeDB.getTotalIncome
+export const getAllIncomes = incomeDB.getAllIncomes
 export default incomeDB

@@ -1,39 +1,25 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { format } from "date-fns"
-import { es } from "date-fns/locale"
-import { Plus, Trash2, Edit, CreditCard, Calendar, DollarSign, Percent } from "lucide-react"
-import type { DebtItem } from "@/types/debt"
-import debtDB from "@/lib/db-debt"
-import incomeDB from "@/lib/db-income"
+import { Plus } from "lucide-react"
 import { DebtForm } from "@/components/debt-form"
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { useTranslation } from "@/hooks/use-translations"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
+import debtDB from "@/lib/db-debt"
+import db from "@/lib/db"
+import type { DebtItem } from "@/types/debt"
 
 interface DebtManagerProps {
   budgetId: string
+  onDebtChange?: () => void
+  showOnlyAssociated?: boolean
 }
 
-export default function DebtManager({ budgetId }: DebtManagerProps) {
-  const [debtItems, setDebtItems] = useState<DebtItem[]>([])
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+export function DebtManager({ budgetId, onDebtChange, showOnlyAssociated = false }: DebtManagerProps) {
+  const [debts, setDebts] = useState<DebtItem[]>([])
+  const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingDebt, setEditingDebt] = useState<DebtItem | null>(null)
   const [activeTab, setActiveTab] = useState("all")
   const [totalDebt, setTotalDebt] = useState(0)
@@ -42,188 +28,218 @@ export default function DebtManager({ budgetId }: DebtManagerProps) {
   const [monthlyIncome, setMonthlyIncome] = useState(0)
   const { t } = useTranslation()
 
-  // Cargar datos de deudas e ingresos
   useEffect(() => {
-    loadDebtData()
-    calculateMonthlyIncome()
-  }, [budgetId])
+    loadDebts()
+    calculateFinancialMetrics()
+  }, [budgetId, activeTab])
 
-  // Calcular ratio de endeudamiento cuando cambian los datos
-  useEffect(() => {
-    if (monthlyIncome > 0) {
-      setDebtToIncomeRatio((totalMinimumPayments / monthlyIncome) * 100)
-    } else {
-      setDebtToIncomeRatio(0)
-    }
-  }, [totalMinimumPayments, monthlyIncome])
+  const loadDebts = () => {
+    try {
+      const debtData = debtDB.getDebtData(budgetId)
+      let filteredDebts = [...debtData.items]
 
-  const loadDebtData = () => {
-    const debtData = debtDB.getDebtData(budgetId)
-    setDebtItems(debtData.items)
-    setTotalDebt(debtDB.getTotalDebt(budgetId))
-    setTotalMinimumPayments(debtDB.getTotalMinimumPayments(budgetId))
-  }
+      if (showOnlyAssociated) {
+        const budget = db.getBudget(budgetId)
+        const associatedDebtIds = budget?.associatedDebtIds || []
 
-  const calculateMonthlyIncome = () => {
-    // Obtener todos los ingresos
-    const incomeData = incomeDB.getIncomeData(budgetId)
-
-    // Calcular ingresos mensuales (simplificado)
-    // En una implementación real, se debería considerar la frecuencia de cada ingreso
-    const totalIncome = incomeData.items.reduce((total, item) => {
-      if (item.isRecurring && item.recurringConfig) {
-        // Convertir a mensual según la frecuencia
-        switch (item.recurringConfig.frequency) {
-          case "daily":
-            return total + (item.amount * 30) / item.recurringConfig.interval
-          case "weekly":
-            return total + (item.amount * 4) / item.recurringConfig.interval
-          case "monthly":
-            return total + item.amount / item.recurringConfig.interval
-          case "yearly":
-            return total + item.amount / (12 * item.recurringConfig.interval)
-          default:
-            return total + item.amount
-        }
-      } else {
-        // Para ingresos no recurrentes, asumimos que son mensuales
-        return total + item.amount
+        // Si estamos en modo "solo asociados", filtramos por las deudas asociadas
+        const allDebts = debtDB.getAllDebts ? debtDB.getAllDebts() : []
+        filteredDebts = allDebts.filter((debt) => associatedDebtIds.includes(debt.id))
       }
-    }, 0)
 
-    setMonthlyIncome(totalIncome)
-  }
+      // Aplicar filtro por tipo si no es "all"
+      if (activeTab !== "all") {
+        filteredDebts = filteredDebts.filter((debt) => debt.type === activeTab)
+      }
 
-  const handleAddDebt = (debt: Omit<DebtItem, "id">) => {
-    debtDB.addDebt(budgetId, debt)
-    loadDebtData()
-    setIsAddDialogOpen(false)
-  }
-
-  const handleUpdateDebt = (debt: Omit<DebtItem, "id">) => {
-    if (editingDebt) {
-      debtDB.updateDebt(budgetId, editingDebt.id, debt)
-      loadDebtData()
-      setEditingDebt(null)
+      setDebts(filteredDebts)
+      setTotalDebt(debtDB.getTotalDebt(budgetId))
+      setTotalMinimumPayments(debtDB.getTotalMinimumPayments(budgetId))
+    } catch (error) {
+      console.error("Error al cargar deudas:", error)
     }
+  }
+
+  const calculateFinancialMetrics = () => {
+    try {
+      // Obtener ingresos mensuales del presupuesto
+      const budget = db.getBudget(budgetId)
+      let monthlyIncomeTotal = 0
+
+      if (budget && budget.associatedIncomeIds) {
+        const incomeDB = require("@/lib/db-income")
+        const allIncomes = incomeDB.getAllIncomes ? incomeDB.getAllIncomes() : []
+
+        // Filtrar solo los ingresos asociados a este presupuesto
+        const budgetIncomes = allIncomes.filter((income) => budget.associatedIncomeIds.includes(income.id))
+
+        // Sumar todos los ingresos
+        monthlyIncomeTotal = budgetIncomes.reduce((sum, income) => sum + income.amount, 0)
+      }
+
+      setMonthlyIncome(monthlyIncomeTotal)
+
+      // Calcular ratio deuda/ingreso
+      if (monthlyIncomeTotal > 0) {
+        const ratio = (totalMinimumPayments / monthlyIncomeTotal) * 100
+        setDebtToIncomeRatio(ratio)
+      } else {
+        setDebtToIncomeRatio(0)
+      }
+    } catch (error) {
+      console.error("Error al calcular métricas financieras:", error)
+    }
+  }
+
+  const handleSaveDebt = (debtData: Omit<DebtItem, "id">) => {
+    try {
+      if (editingDebt) {
+        // Actualizar deuda existente
+        debtDB.updateDebt(budgetId, editingDebt.id, debtData)
+      } else {
+        // Añadir nueva deuda
+        const newDebt = debtDB.addDebt(budgetId, debtData)
+
+        // Si estamos en modo "solo asociados", asociar automáticamente la nueva deuda
+        if (showOnlyAssociated) {
+          const budget = db.getBudget(budgetId)
+          const associatedDebtIds = budget?.associatedDebtIds || []
+
+          if (!associatedDebtIds.includes(newDebt.id)) {
+            db.updateBudget(budgetId, {
+              associatedDebtIds: [...associatedDebtIds, newDebt.id],
+            })
+          }
+        }
+      }
+
+      setIsFormOpen(false)
+      setEditingDebt(null)
+      loadDebts()
+      calculateFinancialMetrics()
+
+      // Notificar al componente padre que hubo un cambio
+      if (onDebtChange) {
+        onDebtChange()
+      }
+    } catch (error) {
+      console.error("Error al guardar deuda:", error)
+    }
+  }
+
+  const handleEditDebt = (debt: DebtItem) => {
+    setEditingDebt(debt)
+    setIsFormOpen(true)
   }
 
   const handleDeleteDebt = (debtId: string) => {
-    debtDB.deleteDebt(budgetId, debtId)
-    loadDebtData()
-  }
+    try {
+      debtDB.deleteDebt(budgetId, debtId)
+      loadDebts()
+      calculateFinancialMetrics()
 
-  // Filtrar deudas por pestaña activa
-  const filteredDebts = activeTab === "all" ? debtItems : debtItems.filter((item) => item.type === activeTab)
-
-  // Ordenar deudas por monto (mayor a menor)
-  const sortedDebts = [...filteredDebts].sort((a, b) => b.amount - a.amount)
-
-  // Determinar el color del ratio de endeudamiento
-  const getDebtRatioColor = () => {
-    if (debtToIncomeRatio >= 50) return "bg-red-500"
-    if (debtToIncomeRatio >= 30) return "bg-amber-500"
-    if (debtToIncomeRatio > 0) return "bg-emerald-500"
-    return "bg-gray-300"
-  }
-
-  // Determinar el mensaje del ratio de endeudamiento
-  const getDebtRatioMessage = () => {
-    if (debtToIncomeRatio >= 50) return t("debt.ratioHigh")
-    if (debtToIncomeRatio >= 30) return t("debt.ratioMedium")
-    if (debtToIncomeRatio > 0) return t("debt.ratioLow")
-    return t("debt.ratioNone")
-  }
-
-  // Obtener el ícono según el tipo de deuda
-  const getDebtTypeIcon = (type: DebtItem["type"]) => {
-    switch (type) {
-      case "credit_card":
-        return <CreditCard className="h-5 w-5 text-blue-500" />
-      case "loan":
-        return <DollarSign className="h-5 w-5 text-green-500" />
-      case "mortgage":
-        return <DollarSign className="h-5 w-5 text-purple-500" />
-      case "personal":
-        return <DollarSign className="h-5 w-5 text-orange-500" />
-      default:
-        return <DollarSign className="h-5 w-5 text-gray-500" />
+      // Notificar al componente padre que hubo un cambio
+      if (onDebtChange) {
+        onDebtChange()
+      }
+    } catch (error) {
+      console.error("Error al eliminar deuda:", error)
     }
   }
 
+  const getDebtTypeLabel = (type: string) => {
+    const types: Record<string, string> = {
+      creditCard: t("debt.types.creditCard"),
+      loan: t("debt.types.loan"),
+      mortgage: t("debt.types.mortgage"),
+      personal: t("debt.types.personal"),
+      other: t("debt.types.other"),
+    }
+    return types[type] || type
+  }
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">{t("debt.title")}</h2>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              {t("debt.addNew")}
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle>{t("debt.addNew")}</DialogTitle>
-            </DialogHeader>
-            <DebtForm budgetId={budgetId} onSubmit={handleAddDebt} onCancel={() => setIsAddDialogOpen(false)} />
-          </DialogContent>
-        </Dialog>
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold">{t("debt.debts")}</h2>
+        <Button
+          onClick={() => {
+            setEditingDebt(null)
+            setIsFormOpen(true)
+          }}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          {t("debt.addDebt")}
+        </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="border border-border/50 shadow-sm">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center text-xl">
-              <DollarSign className="h-5 w-5 mr-1 text-primary" />
-              {t("debt.summary")}
-            </CardTitle>
-            <div className="flex items-center justify-between mt-2">
-              <span className="text-muted-foreground">{t("debt.total")}:</span>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="bg-white dark:bg-gray-950 p-6 rounded-lg shadow-sm border">
+          <h3 className="text-xl font-semibold mb-4 flex items-center">
+            <span className="text-primary text-2xl mr-2">$</span>
+            {t("debt.debtSummary")}
+          </h3>
+          <div className="space-y-4">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">{t("debt.totalDebt")}:</span>
               <span className="text-2xl font-bold">${totalDebt.toFixed(2)}</span>
             </div>
-            <div className="flex items-center justify-between mt-1">
+            <div className="flex justify-between">
               <span className="text-muted-foreground">{t("debt.monthlyPayments")}:</span>
-              <span className="text-lg font-medium">${totalMinimumPayments.toFixed(2)}</span>
+              <span className="text-2xl font-bold">${totalMinimumPayments.toFixed(2)}</span>
             </div>
-          </CardHeader>
-        </Card>
+          </div>
+        </div>
 
-        <Card className="border border-border/50 shadow-sm">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center text-xl">
-              <Percent className="h-5 w-5 mr-1 text-primary" />
-              {t("debt.debtToIncomeRatio")}
-            </CardTitle>
-            <CardDescription>{t("debt.debtToIncomeDescription")}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">{t("debt.ratio")}</span>
-                <span className="font-medium">{debtToIncomeRatio.toFixed(1)}%</span>
-              </div>
-              <Progress value={debtToIncomeRatio} max={100} className={`h-2 ${getDebtRatioColor()}`} />
-              <p className="text-xs text-muted-foreground">{getDebtRatioMessage()}</p>
+        <div className="bg-white dark:bg-gray-950 p-6 rounded-lg shadow-sm border">
+          <h3 className="text-xl font-semibold mb-4 flex items-center">
+            <span className="text-primary text-2xl mr-2">%</span>
+            {t("debt.debtToIncomeRatio")}
+          </h3>
+          <p className="text-sm text-muted-foreground mb-4">{t("debt.debtToIncomeRatioDescription")}</p>
+
+          <div className="mb-4">
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+              <div
+                className={`h-2.5 rounded-full ${
+                  debtToIncomeRatio > 40 ? "bg-red-500" : debtToIncomeRatio > 30 ? "bg-yellow-500" : "bg-green-500"
+                }`}
+                style={{ width: `${Math.min(debtToIncomeRatio, 100)}%` }}
+              ></div>
             </div>
-            <div className="text-sm text-muted-foreground">
-              <div className="flex justify-between">
-                <span>{t("debt.monthlyPayments")}</span>
-                <span>${totalMinimumPayments.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between mt-1">
-                <span>{t("income.monthlyIncome")}</span>
-                <span>${monthlyIncome.toFixed(2)}</span>
-              </div>
+            <div className="flex justify-between mt-1">
+              <span className="text-xs text-muted-foreground">0%</span>
+              <span className="text-xs text-muted-foreground">50%</span>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">{t("debt.ratio")}</span>
+              <span className="font-bold">{debtToIncomeRatio.toFixed(1)}%</span>
+            </div>
+
+            {debtToIncomeRatio === 0 && monthlyIncome === 0 && (
+              <p className="text-sm text-muted-foreground">{t("debt.insufficientDataForRatio")}</p>
+            )}
+
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">{t("debt.monthlyPayments")}</span>
+              <span>${totalMinimumPayments.toFixed(2)}</span>
+            </div>
+
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">{t("income.monthlyIncome")}</span>
+              <span>${monthlyIncome.toFixed(2)}</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-4 overflow-auto">
+      <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="mb-4">
           <TabsTrigger value="all">{t("common.all")}</TabsTrigger>
-          <TabsTrigger value="credit_card">{t("debt.types.creditCard")}</TabsTrigger>
+          <TabsTrigger value="creditCard">{t("debt.types.creditCard")}</TabsTrigger>
           <TabsTrigger value="loan">{t("debt.types.loan")}</TabsTrigger>
           <TabsTrigger value="mortgage">{t("debt.types.mortgage")}</TabsTrigger>
           <TabsTrigger value="personal">{t("debt.types.personal")}</TabsTrigger>
@@ -231,133 +247,82 @@ export default function DebtManager({ budgetId }: DebtManagerProps) {
         </TabsList>
 
         <TabsContent value={activeTab} className="mt-0">
-          {sortedDebts.length === 0 ? (
-            <div className="text-center p-8 border rounded-lg bg-muted/30 border-dashed">
-              <p className="text-muted-foreground">
-                {activeTab === "all"
-                  ? t("debt.noDebt")
-                  : t("debt.noDebtOfType", { type: t(`debt.types.${activeTab}`) })}
-              </p>
-              <Button variant="outline" className="mt-4" onClick={() => setIsAddDialogOpen(true)}>
+          {debts.length === 0 ? (
+            <div className="text-center p-8 border border-dashed rounded-lg">
+              <p className="text-muted-foreground mb-4">{t("debt.noDebtsRegistered")}</p>
+              <Button
+                onClick={() => {
+                  setEditingDebt(null)
+                  setIsFormOpen(true)
+                }}
+              >
                 <Plus className="h-4 w-4 mr-2" />
-                {t("debt.addFirst")}
+                {t("debt.addFirstDebt")}
               </Button>
             </div>
           ) : (
             <div className="space-y-4">
-              {sortedDebts.map((debt) => (
-                <Card key={debt.id} className="overflow-hidden">
-                  <div className="flex items-center justify-between p-4 bg-muted/20">
-                    <div className="flex items-center">
-                      <div className="mr-4">{getDebtTypeIcon(debt.type)}</div>
-                      <div>
-                        <h3 className="font-medium">{debt.name}</h3>
-                        <p className="text-sm text-muted-foreground">{t(`debt.types.${debt.type}`)}</p>
-                      </div>
+              {debts.map((debt) => (
+                <div key={debt.id} className="bg-white dark:bg-gray-950 p-4 rounded-lg border shadow-sm">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <h3 className="text-lg font-semibold">{debt.name}</h3>
+                      <span className="text-sm bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                        {getDebtTypeLabel(debt.type)}
+                      </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg font-semibold">${debt.amount.toFixed(2)}</span>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditingDebt(debt)}>
-                            <Edit className="h-4 w-4" />
-                            <span className="sr-only">{t("actions.edit")}</span>
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[600px]">
-                          <DialogHeader>
-                            <DialogTitle>{t("debt.edit")}</DialogTitle>
-                          </DialogHeader>
-                          {editingDebt && (
-                            <DebtForm
-                              budgetId={budgetId}
-                              onSubmit={handleUpdateDebt}
-                              onCancel={() => setEditingDebt(null)}
-                              initialData={editingDebt}
-                            />
-                          )}
-                        </DialogContent>
-                      </Dialog>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-destructive hover:text-destructive/90 hover:bg-destructive/10"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            <span className="sr-only">{t("actions.delete")}</span>
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>{t("debt.confirmDelete")}</AlertDialogTitle>
-                            <AlertDialogDescription>{t("debt.deleteWarning")}</AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>{t("actions.cancel")}</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleDeleteDebt(debt.id)}
-                              className="bg-destructive hover:bg-destructive/90"
-                            >
-                              {t("actions.delete")}
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold">${debt.amount.toFixed(2)}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {debt.interestRate > 0 && `${debt.interestRate}% ${t("debt.interest")}`}
+                      </div>
                     </div>
                   </div>
-                  <CardContent className="p-4">
-                    <div className="grid grid-cols-2 gap-4 mb-3">
-                      <div>
-                        <p className="text-sm text-muted-foreground">{t("debt.interestRate")}</p>
-                        <p className="font-medium">{debt.interestRate}%</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">{t("debt.minimumPayment")}</p>
-                        <p className="font-medium">${debt.minimumPayment.toFixed(2)}</p>
-                      </div>
-                    </div>
 
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {debt.startDate && (
-                        <Badge variant="outline" className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          {t("debt.startDate")}: {format(new Date(debt.startDate), "PP", { locale: es })}
-                        </Badge>
-                      )}
-                      {debt.endDate && (
-                        <Badge variant="outline" className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          {t("debt.endDate")}: {format(new Date(debt.endDate), "PP", { locale: es })}
-                        </Badge>
-                      )}
-                      {debt.isRecurring && (
-                        <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
-                          {t("debt.recurring")}
-                        </Badge>
-                      )}
-                      {debt.paymentDate && (
-                        <Badge variant="outline" className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          {t("debt.paymentDate")}: {format(new Date(debt.paymentDate), "PP", { locale: es })}
-                        </Badge>
-                      )}
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">{t("debt.minimumPayment")}</p>
+                      <p className="font-medium">${debt.minimumPayment.toFixed(2)}</p>
                     </div>
-
-                    {debt.notes && (
+                    {debt.dueDate && (
                       <div>
-                        <h4 className="text-sm font-medium mb-1">{t("common.notes")}:</h4>
-                        <p className="text-sm text-muted-foreground">{debt.notes}</p>
+                        <p className="text-sm text-muted-foreground">{t("debt.dueDate")}</p>
+                        <p className="font-medium">{new Date(debt.dueDate).toLocaleDateString()}</p>
                       </div>
                     )}
-                  </CardContent>
-                </Card>
+                  </div>
+
+                  {debt.notes && <p className="text-sm mb-4">{debt.notes}</p>}
+
+                  <div className="flex justify-end space-x-2">
+                    <Button variant="outline" size="sm" onClick={() => handleEditDebt(debt)}>
+                      {t("actions.edit")}
+                    </Button>
+                    <Button variant="destructive" size="sm" onClick={() => handleDeleteDebt(debt.id)}>
+                      {t("actions.delete")}
+                    </Button>
+                  </div>
+                </div>
               ))}
             </div>
           )}
         </TabsContent>
       </Tabs>
+
+      <Sheet open={isFormOpen} onOpenChange={setIsFormOpen}>
+        <SheetContent className="sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle>{editingDebt ? t("debt.editDebt") : t("debt.addDebt")}</SheetTitle>
+          </SheetHeader>
+          <div className="py-4">
+            <DebtForm
+              initialData={editingDebt || undefined}
+              onSave={handleSaveDebt}
+              onCancel={() => setIsFormOpen(false)}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   )
 }

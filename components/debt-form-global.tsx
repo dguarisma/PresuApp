@@ -2,223 +2,282 @@
 
 import type React from "react"
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
 import { useLanguage } from "@/hooks/use-language"
-import { useCurrency } from "@/hooks/use-currency"
-import { addDebt, updateDebt } from "@/lib/db-debt"
+import { useToast } from "@/hooks/use-toast"
+import debtDB from "@/lib/db-debt"
 import type { Debt } from "@/types/debt"
+import db from "@/lib/db"
 
 interface DebtFormGlobalProps {
   onSave: () => void
   onCancel: () => void
   editingDebt?: Debt | null
+  budgetId?: string
 }
 
-export function DebtFormGlobal({ onSave, onCancel, editingDebt }: DebtFormGlobalProps) {
+export function DebtFormGlobal({ onSave, onCancel, editingDebt = null, budgetId }: DebtFormGlobalProps) {
   const { t } = useLanguage()
-  const { formatCurrency } = useCurrency()
-  const [name, setName] = useState(editingDebt?.name || "")
-  const [description, setDescription] = useState(editingDebt?.description || "")
-  const [amount, setAmount] = useState(editingDebt?.amount?.toString() || "")
-  const [interestRate, setInterestRate] = useState(editingDebt?.interestRate?.toString() || "")
-  const [minimumPayment, setMinimumPayment] = useState(editingDebt?.minimumPayment?.toString() || "")
-  const [dueDate, setDueDate] = useState(editingDebt?.dueDate || "")
-  const [type, setType] = useState(editingDebt?.type || "creditCard")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  const { toast } = useToast()
+  const [name, setName] = useState("")
+  const [amount, setAmount] = useState("")
+  const [type, setType] = useState<string>("creditCard")
+  const [interestRate, setInterestRate] = useState("")
+  const [minimumPayment, setMinimumPayment] = useState("")
+  const [notes, setNotes] = useState("")
+  const [isRecurring, setIsRecurring] = useState(false)
+  const [paymentDate, setPaymentDate] = useState("")
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
 
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {}
-
-    if (!name.trim()) {
-      newErrors.name = t("debt.nameRequired")
+  useEffect(() => {
+    if (editingDebt) {
+      setName(editingDebt.name)
+      setAmount(editingDebt.amount.toString())
+      setType(editingDebt.type)
+      setInterestRate(editingDebt.interestRate?.toString() || "")
+      setMinimumPayment(editingDebt.minimumPayment?.toString() || "")
+      setNotes(editingDebt.notes || "")
+      setIsRecurring(editingDebt.isRecurring || false)
+      setPaymentDate(editingDebt.paymentDate || "")
+      setStartDate(editingDebt.startDate || "")
+      setEndDate(editingDebt.endDate || "")
     }
+  }, [editingDebt])
 
-    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
-      newErrors.amount = t("debt.validAmount")
-    }
-
-    if (interestRate && (isNaN(Number(interestRate)) || Number(interestRate) < 0)) {
-      newErrors.interestRate = t("debt.validInterest")
-    }
-
-    if (minimumPayment && (isNaN(Number(minimumPayment)) || Number(minimumPayment) < 0)) {
-      newErrors.minimumPayment = t("debt.validPayment")
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!validateForm()) {
+    if (!name.trim()) {
+      toast({
+        title: t("common.error"),
+        description: t("debt.nameRequired"),
+        variant: "destructive",
+      })
       return
     }
 
-    setIsSubmitting(true)
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      toast({
+        title: t("common.error"),
+        description: t("debt.amountInvalid"),
+        variant: "destructive",
+      })
+      return
+    }
 
     try {
-      const debtData = {
-        name,
-        description,
+      const debtData: Omit<Debt, "id"> = {
+        name: name.trim(),
         amount: Number(amount),
-        interestRate: interestRate ? Number(interestRate) : undefined,
-        minimumPayment: minimumPayment ? Number(minimumPayment) : 0,
-        dueDate: dueDate || undefined,
         type,
+        interestRate: interestRate ? Number(interestRate) : 0,
+        minimumPayment: minimumPayment ? Number(minimumPayment) : 0,
+        notes: notes.trim(),
+        isRecurring,
+        paymentDate: paymentDate || undefined,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+        createdAt: editingDebt?.createdAt || Date.now(),
+        updatedAt: Date.now(),
       }
 
       if (editingDebt) {
-        await updateDebt("global", editingDebt.id, debtData)
+        // Actualizar deuda existente
+        debtDB.updateDebt(budgetId || "global", editingDebt.id, debtData)
       } else {
-        await addDebt("global", debtData)
+        // Crear nueva deuda
+        const newDebt = debtDB.addDebt(budgetId || "global", debtData)
+
+        // Si estamos en un presupuesto específico, asociar la deuda con ese presupuesto
+        if (budgetId) {
+          const budget = db.getBudget(budgetId)
+          const associatedDebtIds = budget?.associatedDebtIds || []
+
+          if (!associatedDebtIds.includes(newDebt.id)) {
+            db.updateBudget(budgetId, {
+              associatedDebtIds: [...associatedDebtIds, newDebt.id],
+            })
+          }
+        }
       }
 
       onSave()
     } catch (error) {
-      console.error("Error al guardar la deuda:", error)
-    } finally {
-      setIsSubmitting(false)
+      console.error("Error al guardar deuda:", error)
+      toast({
+        title: t("common.error"),
+        description: t("debt.saveError"),
+        variant: "destructive",
+      })
     }
   }
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type, checked } = e.target
+
+    if (name === "name") {
+      setName(value)
+    } else if (name === "amount") {
+      setAmount(value)
+    } else if (name === "interestRate") {
+      setInterestRate(value)
+    } else if (name === "minimumPayment") {
+      setMinimumPayment(value)
+    } else if (name === "notes") {
+      setNotes(value)
+    } else if (name === "isRecurring") {
+      setIsRecurring(checked)
+    } else if (name === "paymentDate") {
+      setPaymentDate(value)
+    } else if (name === "startDate") {
+      setStartDate(value)
+    } else if (name === "endDate") {
+      setEndDate(value)
+    }
+  }
+
+  const debt = {
+    name,
+    amount,
+    interestRate,
+    minimumPayment,
+    notes,
+    isRecurring,
+    paymentDate,
+    startDate,
+    endDate,
+  }
+
   return (
-    <Card className="w-full shadow-sm border-0 sm:border">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-xl">{editingDebt ? t("debt.edit") : t("debt.addNew")}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name" className="text-sm font-medium">
-              {t("debt.name")}
-            </Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={t("debt.namePlaceholder")}
-              className={`${errors.name ? "border-red-500" : ""} h-10 rounded-lg`}
-            />
-            {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
-          </div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="name">{t("debt.name")}</Label>
+        <Input
+          id="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder={t("debt.namePlaceholder")}
+          required
+        />
+      </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description" className="text-sm font-medium">
-              {t("common.notes")}
-            </Label>
-            <Input
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder={t("debt.notesPlaceholder")}
-              className="h-10 rounded-lg"
-            />
-          </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="amount">{t("debt.amount")}</Label>
+          <Input
+            id="amount"
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="0.00"
+            min="0"
+            step="0.01"
+            required
+          />
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="type" className="text-sm font-medium">
-              {t("debt.type")}
-            </Label>
-            <Select value={type} onValueChange={setType}>
-              <SelectTrigger className="h-10 rounded-lg">
-                <SelectValue placeholder={t("debt.selectType")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="creditCard">{t("debt.types.credit_card")}</SelectItem>
-                <SelectItem value="loan">{t("debt.types.loan")}</SelectItem>
-                <SelectItem value="mortgage">{t("debt.types.mortgage")}</SelectItem>
-                <SelectItem value="other">{t("debt.types.other")}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="space-y-2">
+          <Label htmlFor="type">{t("debt.type")}</Label>
+          <Select value={type} onValueChange={setType}>
+            <SelectTrigger id="type">
+              <SelectValue placeholder={t("debt.selectType")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="creditCard">{t("debt.types.credit_card")}</SelectItem>
+              <SelectItem value="loan">{t("debt.types.loan")}</SelectItem>
+              <SelectItem value="mortgage">{t("debt.types.mortgage")}</SelectItem>
+              <SelectItem value="personal">{t("debt.types.personal")}</SelectItem>
+              <SelectItem value="other">{t("debt.types.other")}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="amount" className="text-sm font-medium">
-              {t("debt.amount")}
-            </Label>
-            <Input
-              id="amount"
-              type="number"
-              step="0.01"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="0.00"
-              className={`${errors.amount ? "border-red-500" : ""} h-10 rounded-lg`}
-            />
-            {errors.amount && <p className="text-sm text-red-500">{errors.amount}</p>}
-          </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="interestRate">{t("debt.interestRate")}</Label>
+          <Input
+            id="interestRate"
+            type="number"
+            value={interestRate}
+            onChange={(e) => setInterestRate(e.target.value)}
+            placeholder="0.00"
+            min="0"
+            step="0.01"
+          />
+        </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="interestRate" className="text-sm font-medium">
-              {t("debt.interestRate")}
-            </Label>
-            <Input
-              id="interestRate"
-              type="number"
-              step="0.01"
-              value={interestRate}
-              onChange={(e) => setInterestRate(e.target.value)}
-              placeholder="0.00"
-              className={`${errors.interestRate ? "border-red-500" : ""} h-10 rounded-lg`}
-            />
-            {errors.interestRate && <p className="text-sm text-red-500">{errors.interestRate}</p>}
-          </div>
+        <div className="space-y-2">
+          <Label htmlFor="minimumPayment">{t("debt.minimumPayment")} *</Label>
+          <Input
+            id="minimumPayment"
+            name="minimumPayment"
+            type="number"
+            step="0.01"
+            min="0"
+            required
+            value={debt.minimumPayment}
+            onChange={handleChange}
+            className="w-full"
+          />
+          <p className="text-sm text-muted-foreground">{t("debt.minimumPaymentDescription")}</p>
+        </div>
+      </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="minimumPayment" className="text-sm font-medium">
-              {t("debt.minimumPayment")}
-            </Label>
-            <Input
-              id="minimumPayment"
-              type="number"
-              step="0.01"
-              value={minimumPayment}
-              onChange={(e) => setMinimumPayment(e.target.value)}
-              placeholder="0.00"
-              className={`${errors.minimumPayment ? "border-red-500" : ""} h-10 rounded-lg`}
-            />
-            {errors.minimumPayment && <p className="text-sm text-red-500">{errors.minimumPayment}</p>}
-          </div>
+      <div className="flex items-center space-x-2">
+        <Switch id="isRecurring" checked={isRecurring} onCheckedChange={setIsRecurring} />
+        <Label htmlFor="isRecurring">{t("debt.isRecurring")}</Label>
+      </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="dueDate" className="text-sm font-medium">
-              {t("debt.paymentDate")}
-            </Label>
-            <Input
-              id="dueDate"
-              type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              className="h-10 rounded-lg"
-            />
-          </div>
+      {isRecurring && (
+        <div className="space-y-2">
+          <Label htmlFor="paymentDate">{t("debt.paymentDate")}</Label>
+          <Input id="paymentDate" type="date" value={paymentDate} onChange={(e) => setPaymentDate(e.target.value)} />
+        </div>
+      )}
 
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel}
-              disabled={isSubmitting}
-              className="h-10 rounded-lg"
-            >
-              {t("common.cancel")}
-            </Button>
-            <Button type="submit" disabled={isSubmitting} className="h-10 rounded-lg">
-              {isSubmitting ? t("common.saving") : t("common.save")}
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="startDate">{t("debt.startDate")}</Label>
+          <Input id="startDate" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="endDate">{t("debt.endDate")}</Label>
+          <Input
+            id="endDate"
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            min={startDate}
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="notes">{t("common.notes")}</Label>
+        <Textarea
+          id="notes"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder={t("debt.notesPlaceholder")}
+          rows={3}
+        />
+      </div>
+
+      <div className="flex justify-end space-x-2 pt-4">
+        <Button type="button" variant="outline" onClick={onCancel}>
+          {t("actions.cancel")}
+        </Button>
+        <Button type="submit">{editingDebt ? t("actions.update") : t("actions.save")}</Button>
+      </div>
+    </form>
   )
 }
-
-export default DebtFormGlobal

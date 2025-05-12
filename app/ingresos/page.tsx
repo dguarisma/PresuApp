@@ -26,27 +26,22 @@ export default function IngresosPage() {
   return (
     <div className="container mx-auto px-4 pb-16">
       <PageHeader
-        title={t("income.globalManagement")}
+        title={t("income.globalManagement") || "Gestión de Ingresos"}
         icon={<DollarSign className="h-6 w-6 text-primary" />}
       ></PageHeader>
 
       <div className="grid gap-5">
         <Card className="border shadow-sm">
-          <CardHeader className="pb-2 pt-5">
-            <CardTitle className="text-lg font-semibold">{t("income.summary") || "Resumen de ingresos"}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">
-              {t("income.globalDescription") ||
-                "Administra todos tus ingresos en un solo lugar, independientemente de los presupuestos."}
-            </p>
+          <CardContent className="p-0">
             <IncomeManager />
           </CardContent>
         </Card>
 
         <Card className="border shadow-sm">
           <CardHeader className="pb-2 pt-5">
-            <CardTitle className="text-lg font-semibold">{t("income.opportunities")}</CardTitle>
+            <CardTitle className="text-lg font-semibold">
+              {t("income.opportunities") || "Oportunidades de Ingreso"}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <IncomeOpportunities />
