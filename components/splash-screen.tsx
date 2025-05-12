@@ -1,40 +1,43 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import Image from "next/image"
 
 export function SplashScreen() {
-  const [show, setShow] = useState(true)
+  const [visible, setVisible] = useState(false)
 
   useEffect(() => {
     // Verificar si es la primera carga de la sesión
     const hasLoaded = sessionStorage.getItem("appHasLoaded")
 
-    if (hasLoaded) {
-      setShow(false)
-      return
+    if (!hasLoaded) {
+      // Es la primera carga, mostrar la pantalla de carga
+      setVisible(true)
+
+      // Marcar que la app ya se ha cargado en esta sesión
+      sessionStorage.setItem("appHasLoaded", "true")
+
+      // Ocultar después de 2.5 segundos
+      const timer = setTimeout(() => {
+        setVisible(false)
+      }, 2500)
+
+      return () => clearTimeout(timer)
     }
-
-    // Marcar que la app ya ha cargado en esta sesión
-    sessionStorage.setItem("appHasLoaded", "true")
-
-    const timer = setTimeout(() => {
-      setShow(false)
-    }, 2000)
-
-    return () => clearTimeout(timer)
   }, [])
 
-  if (!show) return null
+  // Si no es visible, no renderizar nada
+  if (!visible) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background transition-opacity duration-500">
-      <div className="flex flex-col items-center">
-        <div className="animate-bounce mb-4">
-          <Image src="/logo.png" alt="PresuApp Logo" width={80} height={80} priority />
-        </div>
-        <h1 className="text-2xl font-bold text-primary animate-pulse">PresuApp</h1>
+    <div className={`splash-screen ${!visible ? "hidden" : ""}`}>
+      <div className="splash-logo">
+        <Image src="/logo.png" alt="PresuApp Logo" width={120} height={120} priority />
       </div>
+      <div className="mt-8 w-48 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+        <div className="h-full bg-primary rounded-full animate-progress"></div>
+      </div>
+      <p className="mt-4 text-muted-foreground">Cargando...</p>
     </div>
   )
 }

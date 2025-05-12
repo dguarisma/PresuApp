@@ -2,7 +2,6 @@
 
 import type { ReactNode } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/mode-toggle"
@@ -33,7 +32,7 @@ export function PageHeader({ title, icon, showBackButton = true, backUrl = "/", 
     <header className="flex flex-col gap-3 py-4">
       <div className="flex justify-center py-2 mb-2">
         <Link href="/">
-          <Image src="/logo.png" alt="PresuApp Logo" width={40} height={40} priority />
+          <img src="/logo.png" alt="PresuApp Logo" className="h-10" />
         </Link>
       </div>
 
