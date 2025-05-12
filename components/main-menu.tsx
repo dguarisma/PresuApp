@@ -10,7 +10,7 @@ import { AppSettings } from "@/components/app-settings"
 import { AccessibilityControls } from "@/components/accessibility-controls"
 import { PWAInstaller } from "@/components/pwa-installer"
 import { useLanguage } from "@/hooks/use-language"
-import { Menu, Home, Settings, Bell, ChevronDown, ChevronUp, Info } from "lucide-react"
+import { Menu, Home, Settings, Bell, ChevronDown, ChevronUp, Info, DollarSign, CreditCard } from "lucide-react"
 
 export function MainMenu() {
   const pathname = usePathname()
@@ -60,6 +60,28 @@ export function MainMenu() {
                   >
                     <Home className="h-4 w-4 mr-2" />
                     {t("menu.home")}
+                  </Button>
+                </Link>
+
+                <Link href="/ingresos" onClick={handleClose}>
+                  <Button
+                    variant={isActive("/ingresos") ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-start ${isActive("/ingresos") ? "bg-teal-600 hover:bg-teal-700 text-white" : ""}`}
+                  >
+                    <DollarSign className="h-4 w-4 mr-2" />
+                    {t("income.title")}
+                  </Button>
+                </Link>
+
+                <Link href="/deudas" onClick={handleClose}>
+                  <Button
+                    variant={isActive("/deudas") ? "default" : "ghost"}
+                    size="sm"
+                    className={`w-full justify-start ${isActive("/deudas") ? "bg-teal-600 hover:bg-teal-700 text-white" : ""}`}
+                  >
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    {t("debt.title")}
                   </Button>
                 </Link>
 

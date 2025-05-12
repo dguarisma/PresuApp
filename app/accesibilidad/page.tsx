@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react"
 import { AccessibilityControls } from "@/components/accessibility-controls"
 import { Toaster } from "@/components/ui/toaster"
-import { ModeToggle } from "@/components/mode-toggle"
 import { useLanguage } from "@/hooks/use-language"
+import { PageHeader } from "@/components/page-header"
+import { Accessibility } from "lucide-react"
 
 export default function AccesibilidadPage() {
   const [mounted, setMounted] = useState(false)
@@ -21,10 +22,7 @@ export default function AccesibilidadPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-md mx-auto p-4 flex flex-col min-h-[calc(100vh-4rem)]">
-        <header className="flex justify-between items-center py-4 mb-4">
-          <h1 className="text-xl font-bold">{t("accessibility.title")}</h1>
-          <ModeToggle />
-        </header>
+        <PageHeader title={t("accessibility.title")} icon={<Accessibility className="h-6 w-6 text-primary" />} />
 
         <main className="flex-1">
           <AccessibilityControls inMenu={false} />

@@ -6,18 +6,30 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { DollarSign } from "lucide-react"
+import { DollarSign, RefreshCw } from "lucide-react"
 import { useTranslation } from "@/contexts/translation-context"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
+import incomeDB from "@/lib/db-income"
 
 interface BudgetFormProps {
   budget: number
+  budgetId: string
   onBudgetChange: (budget: number) => void
 }
 
-export default function BudgetForm({ budget, onBudgetChange }: BudgetFormProps) {
+export default function BudgetForm({ budget, budgetId, onBudgetChange }: BudgetFormProps) {
   const { t } = useTranslation()
   const [inputBudget, setInputBudget] = useState(budget.toString())
   const [isEditing, setIsEditing] = useState(budget === 0)
+  const [useIncome, setUseIncome] = useState(false)
+  const [totalIncome, setTotalIncome] = useState(0)
+
+  // Cargar ingresos totales
+  useEffect(() => {
+    const income = incomeDB.getTotalIncome(budgetId)
+    setTotalIncome(income)
+  }, [budgetId])
 
   useEffect(() => {
     setInputBudget(budget.toString())
@@ -29,6 +41,24 @@ export default function BudgetForm({ budget, onBudgetChange }: BudgetFormProps) 
     if (!isNaN(newBudget) && newBudget >= 0) {
       onBudgetChange(newBudget)
       setIsEditing(false)
+    }
+  }
+
+  const handleUseIncome = () => {
+    setUseIncome(!useIncome)
+    if (!useIncome) {
+      // Si activamos "usar ingresos", establecemos el presupuesto igual a los ingresos
+      setInputBudget(totalIncome.toString())
+      onBudgetChange(totalIncome)
+    }
+  }
+
+  const refreshIncome = () => {
+    const income = incomeDB.getTotalIncome(budgetId)
+    setTotalIncome(income)
+    if (useIncome) {
+      setInputBudget(income.toString())
+      onBudgetChange(income)
     }
   }
 
@@ -60,6 +90,29 @@ export default function BudgetForm({ budget, onBudgetChange }: BudgetFormProps) 
                 />
               </div>
             </div>
+            <div className="flex items-center space-x-2 py-2">
+              <Switch id="use-income" checked={useIncome} onCheckedChange={handleUseIncome} />
+              <Label htmlFor="use-income" className="cursor-pointer">
+                {t("budget.useIncome")}
+              </Label>
+              {useIncome && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="ml-auto h-8 w-8"
+                  onClick={refreshIncome}
+                  title={t("budget.refreshIncome")}
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            {useIncome && (
+              <div className="text-sm text-muted-foreground">
+                {t("budget.totalIncomeAvailable")}: ${totalIncome.toFixed(2)}
+              </div>
+            )}
             <div className="flex gap-2">
               <Button type="submit" className="flex-1">
                 {t("actions.save")}
@@ -84,6 +137,20 @@ export default function BudgetForm({ budget, onBudgetChange }: BudgetFormProps) 
               <span className="text-muted-foreground">{t("budget.amount")}:</span>
               <span className="text-2xl font-bold">${budget.toFixed(2)}</span>
             </div>
+            {useIncome && (
+              <div className="text-sm text-muted-foreground flex items-center justify-between">
+                <span>{t("budget.basedOnIncome")}</span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={refreshIncome}
+                  title={t("budget.refreshIncome")}
+                >
+                  <RefreshCw className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
             <Button variant="outline" className="w-full" onClick={() => setIsEditing(true)}>
               {t("budget.editBudget")}
             </Button>

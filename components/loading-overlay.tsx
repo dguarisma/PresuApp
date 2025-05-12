@@ -1,70 +1,46 @@
 "use client"
 
-import { createContext, useContext, useState, type ReactNode, useRef, useEffect } from "react"
-import { useTranslation } from "@/contexts/translation-context"
+import { createContext, useContext, useState, type ReactNode } from "react"
 
-// Crear contexto para el estado de carga global
 interface LoadingContextType {
   isLoading: boolean
-  setIsLoading: (loading: boolean) => void
+  setLoading: (loading: boolean) => void
 }
 
 const LoadingContext = createContext<LoadingContextType | undefined>(undefined)
 
-// Proveedor del contexto de carga
 export function LoadingProvider({ children }: { children: ReactNode }) {
-  const [isLoading, setIsLoadingState] = useState(false)
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const { t } = useTranslation()
+  const [isLoading, setIsLoading] = useState(false)
 
-  // Función mejorada para establecer el estado de carga
-  const setIsLoading = (loading: boolean) => {
-    // Limpiar cualquier timeout existente
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-      timeoutRef.current = null
-    }
-
-    // Si estamos activando la carga, establecer un timeout de seguridad
-    if (loading) {
-      timeoutRef.current = setTimeout(() => {
-        console.log("Timeout de seguridad activado - desactivando carga")
-        setIsLoadingState(false)
-      }, 5000) // 5 segundos como máximo de carga
-    }
-
-    setIsLoadingState(loading)
+  const setLoading = (loading: boolean) => {
+    setIsLoading(loading)
   }
 
-  // Limpiar el timeout al desmontar
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-      }
-    }
-  }, [])
-
   return (
-    <LoadingContext.Provider value={{ isLoading, setIsLoading }}>
+    <LoadingContext.Provider value={{ isLoading, setLoading }}>
       {children}
-      {isLoading && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="flex flex-col items-center gap-4">
-            <div className="h-16 w-16 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-            <p className="text-lg font-medium">{t("common.loading")}</p>
-          </div>
-        </div>
-      )}
+      {isLoading && <LoadingOverlay />}
     </LoadingContext.Provider>
   )
 }
 
-// Hook para usar el contexto de carga
 export function useLoading() {
   const context = useContext(LoadingContext)
   if (context === undefined) {
-    throw new Error("useLoading debe ser usado dentro de un LoadingProvider")
+    throw new Error("useLoading must be used within a LoadingProvider")
   }
   return context
 }
+
+export function LoadingOverlay() {
+  return (
+    <div className="flex items-center justify-center w-full h-40">
+      <div className="flex flex-col items-center">
+        <div className="w-8 h-8 border-4 border-t-primary rounded-full animate-spin"></div>
+        <p className="mt-2 text-sm text-muted-foreground">Cargando...</p>
+      </div>
+    </div>
+  )
+}
+
+export default LoadingProvider

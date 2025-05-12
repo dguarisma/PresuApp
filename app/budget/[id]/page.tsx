@@ -4,7 +4,8 @@ import { useParams, useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import ExpenseTracker from "@/components/expense-tracker"
 import { Button } from "@/components/ui/button"
-import { Edit, Save, BarChart2, Share2, FileSpreadsheet, ArrowLeft, Target } from "lucide-react"
+// Añadir el import para CreditCard
+import { Edit, Save, BarChart2, Share2, FileSpreadsheet, ArrowLeft, Target, DollarSign, CreditCard } from "lucide-react"
 import { ModeToggle } from "@/components/mode-toggle"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Input } from "@/components/ui/input"
@@ -174,54 +175,72 @@ export default function BudgetPage() {
             <ModeToggle />
           </div>
           <div className="flex flex-col gap-2">
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => router.push(`/budget/${budgetId}/analysis`)}
-                className="flex items-center justify-center gap-2"
-              >
-                <BarChart2 className="h-4 w-4" />
-                <span>{t("budget.analysis")}</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center justify-center gap-2"
-                onClick={exportToCSV}
-              >
-                <FileSpreadsheet className="h-4 w-4" />
-                <span>{t("budget.exportToExcel")}</span>
-              </Button>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center justify-center gap-2"
-                onClick={() => {
-                  // Crear mensaje para compartir
-                  const text = t("budget.shareMessage", { name: budgetName })
-                  // Usar directamente WhatsApp sin intentar usar la Web Share API
-                  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`
-                  window.open(whatsappUrl, "_blank")
-                }}
-              >
-                <Share2 className="h-4 w-4 mr-1" />
-                <span>{t("budget.shareWhatsApp")}</span>
-              </Button>
-              <Link
-                href={`/budget/${params.id}/metas`}
-                className="flex items-center justify-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 outline-none"
-              >
-                <Target className="h-4 w-4 mr-2" />
-                {t("savingsGoals.title")}
-              </Link>
-
-              {/* Añadir el componente de notificaciones aquí */}
-              {!isLoading && (
-                <BudgetNotifications budgetId={budgetId} budgetName={budgetName} totalBudget={budgetAmount} />
-              )}
+            <div className="flex flex-col gap-2">
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.push(`/budget/${budgetId}/analysis`)}
+                  className="flex items-center justify-center gap-2"
+                >
+                  <BarChart2 className="h-4 w-4" />
+                  <span>{t("budget.analysis")}</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center justify-center gap-2"
+                  onClick={exportToCSV}
+                >
+                  <FileSpreadsheet className="h-4 w-4" />
+                  <span>{t("budget.exportToExcel")}</span>
+                </Button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center justify-center gap-2"
+                  onClick={() => {
+                    // Crear mensaje para compartir
+                    const text = t("budget.shareMessage", { name: budgetName })
+                    // Usar directamente WhatsApp sin intentar usar la Web Share API
+                    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`
+                    window.open(whatsappUrl, "_blank")
+                  }}
+                >
+                  <Share2 className="h-4 w-4" />
+                  <span>{t("budget.shareWhatsApp")}</span>
+                </Button>
+                <Link
+                  href={`/budget/${params.id}/metas`}
+                  className="flex items-center justify-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 outline-none"
+                >
+                  <Target className="h-4 w-4" />
+                  <span>{t("savingsGoals.title")}</span>
+                </Link>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  href={`/budget/${params.id}/ingresos`}
+                  className="flex items-center justify-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 outline-none"
+                >
+                  <DollarSign className="h-4 w-4" />
+                  <span>{t("income.title")}</span>
+                </Link>
+                <Link
+                  href={`/budget/${params.id}/deudas`}
+                  className="flex items-center justify-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 outline-none"
+                >
+                  <CreditCard className="h-4 w-4" />
+                  <span>{t("debt.title")}</span>
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 gap-2">
+                {!isLoading && (
+                  <BudgetNotifications budgetId={budgetId} budgetName={budgetName} totalBudget={budgetAmount} />
+                )}
+              </div>
             </div>
           </div>
         </header>

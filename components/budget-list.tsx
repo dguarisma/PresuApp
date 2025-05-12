@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Input } from "@/components/ui/input"
 import db from "@/lib/db"
-import { useLoading } from "@/components/loading-overlay"
 import { useTranslation } from "@/contexts/translation-context"
 
 interface Budget {
@@ -39,7 +38,7 @@ export default function BudgetList() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [newBudgetName, setNewBudgetName] = useState("")
   const [isCreating, setIsCreating] = useState(false)
-  const { setIsLoading: setGlobalLoading } = useLoading()
+  const [isGlobalLoading, setIsGlobalLoading] = useState(false)
 
   // Cargar presupuestos
   const loadBudgets = () => {
@@ -79,7 +78,7 @@ export default function BudgetList() {
   const handleCreateBudget = () => {
     if (newBudgetName.trim()) {
       setIsCreating(true)
-      setGlobalLoading(true) // Activar el overlay de carga global
+      setIsGlobalLoading(true) // Usar nuestro propio estado en lugar de depender del contexto
 
       try {
         // Crear nuevo presupuesto en la base de datos
@@ -111,7 +110,7 @@ export default function BudgetList() {
           variant: "destructive",
         })
         setIsCreating(false)
-        setGlobalLoading(false) // Desactivar el overlay de carga global en caso de error
+        setIsGlobalLoading(false) // Desactivar el estado de carga en caso de error
       }
     }
   }
@@ -126,7 +125,7 @@ export default function BudgetList() {
   const handleDeleteBudget = () => {
     if (!budgetToDelete) return
 
-    setGlobalLoading(true) // Activar el overlay de carga global
+    setIsGlobalLoading(true) // Usar nuestro propio estado en lugar de depender del contexto
 
     try {
       // 1. Obtener la lista actual de presupuestos
@@ -164,7 +163,7 @@ export default function BudgetList() {
       // Limpiar el estado
       setBudgetToDelete(null)
       setIsDeleteDialogOpen(false)
-      setGlobalLoading(false) // Desactivar el overlay de carga global siempre
+      setIsGlobalLoading(false) // Desactivar el estado de carga siempre
     }
   }
 
@@ -301,6 +300,15 @@ export default function BudgetList() {
 
   return (
     <div className="space-y-8">
+      {isGlobalLoading && (
+        <div className="fixed inset-0 bg-background/80 flex items-center justify-center z-50">
+          <div className="flex flex-col items-center">
+            <div className="w-8 h-8 border-4 border-t-primary rounded-full animate-spin"></div>
+            <p className="mt-2 text-sm text-muted-foreground">Cargando...</p>
+          </div>
+        </div>
+      )}
+
       <div className="mb-6">
         <div className="flex flex-col space-y-2">
           <h1 className="text-2xl font-bold tracking-tight">{t("budget.myBudgets")}</h1>

@@ -11,6 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
 import db from "@/lib/db"
 import { useTranslation } from "@/hooks/use-translations"
+import IncomeVsExpenses from "@/components/income-vs-expenses"
+import incomeDB from "@/lib/db-income"
 
 interface ExpenseTrackerProps {
   budgetId: string
@@ -25,12 +27,19 @@ export default function ExpenseTracker({ budgetId }: ExpenseTrackerProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("dashboard")
   const { t } = useTranslation()
+  const [totalIncome, setTotalIncome] = useState<number>(0)
 
   // Cargar datos del presupuesto
   useEffect(() => {
     const budgetData = db.getBudgetData(budgetId)
     setBudgetData(budgetData)
     setIsLoading(false)
+  }, [budgetId])
+
+  // Cargar ingresos totales
+  useEffect(() => {
+    const income = incomeDB.getTotalIncome(budgetId)
+    setTotalIncome(income)
   }, [budgetId])
 
   // Calcular el total gastado cuando cambian las categorías
@@ -104,11 +113,12 @@ export default function ExpenseTracker({ budgetId }: ExpenseTrackerProps) {
         <TabsContent value="dashboard" className="animate-in">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-1 space-y-6">
-              <BudgetForm budget={budgetData.amount} onBudgetChange={handleBudgetChange} />
+              <BudgetForm budget={budgetData.amount} budgetId={budgetId} onBudgetChange={handleBudgetChange} />
               <ExpenseSummary
                 budget={budgetData.amount}
                 totalSpent={totalSpent}
                 remaining={budgetData.amount - totalSpent}
+                totalIncome={totalIncome}
               />
             </div>
             <div className="lg:col-span-2">
@@ -118,6 +128,10 @@ export default function ExpenseTracker({ budgetId }: ExpenseTrackerProps) {
                 totalSpent={totalSpent}
               />
             </div>
+          </div>
+
+          <div className="mt-6">
+            <IncomeVsExpenses budgetId={budgetId} />
           </div>
         </TabsContent>
 

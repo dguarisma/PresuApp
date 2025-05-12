@@ -2,9 +2,9 @@
 
 import dynamic from "next/dynamic"
 
-// Importar FileManager dinámicamente con SSR desactivado
-const FileManager = dynamic(() => import("@/components/file-manager"), { ssr: false })
+// Importar FileManagerOptimized dinámicamente con SSR desactivado
+const FileManagerOptimized = dynamic(() => import("@/components/file-manager-optimized"), { ssr: false })
 
 export default function FileManagerClient() {
-  return <FileManager />
+  return <FileManagerOptimized />
 }

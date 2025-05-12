@@ -1,78 +1,72 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+"use client"
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { PieChart, Wallet, TrendingDown } from "lucide-react"
-import { useCurrency } from "@/hooks/use-currency"
-import { useTranslation } from "@/hooks/use-translations"
+import { useTranslation } from "@/contexts/translation-context"
 
 interface ExpenseSummaryProps {
   budget: number
   totalSpent: number
   remaining: number
+  totalIncome?: number
 }
 
-export default function ExpenseSummary({ budget, totalSpent, remaining }: ExpenseSummaryProps) {
-  // Usar el hook de moneda
-  const { formatCurrency, symbol } = useCurrency()
-  // Usar el hook de traducción
+export default function ExpenseSummary({ budget, totalSpent, remaining, totalIncome }: ExpenseSummaryProps) {
   const { t } = useTranslation()
 
-  // Calcular el porcentaje gastado
+  // Calcular el porcentaje gastado del presupuesto
   const percentSpent = budget > 0 ? (totalSpent / budget) * 100 : 0
 
+  // Calcular el porcentaje de ingresos gastados (si hay ingresos)
+  const percentOfIncome = totalIncome && totalIncome > 0 ? (totalSpent / totalIncome) * 100 : null
+
   // Determinar el color de la barra de progreso
-  const getProgressColor = () => {
-    if (percentSpent >= 90) return "bg-red-500"
-    if (percentSpent >= 70) return "bg-yellow-500"
-    return "bg-emerald-500" // Usar emerald-500 que corresponde a #10b981
+  const getProgressColor = (percent: number) => {
+    if (percent >= 100) return "bg-red-500"
+    if (percent >= 75) return "bg-amber-500"
+    return "bg-emerald-500"
   }
 
   return (
     <Card className="border border-border/50 shadow-sm">
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center text-xl">
-          <PieChart className="h-5 w-5 mr-1 text-primary" />
-          {t("budget.summary")}
-        </CardTitle>
-        <CardDescription>{t("budget.summaryDescription")}</CardDescription>
+        <CardTitle className="text-base">{t("budget.summary")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="flex items-center text-muted-foreground">
-              <Wallet className="h-4 w-4 mr-1.5" />
-              {t("budget.spent")}:
-            </span>
-            <span className="text-lg font-medium">{formatCurrency(totalSpent)}</span>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">{t("budget.spent")}</span>
+            <span className="font-medium">${totalSpent.toFixed(2)}</span>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="flex items-center text-muted-foreground">
-              <TrendingDown className="h-4 w-4 mr-1.5" />
-              {t("budget.remaining")}:
-            </span>
-            <span className={`text-lg font-medium ${remaining < 0 ? "text-red-500" : ""}`}>
-              {formatCurrency(remaining)}
-            </span>
-          </div>
+          <Progress value={percentSpent} className={`h-2 ${getProgressColor(percentSpent)}`} />
         </div>
 
-        <div className="space-y-2 pt-2">
-          <div className="flex justify-between text-xs">
-            <span>{t("budget.progress")}</span>
-            <span
-              className={`font-medium ${percentSpent >= 90 ? "text-red-500" : percentSpent >= 70 ? "text-yellow-500" : "text-emerald-500"}`}
-            >
-              {percentSpent.toFixed(1)}%
-            </span>
-          </div>
-          <Progress value={percentSpent} className="h-2.5 bg-muted" indicatorClassName={getProgressColor()} />
-          <p className="text-xs text-muted-foreground pt-1">
-            {percentSpent >= 90
-              ? t("budget.progressAlertHigh")
-              : percentSpent >= 70
-                ? t("budget.progressAlertMedium")
-                : t("budget.progressAlertLow")}
-          </p>
+        <div className="flex items-center justify-between">
+          <span className="text-muted-foreground">{t("budget.remaining")}</span>
+          <span className={`text-xl font-bold ${remaining < 0 ? "text-red-500" : ""}`}>${remaining.toFixed(2)}</span>
         </div>
+
+        {percentOfIncome !== null && (
+          <div className="pt-2 border-t border-border/50 mt-4">
+            <div className="text-sm text-muted-foreground mb-2">{t("budget.percentOfIncome")}</div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">{t("budget.spent")}</span>
+                <span className="font-medium">{percentOfIncome.toFixed(1)}%</span>
+              </div>
+              <Progress value={percentOfIncome} className={`h-2 ${getProgressColor(percentOfIncome)}`} />
+            </div>
+            <div className="text-xs text-muted-foreground mt-2">
+              {percentOfIncome <= 100 ? (
+                <span>{t("budget.savingPercent", { percent: (100 - percentOfIncome).toFixed(1) })}</span>
+              ) : (
+                <span className="text-red-500">
+                  {t("budget.overspendingPercent", { percent: (percentOfIncome - 100).toFixed(1) })}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   )

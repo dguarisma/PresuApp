@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react"
 import { AppSettings } from "@/components/app-settings"
 import { Toaster } from "@/components/ui/toaster"
-import { ModeToggle } from "@/components/mode-toggle"
 import { useLanguage } from "@/hooks/use-language"
+import { PageHeader } from "@/components/page-header"
+import { Settings } from "lucide-react"
 
 export default function OpcionesPage() {
   const [mounted, setMounted] = useState(false)
@@ -21,10 +22,7 @@ export default function OpcionesPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-md mx-auto p-4 flex flex-col min-h-[calc(100vh-4rem)]">
-        <header className="flex justify-between items-center py-4 mb-4">
-          <h1 className="text-xl font-bold">{t("settings.title")}</h1>
-          <ModeToggle />
-        </header>
+        <PageHeader title={t("settings.title")} icon={<Settings className="h-6 w-6 text-primary" />} />
 
         <main className="flex-1">
           <AppSettings inMenu={false} />
