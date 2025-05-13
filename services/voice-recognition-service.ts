@@ -20,7 +20,7 @@ declare var SpeechRecognitionEvent: any
 declare var SpeechRecognitionErrorEvent: any
 
 class VoiceRecognitionService {
-  private recognition: SpeechRecognition | null = null
+  private recognition: any = null
   private commands: VoiceCommand[] = []
   private listeners: ((state: VoiceRecognitionState) => void)[] = []
   private state: VoiceRecognitionState = {
@@ -34,10 +34,17 @@ class VoiceRecognitionService {
   private commandTimeout: NodeJS.Timeout | null = null
 
   constructor() {
-    this.initRecognition()
+    // No inicializar automáticamente
+    // Solo se inicializará cuando se llame explícitamente a initRecognition
   }
 
   private initRecognition() {
+    // Verificar si estamos en el navegador
+    if (typeof window === "undefined") {
+      console.log("Reconocimiento de voz no disponible en el servidor")
+      return
+    }
+
     try {
       // Verificar si el navegador soporta reconocimiento de voz
       if ("SpeechRecognition" in window || "webkitSpeechRecognition" in window) {
@@ -79,9 +86,9 @@ class VoiceRecognitionService {
     }
   }
 
-  private handleResult(event: SpeechRecognitionEvent) {
+  private handleResult(event: any) {
     const transcript = Array.from(event.results)
-      .map((result) => result[0].transcript)
+      .map((result: any) => result[0].transcript)
       .join("")
 
     this.updateState({ transcript })
@@ -107,7 +114,7 @@ class VoiceRecognitionService {
     }
   }
 
-  private handleError(event: SpeechRecognitionErrorEvent) {
+  private handleError(event: any) {
     let errorMessage = "Error en el reconocimiento de voz"
 
     switch (event.error) {
@@ -188,6 +195,11 @@ class VoiceRecognitionService {
 
   // Métodos públicos
   public start() {
+    // Inicializar reconocimiento si aún no se ha hecho
+    if (!this.recognition) {
+      this.initRecognition()
+    }
+
     if (!this.recognition || !this.state.isSupported) {
       this.updateState({ error: "El reconocimiento de voz no está disponible" })
       return
