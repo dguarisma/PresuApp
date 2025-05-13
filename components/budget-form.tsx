@@ -11,6 +11,7 @@ import { useTranslation } from "@/contexts/translation-context"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import incomeDB from "@/lib/db-income"
+import { useCurrency } from "@/hooks/use-currency"
 
 interface BudgetFormProps {
   budget: number
@@ -25,6 +26,7 @@ export default function BudgetForm({ budget, budgetId, onBudgetChange }: BudgetF
   const [useIncome, setUseIncome] = useState(false)
   const [useIncomeAsBudget, setUseIncomeAsBudget] = useState(false)
   const [totalIncome, setTotalIncome] = useState(0)
+  const { formatCurrency } = useCurrency()
 
   // Cargar ingresos totales
   useEffect(() => {
@@ -162,7 +164,7 @@ export default function BudgetForm({ budget, budgetId, onBudgetChange }: BudgetF
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">{t("budget.amount")}:</span>
-              <span className="text-2xl font-bold">${budget.toFixed(2)}</span>
+              <span className="text-2xl font-bold">{formatCurrency(budget)}</span>
             </div>
             {useIncome && (
               <div className="text-sm text-muted-foreground flex items-center justify-between">

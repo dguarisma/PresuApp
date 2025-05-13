@@ -1,0 +1,37 @@
+@keyframes swipe-left {
+  0% {
+    transform: translateX(0);
+  }
+  60% {
+    transform: translateX(-50px);
+  }
+  80% {
+    transform: translateX(-40px);
+  }
+  100% {
+    transform: translateX(-50px);
+  }
+}
+
+@keyframes swipe-right {
+  0% {
+    transform: translateX(-50px);
+  }
+  60% {
+    transform: translateX(0);
+  }
+  80% {
+    transform: translateX(-10px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.swipe-left-animation {
+  animation: swipe-left 2s ease-in-out infinite;
+}
+
+.swipe-right-animation {
+  animation: swipe-right 2s ease-in-out infinite;
+}

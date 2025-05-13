@@ -40,6 +40,9 @@ import type { JSX } from "react"
 import Link from "next/link"
 import db from "@/lib/db"
 
+// Importar el componente SwipeableItem
+import { SwipeableItem } from "@/components/swipeable-item"
+
 interface DebtManagerGlobalProps {
   budgetId?: string
   onDebtChange?: () => void
@@ -257,7 +260,7 @@ export function DebtManagerGlobal({ budgetId, onDebtChange }: DebtManagerGlobalP
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 overflow-x-hidden">
       {showForm ? (
         <DebtFormGlobal
           onSave={handleSaveDebt}
@@ -273,7 +276,7 @@ export function DebtManagerGlobal({ budgetId, onDebtChange }: DebtManagerGlobalP
           {/* Botón flotante para añadir deuda */}
           <Button
             onClick={() => setShowForm(true)}
-            className="fixed bottom-20 right-4 z-10 rounded-full w-14 h-14 shadow-lg bg-teal-500 hover:bg-teal-600 text-white"
+            className="fixed bottom-28 right-4 z-10 rounded-full w-14 h-14 shadow-lg bg-teal-500 hover:bg-teal-600 text-white"
             aria-label={t("debt.addNew")}
           >
             <Plus className="h-6 w-6" />
@@ -283,7 +286,7 @@ export function DebtManagerGlobal({ budgetId, onDebtChange }: DebtManagerGlobalP
           <Link href="/deudas/herramientas">
             <Button
               variant="outline"
-              className="fixed bottom-36 right-4 z-10 rounded-full w-14 h-14 shadow-lg border-teal-500 text-teal-500"
+              className="fixed bottom-44 right-4 z-10 rounded-full w-14 h-14 shadow-lg border-teal-500 text-teal-500"
               aria-label={t("debt.tools")}
             >
               <Calculator className="h-6 w-6" />
@@ -367,8 +370,8 @@ export function DebtManagerGlobal({ budgetId, onDebtChange }: DebtManagerGlobalP
           </Card>
 
           {/* Pestañas de tipos de deuda */}
-          <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mt-4">
-            <div className="bg-white sticky top-0 z-10 pb-2">
+          <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mt-4 w-full">
+            <div className="bg-white sticky top-0 z-10 pb-2 w-full">
               <TabsList className="w-full overflow-x-auto flex-nowrap justify-start h-auto p-1 bg-muted/30 rounded-xl">
                 <TabsTrigger
                   value="all"
@@ -379,28 +382,28 @@ export function DebtManagerGlobal({ budgetId, onDebtChange }: DebtManagerGlobalP
                 </TabsTrigger>
                 <TabsTrigger
                   value="creditCard"
-                  className="flex items-center gap-1 text-xs py-1.5 px-3 rounded-lg data-[state=active]:bg-background"
+                  className="flex items-center gap-1 text-xs py-1.5 px-3 rounded-lg data-[state=active]:bg-background whitespace-nowrap"
                 >
                   <CreditCard className="h-3.5 w-3.5" />
                   <span>{t("debt.types.credit_card")}</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="loan"
-                  className="flex items-center gap-1 text-xs py-1.5 px-3 rounded-lg data-[state=active]:bg-background"
+                  className="flex items-center gap-1 text-xs py-1.5 px-3 rounded-lg data-[state=active]:bg-background whitespace-nowrap"
                 >
                   <DollarSign className="h-3.5 w-3.5" />
                   <span>{t("debt.types.loan")}</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="mortgage"
-                  className="flex items-center gap-1 text-xs py-1.5 px-3 rounded-lg data-[state=active]:bg-background"
+                  className="flex items-center gap-1 text-xs py-1.5 px-3 rounded-lg data-[state=active]:bg-background whitespace-nowrap"
                 >
                   <Home className="h-3.5 w-3.5" />
                   <span>{t("debt.types.mortgage")}</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="personal"
-                  className="flex items-center gap-1 text-xs py-1.5 px-3 rounded-lg data-[state=active]:bg-background"
+                  className="flex items-center gap-1 text-xs py-1.5 px-3 rounded-lg data-[state=active]:bg-background whitespace-nowrap"
                 >
                   <User className="h-3.5 w-3.5" />
                   <span>{t("debt.types.personal")}</span>
@@ -493,7 +496,7 @@ function EmptyDebtState({ onAddClick, message = "debt.noDebt" }: { onAddClick: (
   )
 }
 
-// Componente para lista de deudas
+// Reemplazar la función DebtList para usar SwipeableItem
 function DebtList({
   debts,
   onEdit,
@@ -512,57 +515,47 @@ function DebtList({
   return (
     <div className="space-y-3">
       {debts.map((debt) => (
-        <Card key={debt.id} className="overflow-hidden border border-border/40">
-          <div className="p-3">
-            <div className="flex items-start gap-3">
-              <div className="bg-muted/30 p-2 rounded-full">{getDebtTypeIcon(debt.type)}</div>
+        <SwipeableItem
+          key={debt.id}
+          onEdit={() => onEdit(debt)}
+          onDelete={() => onDelete(debt.id)}
+          editText={t("common.edit")}
+          deleteText={t("common.delete")}
+        >
+          <Card className="overflow-hidden border border-border/40">
+            <div className="p-3">
+              <div className="flex items-start gap-3">
+                <div className="bg-muted/30 p-2 rounded-full">{getDebtTypeIcon(debt.type)}</div>
 
-              <div className="flex-1">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-medium text-sm">{debt.name}</h3>
-                    <p className="text-xs text-muted-foreground">{t(`debt.types.${debt.type}`)}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-base">{formatCurrency(debt.amount)}</p>
-                    {debt.interestRate > 0 && (
-                      <p className="text-xs text-muted-foreground">
-                        {debt.interestRate}% {t("debt.interest")}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="mt-2 pt-2 border-t border-border/30">
-                  <div className="flex justify-between items-center">
-                    <div className="text-xs">
-                      <span className="text-muted-foreground">{t("debt.minimumPayment")}: </span>
-                      <span className="font-medium">{formatCurrency(debt.minimumPayment || 0)}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-start">
+                    <div className="min-w-0">
+                      <h3 className="font-medium text-sm truncate">{debt.name}</h3>
+                      <p className="text-xs text-muted-foreground">{t(`debt.types.${debt.type}`)}</p>
                     </div>
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => onEdit(debt)}
-                        className="h-7 text-xs px-2 rounded-md"
-                      >
-                        {t("common.edit")}
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => onDelete(debt.id)}
-                        className="h-7 text-xs px-2 rounded-md bg-red-500 hover:bg-red-600"
-                      >
-                        {t("common.delete")}
-                      </Button>
+                    <div className="text-right ml-2">
+                      <p className="font-bold text-base">{formatCurrency(debt.amount)}</p>
+                      {debt.interestRate > 0 && (
+                        <p className="text-xs text-muted-foreground">
+                          {debt.interestRate}% {t("debt.interest")}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mt-2 pt-2 border-t border-border/30">
+                    <div className="flex justify-between items-center">
+                      <div className="text-xs">
+                        <span className="text-muted-foreground">{t("debt.minimumPayment")}: </span>
+                        <span className="font-medium">{formatCurrency(debt.minimumPayment || 0)}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </SwipeableItem>
       ))}
     </div>
   )

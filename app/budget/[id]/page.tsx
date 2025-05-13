@@ -13,6 +13,7 @@ import db from "@/lib/db"
 import Link from "next/link"
 import { useTranslation } from "@/hooks/use-translations"
 import { BudgetNotifications } from "@/components/budget-notifications"
+import { BudgetCSVImport } from "@/components/budget-csv-import"
 
 export default function BudgetPage() {
   const params = useParams()
@@ -195,6 +196,9 @@ export default function BudgetPage() {
                   <FileSpreadsheet className="h-4 w-4" />
                   <span>{t("budget.exportToExcel")}</span>
                 </Button>
+              </div>
+              <div className="grid grid-cols-1 gap-2">
+                <BudgetCSVImport budgetId={budgetId} onImportComplete={() => setIsLoading(false)} />
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <Button

@@ -22,6 +22,7 @@ import { TrendingUp, Calculator } from "lucide-react"
 import type { PredictionConfig } from "@/types/expense"
 import db from "@/lib/db"
 import { useTranslation } from "@/hooks/use-translations"
+import { formatCurrency } from "@/lib/utils"
 
 interface ExpensePredictionProps {
   budgetId: string
@@ -145,7 +146,7 @@ export function ExpensePrediction({ budgetId }: ExpensePredictionProps) {
   }
 
   const formatTooltipValue = (value: number) => {
-    return `$${value.toFixed(2)}`
+    return formatCurrency(value)
   }
 
   return (
@@ -238,14 +239,14 @@ export function ExpensePrediction({ budgetId }: ExpensePredictionProps) {
               <div className="p-4 border rounded-md bg-muted/10">
                 <h3 className="text-lg font-medium mb-1">{t("prediction.historicalAverage")}</h3>
                 <p className="text-2xl font-bold text-primary">
-                  ${(historicalData.reduce((sum, item) => sum + item.amount, 0) / historicalData.length).toFixed(2)}
+                  {formatCurrency(historicalData.reduce((sum, item) => sum + item.amount, 0) / historicalData.length)}
                 </p>
               </div>
 
               <div className="p-4 border rounded-md bg-muted/10">
                 <h3 className="text-lg font-medium mb-1">{t("prediction.predictedAverage")}</h3>
                 <p className="text-2xl font-bold text-primary">
-                  ${(predictionData.reduce((sum, item) => sum + item.amount, 0) / predictionData.length).toFixed(2)}
+                  {formatCurrency(predictionData.reduce((sum, item) => sum + item.amount, 0) / predictionData.length)}
                 </p>
               </div>
 

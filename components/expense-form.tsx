@@ -19,16 +19,20 @@ import { RecurringExpenseForm } from "@/components/recurring-expense-form"
 import { ReceiptUploader } from "@/components/receipt-uploader"
 import type { ExpenseItem } from "@/types/expense"
 import db from "@/lib/db"
+import { useCurrency } from "@/hooks/use-currency"
+import { useTranslation } from "@/hooks/use-translations"
 
 interface ExpenseFormProps {
-  categoryId: number
-  subCategoryId?: number
+  categoryId: string // Cambiado de number a string para UUID
+  subCategoryId?: string // Cambiado de number a string para UUID
   onSubmit: (expense: Omit<ExpenseItem, "id">) => void
   onCancel?: () => void
   initialData?: Partial<ExpenseItem>
 }
 
 export function ExpenseForm({ categoryId, subCategoryId, onSubmit, onCancel, initialData }: ExpenseFormProps) {
+  const { t } = useTranslation()
+
   const [name, setName] = useState(initialData?.name || "")
   const [amount, setAmount] = useState(initialData?.amount?.toString() || "")
   const [date, setDate] = useState<Date | undefined>(initialData?.date ? new Date(initialData.date) : new Date())
@@ -105,6 +109,22 @@ export function ExpenseForm({ categoryId, subCategoryId, onSubmit, onCancel, ini
     setReceiptUrl(dataUrl)
   }
 
+  const handleExtractedData = (data: {
+    name: string
+    amount: number
+    date: string
+    notes?: string
+  }) => {
+    setName(data.name)
+    setAmount(data.amount.toString())
+    setDate(new Date(data.date))
+    if (data.notes) {
+      setNotes(data.notes)
+    }
+  }
+
+  const { currency } = useCurrency()
+
   if (isRecurring && !recurringConfig) {
     return (
       <RecurringExpenseForm
@@ -117,21 +137,21 @@ export function ExpenseForm({ categoryId, subCategoryId, onSubmit, onCancel, ini
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="name">Nombre del gasto</Label>
+        <Label htmlFor="name">{t("expense_name")}</Label>
         <Input
           id="name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Ej: Compra de materiales"
+          placeholder={t("expense_name_placeholder")}
           required
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="amount">Monto</Label>
+        <Label htmlFor="amount">{t("amount")}</Label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <span className="text-muted-foreground">$</span>
+            <span className="text-muted-foreground">{currency}</span>
           </div>
           <Input
             id="amount"
@@ -148,7 +168,7 @@ export function ExpenseForm({ categoryId, subCategoryId, onSubmit, onCancel, ini
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="date">Fecha</Label>
+        <Label htmlFor="date">{t("date")}</Label>
         <Popover>
           <PopoverTrigger asChild>
             <Button
@@ -157,7 +177,7 @@ export function ExpenseForm({ categoryId, subCategoryId, onSubmit, onCancel, ini
               className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {date ? format(date, "PPP", { locale: es }) : "Seleccionar fecha"}
+              {date ? format(date, "PPP", { locale: es }) : t("select_date")}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0">
@@ -167,13 +187,13 @@ export function ExpenseForm({ categoryId, subCategoryId, onSubmit, onCancel, ini
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="tags">Etiquetas</Label>
+        <Label htmlFor="tags">{t("tags")}</Label>
         <div className="flex space-x-2">
           <Input
             id="tags"
             value={newTag}
             onChange={(e) => setNewTag(e.target.value)}
-            placeholder="Añadir etiqueta"
+            placeholder={t("add_tag")}
             onKeyDown={handleKeyDown}
           />
           <Button type="button" onClick={handleAddTag} disabled={!newTag.trim()}>
@@ -200,7 +220,7 @@ export function ExpenseForm({ categoryId, subCategoryId, onSubmit, onCancel, ini
 
         {availableTags.length > 0 && (
           <div className="mt-2">
-            <Label className="text-sm">Etiquetas disponibles</Label>
+            <Label className="text-sm">{t("available_tags")}</Label>
             <div className="flex flex-wrap gap-2 mt-1">
               {availableTags
                 .filter((tag) => !tags.includes(tag))
@@ -221,12 +241,12 @@ export function ExpenseForm({ categoryId, subCategoryId, onSubmit, onCancel, ini
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="notes">Notas (opcional)</Label>
+        <Label htmlFor="notes">{t("notes")}</Label>
         <Textarea
           id="notes"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder="Añade detalles adicionales sobre este gasto"
+          placeholder={t("notes_placeholder")}
           rows={3}
         />
       </div>
@@ -234,7 +254,7 @@ export function ExpenseForm({ categoryId, subCategoryId, onSubmit, onCancel, ini
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Label htmlFor="recurring" className="cursor-pointer">
-            Gasto recurrente
+            {t("recurring_expense")}
           </Label>
           <Switch
             id="recurring"
@@ -255,29 +275,30 @@ export function ExpenseForm({ categoryId, subCategoryId, onSubmit, onCancel, ini
           <div className="p-3 bg-muted/30 rounded-md">
             <p className="text-sm">
               <RefreshCw className="h-3.5 w-3.5 inline mr-1" />
-              {recurringConfig.frequency === "daily" && `Cada ${recurringConfig.interval} día(s)`}
-              {recurringConfig.frequency === "weekly" && `Cada ${recurringConfig.interval} semana(s)`}
-              {recurringConfig.frequency === "monthly" && `Cada ${recurringConfig.interval} mes(es)`}
-              {recurringConfig.frequency === "yearly" && `Cada ${recurringConfig.interval} año(s)`}
-              {recurringConfig.endDate && ` hasta ${format(new Date(recurringConfig.endDate), "PPP", { locale: es })}`}
+              {recurringConfig.frequency === "daily" && t("every_n_days", { count: recurringConfig.interval })}
+              {recurringConfig.frequency === "weekly" && t("every_n_weeks", { count: recurringConfig.interval })}
+              {recurringConfig.frequency === "monthly" && t("every_n_months", { count: recurringConfig.interval })}
+              {recurringConfig.frequency === "yearly" && t("every_n_years", { count: recurringConfig.interval })}
+              {recurringConfig.endDate &&
+                ` ${t("until")} ${format(new Date(recurringConfig.endDate), "PPP", { locale: es })}`}
             </p>
           </div>
         )}
       </div>
 
-      <ReceiptUploader onUpload={handleReceiptUpload} initialUrl={receiptUrl} />
+      <ReceiptUploader onUpload={handleReceiptUpload} initialUrl={receiptUrl} onExtractedData={handleExtractedData} />
 
       <div className="flex justify-end space-x-2 pt-2">
         {onCancel && (
           <Button type="button" variant="outline" onClick={onCancel}>
-            Cancelar
+            {t("cancel")}
           </Button>
         )}
         <Button
           type="submit"
           disabled={!name.trim() || !amount || isNaN(Number.parseFloat(amount)) || Number.parseFloat(amount) <= 0}
         >
-          {initialData?.id ? "Actualizar" : "Guardar"} gasto
+          {initialData?.id ? t("update") : t("save")} {t("expense").toLowerCase()}
         </Button>
       </div>
     </form>

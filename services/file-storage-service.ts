@@ -427,6 +427,46 @@ class FileStorageService {
       throw new Error("No se pudo crear el archivo CSV")
     }
   }
+
+  // Crea un archivo PDF con el contenido proporcionado
+  public async createPDFFile(content: Blob, filename: string): Promise<void> {
+    try {
+      // Usar la API de sistema de archivos si está disponible
+      if (this.isFileSystemAccessSupported()) {
+        try {
+          const handle = await window.showSaveFilePicker({
+            suggestedName: filename,
+            types: [
+              {
+                description: "Archivo PDF",
+                accept: { "application/pdf": [".pdf"] },
+              },
+            ],
+          })
+          const writable = await handle.createWritable()
+          await writable.write(content)
+          await writable.close()
+          return
+        } catch (err) {
+          console.log("Error al usar File System Access API, usando método alternativo", err)
+          // Si el usuario cancela o hay un error, usar el método alternativo
+        }
+      }
+
+      // Método alternativo
+      const url = URL.createObjectURL(content)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error("Error al crear archivo PDF:", error)
+      throw new Error("No se pudo crear el archivo PDF")
+    }
+  }
 }
 
 // Exportar una instancia del servicio

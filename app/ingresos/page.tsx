@@ -24,13 +24,13 @@ export default function IngresosPage() {
   }, [])
 
   return (
-    <div className="container mx-auto px-4 pb-16">
+    <div className="max-w-md mx-auto p-4 flex flex-col min-h-[100vh] pb-20">
       <PageHeader
         title={t("income.globalManagement") || "Gestión de Ingresos"}
         icon={<DollarSign className="h-6 w-6 text-primary" />}
-      ></PageHeader>
+      />
 
-      <div className="grid gap-5">
+      <div className="grid gap-4 mt-4 flex-1">
         <Card className="border shadow-sm">
           <CardContent className="p-0">
             <IncomeManager />
@@ -38,12 +38,12 @@ export default function IngresosPage() {
         </Card>
 
         <Card className="border shadow-sm">
-          <CardHeader className="pb-2 pt-5">
+          <CardHeader className="pb-2 pt-4">
             <CardTitle className="text-lg font-semibold">
               {t("income.opportunities") || "Oportunidades de Ingreso"}
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0 pb-4">
             <IncomeOpportunities />
           </CardContent>
         </Card>

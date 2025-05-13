@@ -2,7 +2,9 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { FileSpreadsheet, Check } from "lucide-react"
+import { FileSpreadsheet, Check, Download } from "lucide-react"
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
+import { AdvancedExport } from "@/components/advanced-export"
 import db from "@/lib/db"
 
 interface ExportBudgetProps {
@@ -63,9 +65,23 @@ export function ExportBudget({ budgetId, budgetName }: ExportBudgetProps) {
   }
 
   return (
-    <Button variant="outline" size="sm" className="flex items-center gap-2" onClick={exportToCSV}>
-      {exportSuccess ? <Check className="h-4 w-4 text-green-500" /> : <FileSpreadsheet className="h-4 w-4" />}
-      <span>{exportSuccess ? "¡Exportado!" : "Exportar a Excel"}</span>
-    </Button>
+    <div className="flex items-center gap-2">
+      <Button variant="outline" size="sm" className="flex items-center gap-2" onClick={exportToCSV}>
+        {exportSuccess ? <Check className="h-4 w-4 text-green-500" /> : <FileSpreadsheet className="h-4 w-4" />}
+        <span>{exportSuccess ? "¡Exportado!" : "Exportar a Excel"}</span>
+      </Button>
+
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm" className="flex items-center gap-2">
+            <Download className="h-4 w-4" />
+            <span>Exportación avanzada</span>
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[600px]">
+          <AdvancedExport budgetId={budgetId} budgetName={budgetName} />
+        </DialogContent>
+      </Dialog>
+    </div>
   )
 }

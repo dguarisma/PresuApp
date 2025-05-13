@@ -26,35 +26,23 @@ export default function DebtToolsPage() {
         <PageHeader title={t("debt.tools")} icon={<Calculator className="h-6 w-6 text-primary" />} />
 
         <main className="flex-1 mt-4">
-          <Tabs defaultValue="payoff-strategy" className="w-full">
-            <TabsList className="w-full grid grid-cols-2 md:grid-cols-4 h-auto p-1 bg-muted/30 rounded-xl mb-4">
-              <TabsTrigger
-                value="payoff-strategy"
-                className="flex items-center gap-1.5 py-2 data-[state=active]:bg-background"
-              >
+          <Tabs defaultValue="payoff-strategy" className="w-full tabs-container">
+            <TabsList className="w-full grid grid-cols-4 h-auto p-1 bg-muted/30 rounded-xl mb-4">
+              <TabsTrigger value="payoff-strategy">
                 <BarChart3 className="h-4 w-4" />
-                <span className="text-xs">{t("debt.payoffStrategy")}</span>
+                <span>{t("debt.payoffStrategy")}</span>
               </TabsTrigger>
-              <TabsTrigger
-                value="amortization"
-                className="flex items-center gap-1.5 py-2 data-[state=active]:bg-background"
-              >
+              <TabsTrigger value="amortization">
                 <Calculator className="h-4 w-4" />
-                <span className="text-xs">{t("debt.amortization")}</span>
+                <span>{t("debt.amortization")}</span>
               </TabsTrigger>
-              <TabsTrigger
-                value="consolidation"
-                className="flex items-center gap-1.5 py-2 data-[state=active]:bg-background"
-              >
+              <TabsTrigger value="consolidation">
                 <Combine className="h-4 w-4" />
-                <span className="text-xs">{t("debt.consolidation")}</span>
+                <span>{t("debt.consolidation")}</span>
               </TabsTrigger>
-              <TabsTrigger
-                value="compound-interest"
-                className="flex items-center gap-1.5 py-2 data-[state=active]:bg-background"
-              >
+              <TabsTrigger value="compound-interest">
                 <TrendingUp className="h-4 w-4" />
-                <span className="text-xs">{t("debt.compoundInterest")}</span>
+                <span>{t("debt.compoundInterest")}</span>
               </TabsTrigger>
             </TabsList>
 

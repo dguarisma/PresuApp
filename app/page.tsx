@@ -7,6 +7,8 @@ import { PWAInstaller } from "@/components/pwa-installer"
 import { useTranslation } from "@/contexts/translation-context"
 import { SkeletonLoader } from "@/components/skeleton-loader"
 import { DataPrefetcher } from "@/components/data-prefetcher"
+import { Button } from "@/components/ui/button"
+import { Plus } from "lucide-react"
 
 export default function Home() {
   const { t } = useTranslation()
@@ -79,6 +81,16 @@ export default function Home() {
           </main>
         </main>
       </div>
+      {/* Floating Action Button */}
+      <Button
+        onClick={() => {
+          /* Add your action here */
+        }}
+        className="fixed bottom-28 right-6 z-50 rounded-full w-14 h-14 shadow-lg bg-teal-500 hover:bg-teal-600 text-white"
+        aria-label="Add new item"
+      >
+        <Plus className="h-6 w-6" />
+      </Button>
     </div>
   )
 }

@@ -10,6 +10,7 @@ import { ArrowRightLeft } from "lucide-react"
 import type { ExpenseItem, DateRange } from "@/types/expense"
 import db from "@/lib/db"
 import { useTranslation } from "@/hooks/use-translations"
+import { formatCurrency } from "@/lib/utils"
 
 interface ExpenseComparisonProps {
   budgetId: string
@@ -144,7 +145,7 @@ export function ExpenseComparison({ budgetId }: ExpenseComparisonProps) {
   }
 
   const formatTooltipValue = (value: number) => {
-    return `$${value.toFixed(2)}`
+    return formatCurrency(value)
   }
 
   // Calcular totales para cada período
@@ -201,7 +202,7 @@ export function ExpenseComparison({ budgetId }: ExpenseComparisonProps) {
             <CardContent className="p-3">
               <div className="text-center">
                 <p className="text-xs text-muted-foreground mb-1">{getPeriodLabel(period1)}</p>
-                <p className="text-lg sm:text-xl font-bold">${total1.toFixed(2)}</p>
+                <p className="text-lg sm:text-xl font-bold">{formatCurrency(total1)}</p>
               </div>
             </CardContent>
           </Card>
@@ -210,7 +211,7 @@ export function ExpenseComparison({ budgetId }: ExpenseComparisonProps) {
             <CardContent className="p-3">
               <div className="text-center">
                 <p className="text-xs text-muted-foreground mb-1">{getPeriodLabel(period2)}</p>
-                <p className="text-lg sm:text-xl font-bold">${total2.toFixed(2)}</p>
+                <p className="text-lg sm:text-xl font-bold">{formatCurrency(total2)}</p>
               </div>
             </CardContent>
           </Card>
@@ -223,7 +224,7 @@ export function ExpenseComparison({ budgetId }: ExpenseComparisonProps) {
                 <p className="text-xs text-muted-foreground mb-1">{t("comparison.difference")}</p>
                 <p className={`text-lg sm:text-xl font-bold ${difference > 0 ? "text-red-500" : "text-green-500"}`}>
                   {difference > 0 ? "+" : ""}
-                  {difference.toFixed(2)}
+                  {formatCurrency(difference)}
                   <span className="text-xs">
                     ({percentChange > 0 ? "+" : ""}
                     {percentChange.toFixed(1)}%)

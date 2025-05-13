@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Download, Trash2, RefreshCw, Database, Moon, BellRing, Languages, DollarSign, Info } from "lucide-react"
+import { Download, Trash2, RefreshCw, Database, Moon, BellRing, Languages, DollarSign, Info, Mic } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
@@ -563,6 +563,48 @@ export function AppSettings({ inMenu = false }: AppSettingsProps) {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className={inMenu ? "bg-transparent border-0 shadow-none p-0" : ""}>
+          <CardContent className={inMenu ? "p-0" : "p-4"}>
+            <h3 className={inMenu ? "text-xs font-medium mb-2" : "text-sm font-medium mb-3"}>
+              {t("voice.voiceControlTitle")}
+            </h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Mic className={inMenu ? "h-3.5 w-3.5" : "h-4 w-4"} />
+                  <Label htmlFor="voice-control" className={inMenu ? "text-xs" : "text-sm"}>
+                    {t("voice.enableVoiceControl")}
+                  </Label>
+                </div>
+                <Switch
+                  id="voice-control"
+                  checked={notificationsEnabled}
+                  onCheckedChange={(checked) => {
+                    // Aquí podríamos guardar la preferencia
+                    toast({
+                      title: t("notifications.settingsSaved"),
+                      description: checked ? t("voice.startedListening") : t("voice.stoppedListening"),
+                    })
+                  }}
+                />
+              </div>
+
+              <Button
+                variant="outline"
+                size={inMenu ? "sm" : "default"}
+                className={inMenu ? "w-full text-xs" : "w-full"}
+                onClick={() => {
+                  // Navegar a la página de ayuda de voz
+                  window.location.href = "/ayuda-voz"
+                }}
+              >
+                <Mic className={inMenu ? "h-3.5 w-3.5 mr-1.5" : "h-4 w-4 mr-2"} />
+                {t("voice.helpTitle")}
+              </Button>
             </div>
           </CardContent>
         </Card>

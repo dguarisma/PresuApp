@@ -1,0 +1,28 @@
+export const chartsTranslations = {
+  es: {
+    title: "Gráficos",
+    description: "Visualización de tus gastos",
+    distribution: "Distribución",
+    budget: "Presupuesto",
+    amount: "Importe",
+    spent: "Gastado",
+    remaining: "Restante",
+    noDataDistribution: "No hay datos para mostrar. Añade gastos para ver la distribución.",
+    noBudget: "No hay presupuesto establecido. Establece un presupuesto para ver esta gráfica.",
+    singleCategoryTitle: "Una sola categoría",
+    singleCategoryDescription: "Solo hay una categoría con gastos. Añade más categorías para ver una comparación.",
+  },
+  en: {
+    title: "Charts",
+    description: "Visualization of your expenses",
+    distribution: "Distribution",
+    budget: "Budget",
+    amount: "Amount",
+    spent: "Spent",
+    remaining: "Remaining",
+    noDataDistribution: "No data to display. Add expenses to see the distribution.",
+    noBudget: "No budget set. Set a budget to see this chart.",
+    singleCategoryTitle: "Single Category",
+    singleCategoryDescription: "There is only one category with expenses. Add more categories to see a comparison.",
+  },
+}

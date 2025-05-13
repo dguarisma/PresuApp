@@ -205,11 +205,11 @@ export function IncomeManager(props: IncomeManagerProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 overflow-x-hidden">
       {/* Botón flotante para añadir ingreso */}
       <Button
         onClick={() => setIsAddDialogOpen(true)}
-        className="fixed bottom-20 right-4 z-10 rounded-full w-14 h-14 shadow-lg bg-teal-500 hover:bg-teal-600 text-white"
+        className="fixed bottom-28 right-4 z-10 rounded-full w-14 h-14 shadow-lg bg-teal-500 hover:bg-teal-600 text-white"
         aria-label={t("income.addNew") || "Añadir ingreso"}
       >
         <Plus className="h-6 w-6" />
@@ -268,8 +268,8 @@ export function IncomeManager(props: IncomeManagerProps) {
       </Card>
 
       {/* Pestañas de tipos de ingreso */}
-      <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mt-4">
-        <div className="bg-white sticky top-0 z-10 pb-2">
+      <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mt-4 w-full">
+        <div className="bg-white sticky top-0 z-10 pb-2 w-full">
           <TabsList className="w-full overflow-x-auto flex-nowrap justify-start h-auto p-1 bg-muted/30 rounded-xl">
             <TabsTrigger
               value="all"
@@ -289,10 +289,10 @@ export function IncomeManager(props: IncomeManagerProps) {
               <TabsTrigger
                 key={source.id}
                 value={source.id}
-                className="flex items-center gap-1 text-xs py-1.5 px-3 rounded-lg data-[state=active]:bg-background"
+                className="flex items-center gap-1 text-xs py-1.5 px-3 rounded-lg data-[state=active]:bg-background whitespace-nowrap"
               >
                 <DollarSign className="h-3.5 w-3.5" />
-                <span>{source.name}</span>
+                <span className="truncate max-w-[100px]">{source.name}</span>
               </TabsTrigger>
             ))}
           </TabsList>
@@ -330,23 +330,23 @@ export function IncomeManager(props: IncomeManagerProps) {
                         <DollarSign className="h-5 w-5 text-teal-500" />
                       </div>
 
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="font-medium text-sm">{income.sourceName}</h3>
+                          <div className="min-w-0">
+                            <h3 className="font-medium text-sm truncate">{income.sourceName}</h3>
                             <p className="text-xs text-muted-foreground">
                               {format(new Date(income.date), "PPP", { locale: es })}
                             </p>
                           </div>
-                          <div className="text-right">
+                          <div className="text-right ml-2">
                             <p className="font-bold text-base">{formatCurrency(income.amount)}</p>
                           </div>
                         </div>
 
                         {income.isRecurring && (
                           <div className="mt-2 p-1.5 bg-muted/30 rounded-md text-xs inline-flex items-center">
-                            <RefreshCw className="h-3 w-3 mr-1" />
-                            <span>
+                            <RefreshCw className="h-3 w-3 mr-1 flex-shrink-0" />
+                            <span className="truncate">
                               {income.recurringConfig?.frequency === "daily" &&
                                 `${t("frequency.every") || "Cada"} ${income.recurringConfig.interval} ${t("period.days") || "día(s)"}`}
                               {income.recurringConfig?.frequency === "weekly" &&
@@ -361,11 +361,14 @@ export function IncomeManager(props: IncomeManagerProps) {
 
                         <div className="mt-2 pt-2 border-t border-border/30">
                           <div className="flex justify-between items-center">
-                            <div className="flex flex-wrap gap-1.5">
+                            <div className="flex flex-wrap gap-1.5 overflow-hidden max-w-[60%]">
                               {income.tags &&
                                 income.tags.length > 0 &&
                                 income.tags.slice(0, 2).map((tag) => (
-                                  <span key={tag} className="px-1.5 py-0.5 bg-muted rounded-md text-xs">
+                                  <span
+                                    key={tag}
+                                    className="px-1.5 py-0.5 bg-muted rounded-md text-xs truncate max-w-[80px]"
+                                  >
                                     {tag}
                                   </span>
                                 ))}
@@ -375,7 +378,7 @@ export function IncomeManager(props: IncomeManagerProps) {
                                 </span>
                               )}
                             </div>
-                            <div className="flex space-x-2">
+                            <div className="flex space-x-2 ml-2">
                               <Button
                                 variant="outline"
                                 size="sm"

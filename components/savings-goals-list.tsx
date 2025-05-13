@@ -6,13 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { PlusCircle, Search, Target, CheckCircle, SortAsc, SortDesc } from "lucide-react"
+import { PlusCircle, Search, Target, CheckCircle, SortAsc, SortDesc, Plus } from "lucide-react"
 import type { SavingsGoal, SavingsGoalFilters } from "@/types/savings-goal"
 import { SavingsGoalCard } from "@/components/savings-goal-card"
 import { SavingsGoalForm } from "@/components/savings-goal-form"
 import { getAllSavingsGoals, getSavingsGoalsByBudget } from "@/lib/savings-goals"
 import { useTranslation } from "@/contexts/translation-context"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { useCurrency } from "@/hooks/use-currency"
+import { SwipeableItem } from "@/components/swipeable-item"
 
 interface SavingsGoalsListProps {
   budgetId?: string
@@ -20,6 +22,7 @@ interface SavingsGoalsListProps {
 
 export function SavingsGoalsList({ budgetId }: SavingsGoalsListProps) {
   const { t } = useTranslation()
+  const { formatCurrency } = useCurrency()
   const [goals, setGoals] = useState<SavingsGoal[]>([])
   const [filteredGoals, setFilteredGoals] = useState<SavingsGoal[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -136,14 +139,10 @@ export function SavingsGoalsList({ budgetId }: SavingsGoalsListProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-16">
       <div className="flex flex-col space-y-2">
-        <div className="flex justify-between items-center">
+        <div className="flex items-center">
           <h2 className="text-xl font-bold tracking-tight">{t("savingsGoals.title")}</h2>
-          <Button onClick={handleCreateGoal} size="sm">
-            <PlusCircle className="h-4 w-4 mr-2" />
-            <span>{t("savingsGoals.create")}</span>
-          </Button>
         </div>
         <p className="text-sm text-muted-foreground">{t("savingsGoals.description")}</p>
       </div>
@@ -164,9 +163,9 @@ export function SavingsGoalsList({ budgetId }: SavingsGoalsListProps) {
               <CardTitle className="text-base">{t("savingsGoals.totalSaved")}</CardTitle>
             </CardHeader>
             <CardContent className="p-3 pt-0">
-              <div className="text-2xl font-bold tabular-nums">${getTotalSaved().toFixed(2)}</div>
+              <div className="text-2xl font-bold tabular-nums">{formatCurrency(getTotalSaved())}</div>
               <p className="text-xs text-muted-foreground">
-                {t("savingsGoals.outOf")} <span className="tabular-nums">${getTotalTarget().toFixed(2)}</span>
+                {t("savingsGoals.outOf")} <span className="tabular-nums">{formatCurrency(getTotalTarget())}</span>
               </p>
             </CardContent>
           </Card>
@@ -248,7 +247,9 @@ export function SavingsGoalsList({ budgetId }: SavingsGoalsListProps) {
             ) : (
               <div className="grid grid-cols-1 gap-3 mt-3">
                 {filteredGoals.map((goal) => (
-                  <SavingsGoalCard key={goal.id} goal={goal} onUpdate={loadGoals} onEdit={handleEditGoal} />
+                  <SwipeableItem key={goal.id} onEdit={() => handleEditGoal(goal)} editText={t("common.edit")}>
+                    <SavingsGoalCard key={goal.id} goal={goal} onUpdate={loadGoals} onEdit={handleEditGoal} />
+                  </SwipeableItem>
                 ))}
               </div>
             )}
@@ -274,7 +275,9 @@ export function SavingsGoalsList({ budgetId }: SavingsGoalsListProps) {
                 {filteredGoals
                   .filter((goal) => !goal.isCompleted)
                   .map((goal) => (
-                    <SavingsGoalCard key={goal.id} goal={goal} onUpdate={loadGoals} onEdit={handleEditGoal} />
+                    <SwipeableItem key={goal.id} onEdit={() => handleEditGoal(goal)} editText={t("common.edit")}>
+                      <SavingsGoalCard key={goal.id} goal={goal} onUpdate={loadGoals} onEdit={handleEditGoal} />
+                    </SwipeableItem>
                   ))}
               </div>
             )}
@@ -296,13 +299,24 @@ export function SavingsGoalsList({ budgetId }: SavingsGoalsListProps) {
                 {filteredGoals
                   .filter((goal) => goal.isCompleted)
                   .map((goal) => (
-                    <SavingsGoalCard key={goal.id} goal={goal} onUpdate={loadGoals} onEdit={handleEditGoal} />
+                    <SwipeableItem key={goal.id} onEdit={() => handleEditGoal(goal)} editText={t("common.edit")}>
+                      <SavingsGoalCard key={goal.id} goal={goal} onUpdate={loadGoals} onEdit={handleEditGoal} />
+                    </SwipeableItem>
                   ))}
               </div>
             )}
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Floating Action Button */}
+      <Button
+        onClick={handleCreateGoal}
+        className="fixed bottom-28 right-4 z-10 rounded-full w-14 h-14 shadow-lg bg-teal-500 hover:bg-teal-600 text-white"
+        aria-label={t("savingsGoals.create")}
+      >
+        <Plus className="h-6 w-6" />
+      </Button>
 
       {/* Reemplazamos el Dialog por un Sheet para móviles y tablets */}
       <Sheet open={isFormOpen} onOpenChange={setIsFormOpen}>

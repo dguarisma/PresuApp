@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast"
 import debtDB from "@/lib/db-debt"
 import type { Debt } from "@/types/debt"
 import db from "@/lib/db"
+import { useCurrency } from "@/hooks/use-currency"
 
 interface DebtFormGlobalProps {
   onSave: () => void
@@ -25,6 +26,7 @@ interface DebtFormGlobalProps {
 export function DebtFormGlobal({ onSave, onCancel, editingDebt = null, budgetId }: DebtFormGlobalProps) {
   const { t } = useLanguage()
   const { toast } = useToast()
+  const { currency } = useCurrency()
   const [name, setName] = useState("")
   const [amount, setAmount] = useState("")
   const [type, setType] = useState<string>("creditCard")
@@ -171,16 +173,22 @@ export function DebtFormGlobal({ onSave, onCancel, editingDebt = null, budgetId 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="amount">{t("debt.amount")}</Label>
-          <Input
-            id="amount"
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="0.00"
-            min="0"
-            step="0.01"
-            required
-          />
+          <div className="relative">
+            <Input
+              id="amount"
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="0.00"
+              min="0"
+              step="0.01"
+              required
+              className="pr-10"
+            />
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-500">
+              {currency}
+            </div>
+          </div>
         </div>
 
         <div className="space-y-2">
@@ -216,17 +224,22 @@ export function DebtFormGlobal({ onSave, onCancel, editingDebt = null, budgetId 
 
         <div className="space-y-2">
           <Label htmlFor="minimumPayment">{t("debt.minimumPayment")} *</Label>
-          <Input
-            id="minimumPayment"
-            name="minimumPayment"
-            type="number"
-            step="0.01"
-            min="0"
-            required
-            value={debt.minimumPayment}
-            onChange={handleChange}
-            className="w-full"
-          />
+          <div className="relative">
+            <Input
+              id="minimumPayment"
+              name="minimumPayment"
+              type="number"
+              step="0.01"
+              min="0"
+              required
+              value={debt.minimumPayment}
+              onChange={handleChange}
+              className="w-full pr-10"
+            />
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-500">
+              {currency}
+            </div>
+          </div>
           <p className="text-sm text-muted-foreground">{t("debt.minimumPaymentDescription")}</p>
         </div>
       </div>

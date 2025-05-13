@@ -30,6 +30,7 @@ import { FileText, Save, BarChart3, LineChartIcon, PieChartIcon } from "lucide-r
 import type { ExpenseItem, FilterOptions, ReportConfig, DateRange, Category } from "@/types/expense"
 import db from "@/lib/db"
 import { useTranslation } from "@/hooks/use-translations"
+import { useCurrency } from "@/hooks/use-currency"
 
 interface CustomReportProps {
   budgetId: string
@@ -38,6 +39,7 @@ interface CustomReportProps {
 
 export function CustomReport({ budgetId, categories }: CustomReportProps) {
   const { t } = useTranslation()
+  const { currency } = useCurrency()
 
   const [reportName, setReportName] = useState("")
   const [dateRange, setDateRange] = useState<DateRange>(() => {
@@ -86,7 +88,7 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
 
     // Generar datos para el gráfico según el agrupamiento seleccionado
     generateChartData(expenses, groupBy)
-  }, [budgetId, dateRange, selectedCategories, selectedTags, minAmount, maxAmount, searchText, groupBy])
+  }, [budgetId, dateRange, selectedCategories, selectedTags, minAmount, maxAmount, searchText, groupBy, currency])
 
   const generateChartData = (expenses: ExpenseItem[], groupingType: string) => {
     if (!expenses.length) {
@@ -237,6 +239,13 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
     }
   }
 
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat(navigator.language, {
+      style: "currency",
+      currency: currency,
+    }).format(value)
+  }
+
   const renderChart = () => {
     if (chartData.length === 0) {
       return (
@@ -267,7 +276,7 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" angle={-45} textAnchor="end" height={70} />
               <YAxis />
-              <Tooltip formatter={(value) => `$${(value as number).toFixed(2)}`} />
+              <Tooltip formatter={(value) => formatCurrency(value as number)} />
               <Legend />
               <Bar dataKey="value" name={t("expenses.amount")} fill="#10b981" />
             </BarChart>
@@ -281,7 +290,7 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" angle={-45} textAnchor="end" height={70} />
               <YAxis />
-              <Tooltip formatter={(value) => `$${(value as number).toFixed(2)}`} />
+              <Tooltip formatter={(value) => formatCurrency(value as number)} />
               <Legend />
               <Line type="monotone" dataKey="value" name={t("expenses.amount")} stroke="#10b981" activeDot={{ r: 8 }} />
             </LineChart>
@@ -306,7 +315,7 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value) => `$${(value as number).toFixed(2)}`} />
+              <Tooltip formatter={(value) => formatCurrency(value as number)} />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
@@ -553,7 +562,7 @@ export function CustomReport({ budgetId, categories }: CustomReportProps) {
               <FileText className="h-4 w-4 inline mr-1" />
               {t("reports.expensesFound", {
                 count: filteredExpenses.length,
-                amount: filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0).toFixed(2),
+                amount: formatCurrency(filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0)),
               })}
             </p>
           </div>

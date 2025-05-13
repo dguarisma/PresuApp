@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { useTranslation } from "@/contexts/translation-context"
+import { useCurrency } from "@/hooks/use-currency"
 
 interface ExpenseSummaryProps {
   budget: number
@@ -13,6 +14,7 @@ interface ExpenseSummaryProps {
 
 export default function ExpenseSummary({ budget, totalSpent, remaining, totalIncome }: ExpenseSummaryProps) {
   const { t } = useTranslation()
+  const { formatCurrency } = useCurrency()
 
   // Calcular el porcentaje gastado del presupuesto
   const percentSpent = budget > 0 ? (totalSpent / budget) * 100 : 0
@@ -36,14 +38,16 @@ export default function ExpenseSummary({ budget, totalSpent, remaining, totalInc
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">{t("budget.spent")}</span>
-            <span className="font-medium">${totalSpent.toFixed(2)}</span>
+            <span className="font-medium">{formatCurrency(totalSpent)}</span>
           </div>
           <Progress value={percentSpent} className={`h-2 ${getProgressColor(percentSpent)}`} />
         </div>
 
         <div className="flex items-center justify-between">
           <span className="text-muted-foreground">{t("budget.remaining")}</span>
-          <span className={`text-xl font-bold ${remaining < 0 ? "text-red-500" : ""}`}>${remaining.toFixed(2)}</span>
+          <span className={`text-xl font-bold ${remaining < 0 ? "text-red-500" : ""}`}>
+            {formatCurrency(remaining)}
+          </span>
         </div>
 
         {percentOfIncome !== null && (

@@ -26,6 +26,7 @@ import {
 import { toast } from "@/components/ui/use-toast"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
+import { useCurrency } from "@/hooks/use-currency"
 
 interface IncomeManagerProps {
   budgetId: string
@@ -40,6 +41,7 @@ export default function IncomeManager({ budgetId, onIncomeChange }: IncomeManage
   const [activeTab, setActiveTab] = useState("all")
   const [totalIncome, setTotalIncome] = useState(0)
   const { t } = useTranslation()
+  const { formatCurrency } = useCurrency()
 
   // Estados para ingresos globales
   const [globalIncomes, setGlobalIncomes] = useState<IncomeItem[]>([])
@@ -237,7 +239,7 @@ export default function IncomeManager({ budgetId, onIncomeChange }: IncomeManage
           </CardTitle>
           <div className="flex items-center justify-between mt-2">
             <span className="text-muted-foreground">{t("income.total")}:</span>
-            <span className="text-2xl font-bold">${totalIncome.toFixed(2)}</span>
+            <span className="text-2xl font-bold">{formatCurrency(totalIncome)}</span>
           </div>
         </CardHeader>
       </Card>
@@ -311,7 +313,7 @@ export default function IncomeManager({ budgetId, onIncomeChange }: IncomeManage
                                   {format(new Date(income.date), "dd/MM/yy", { locale: es })}
                                 </span>
                               </div>
-                              <span className="font-bold">${income.amount.toFixed(2)}</span>
+                              <span className="font-bold">{formatCurrency(income.amount)}</span>
                             </label>
                           </div>
                         </div>
@@ -383,7 +385,7 @@ export default function IncomeManager({ budgetId, onIncomeChange }: IncomeManage
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-lg font-semibold">${income.amount.toFixed(2)}</span>
+                      <span className="text-lg font-semibold">{formatCurrency(income.amount)}</span>
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button

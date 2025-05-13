@@ -34,6 +34,7 @@ import { es } from "date-fns/locale"
 import type { ExpenseItem } from "@/types/expense"
 import { TrendingUp, BarChart3, PieChart } from "lucide-react"
 import { useTranslation } from "@/hooks/use-translations"
+import { useCurrency } from "@/hooks/use-currency"
 
 interface TrendAnalysisProps {
   expenses: ExpenseItem[]
@@ -42,6 +43,7 @@ interface TrendAnalysisProps {
 
 export function TrendAnalysis({ expenses, dateRange }: TrendAnalysisProps) {
   const { t } = useTranslation()
+  const { formatCurrency } = useCurrency()
   const [activeTab, setActiveTab] = useState("daily")
   const [dailyData, setDailyData] = useState<any[]>([])
   const [weeklyData, setWeeklyData] = useState<any[]>([])
@@ -115,7 +117,7 @@ export function TrendAnalysis({ expenses, dateRange }: TrendAnalysisProps) {
   }, [expenses, dateRange])
 
   const formatTooltipValue = (value: number) => {
-    return `$${value.toFixed(2)}`
+    return formatCurrency(value)
   }
 
   return (

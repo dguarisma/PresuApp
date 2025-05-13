@@ -17,13 +17,11 @@ export default function DebtGlobalPage() {
   if (!mounted) return null
 
   return (
-    <div className="min-h-full">
-      <div className="p-4 flex flex-col min-h-[100vh] pb-20">
-        <PageHeader title={t("debt.title")} icon={<CreditCard className="h-6 w-6 text-primary" />} />
+    <div className="max-w-md mx-auto p-4 flex flex-col min-h-[100vh] pb-20">
+      <PageHeader title={t("debt.title")} icon={<CreditCard className="h-6 w-6 text-primary" />} />
 
-        <main className="flex-1">
-          <DebtManagerGlobal />
-        </main>
+      <div className="mt-4 flex-1">
+        <DebtManagerGlobal />
       </div>
     </div>
   )

@@ -21,6 +21,7 @@ import db from "@/lib/db"
 import incomeDB from "@/lib/db-income"
 import { useTranslation } from "@/hooks/use-translations"
 import { toast } from "@/components/ui/use-toast"
+import { useCurrency } from "@/hooks/use-currency"
 
 interface IncomeFormProps {
   budgetId: string
@@ -52,6 +53,7 @@ export function IncomeForm({ budgetId, onSubmit, onCancel, initialData }: Income
   )
 
   const { t } = useTranslation()
+  const { currencySymbol } = useCurrency()
 
   // Cargar fuentes de ingresos y etiquetas disponibles
   useEffect(() => {
@@ -193,7 +195,7 @@ export function IncomeForm({ budgetId, onSubmit, onCancel, initialData }: Income
         <Label htmlFor="amount">{t("income.amount")}</Label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <span className="text-muted-foreground">$</span>
+            <span className="text-muted-foreground">{currencySymbol}</span>
           </div>
           <Input
             id="amount"

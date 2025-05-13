@@ -11,6 +11,7 @@ import type { SavingsGoal } from "@/types/savings-goal"
 import { getSavingsGoalProgress, updateSavingsGoalProgress, deleteSavingsGoal } from "@/lib/savings-goals"
 import { useTranslation } from "@/contexts/translation-context"
 import { useToast } from "@/hooks/use-toast"
+import { useCurrency } from "@/hooks/use-currency"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,6 +42,7 @@ interface SavingsGoalCardProps {
 export function SavingsGoalCard({ goal, onUpdate, onEdit }: SavingsGoalCardProps) {
   const { t } = useTranslation()
   const { toast } = useToast()
+  const { formatCurrency } = useCurrency()
   const [isAddProgressOpen, setIsAddProgressOpen] = useState(false)
   const [newAmount, setNewAmount] = useState("")
   const [isDeleting, setIsDeleting] = useState(false)
@@ -192,7 +194,7 @@ export function SavingsGoalCard({ goal, onUpdate, onEdit }: SavingsGoalCardProps
             <Target className="h-4 w-4 mr-1.5 flex-shrink-0" />
             <span>{t("savingsGoals.target")}: </span>
           </div>
-          <span className="font-medium tabular-nums">${goal.targetAmount.toFixed(2)}</span>
+          <span className="font-medium tabular-nums">{formatCurrency(goal.targetAmount)}</span>
         </div>
 
         <div className="flex items-center justify-between">
@@ -224,13 +226,13 @@ export function SavingsGoalCard({ goal, onUpdate, onEdit }: SavingsGoalCardProps
 
         <div className="flex items-center justify-between pt-1">
           <span className="text-sm font-medium">{t("savingsGoals.saved")}</span>
-          <span className="font-semibold tabular-nums">${goal.currentAmount.toFixed(2)}</span>
+          <span className="font-semibold tabular-nums">{formatCurrency(goal.currentAmount)}</span>
         </div>
 
         {!isCompleted && (
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">{t("savingsGoals.remaining")}</span>
-            <span className="font-semibold tabular-nums">${remaining.toFixed(2)}</span>
+            <span className="font-semibold tabular-nums">{formatCurrency(remaining)}</span>
           </div>
         )}
 

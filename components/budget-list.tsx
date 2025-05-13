@@ -16,11 +16,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Input } from "@/components/ui/input"
 import db from "@/lib/db"
 import { useTranslation } from "@/contexts/translation-context"
+import { useCurrency } from "@/hooks/use-currency"
 
 interface Budget {
   id: string
@@ -31,6 +31,7 @@ interface Budget {
 export default function BudgetList() {
   const router = useRouter()
   const { t, language } = useTranslation()
+  const { formatCurrency } = useCurrency()
   const [budgets, setBudgets] = useState<Budget[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [budgetToDelete, setBudgetToDelete] = useState<Budget | null>(null)
@@ -255,9 +256,9 @@ export default function BudgetList() {
 
       // Crear mensaje para WhatsApp
       let message = `📊 *${t("budget.title")}: ${budget.name}* 📊\n\n`
-      message += `💰 *${t("budget.totalBudget")}:* $${budgetData.amount.toFixed(2)}\n`
-      message += `💸 *${t("budget.totalSpent")}:* $${totalSpent.toFixed(2)}\n`
-      message += `✅ *${t("budget.remaining")}:* $${(budgetData.amount - totalSpent).toFixed(2)}\n\n`
+      message += `💰 *${t("budget.totalBudget")}:* ${formatCurrency(budgetData.amount)}\n`
+      message += `💸 *${t("budget.totalSpent")}:* ${formatCurrency(totalSpent)}\n`
+      message += `✅ *${t("budget.remaining")}:* ${formatCurrency(budgetData.amount - totalSpent)}\n\n`
 
       // Añadir categorías principales
       message += `*${t("budget.mainCategories")}:*\n`
@@ -271,7 +272,7 @@ export default function BudgetList() {
         .slice(0, 3)
 
       topCategories.forEach((category: any) => {
-        message += `- ${category.name}: $${category.total.toFixed(2)}\n`
+        message += `- ${category.name}: ${formatCurrency(category.total)}\n`
       })
 
       // Codificar el mensaje para URL
@@ -314,70 +315,6 @@ export default function BudgetList() {
           <h1 className="text-2xl font-bold tracking-tight">{t("budget.myBudgets")}</h1>
           <p className="text-sm text-muted-foreground">{t("budget.manageYourBudgets")}</p>
         </div>
-
-        <AlertDialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <AlertDialogTrigger asChild>
-            <Button
-              onClick={() => setIsCreateDialogOpen(true)}
-              className="w-full mt-4 bg-teal-600 hover:bg-teal-700 text-white flex items-center justify-center gap-2"
-            >
-              <PlusCircle className="h-5 w-5" />
-              <span>{t("budget.createNewBudget")}</span>
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>{t("budget.createNewBudget")}</AlertDialogTitle>
-              <AlertDialogDescription>{t("budget.createNewBudgetDesc")}</AlertDialogDescription>
-            </AlertDialogHeader>
-            <div className="py-4">
-              <Input
-                value={newBudgetName}
-                onChange={(e) => setNewBudgetName(e.target.value)}
-                placeholder={t("budget.budgetNamePlaceholder")}
-                className="w-full"
-                disabled={isCreating}
-              />
-              <p className="text-sm text-muted-foreground mt-2">{t("budget.budgetNameExamples")}</p>
-            </div>
-            <AlertDialogFooter>
-              <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleCreateBudget}
-                disabled={isCreating || !newBudgetName.trim()}
-                className="bg-teal-600 hover:bg-teal-700"
-              >
-                {isCreating ? (
-                  <span className="flex items-center">
-                    <svg
-                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    {t("budget.creating")}
-                  </span>
-                ) : (
-                  t("budget.createBudget")
-                )}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </div>
 
       {isLoading ? (
@@ -409,7 +346,11 @@ export default function BudgetList() {
             </div>
             <h3 className="text-xl font-semibold mb-2">{t("budget.noBudgets")}</h3>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">{t("budget.createFirstBudget")}</p>
-            <Button onClick={() => setIsCreateDialogOpen(true)} size="lg">
+            <Button
+              onClick={() => setIsCreateDialogOpen(true)}
+              size="lg"
+              className="bg-teal-600 hover:bg-teal-700 text-white"
+            >
               <PlusCircle className="h-5 w-5 mr-2" />
               {t("budget.createBudget")}
             </Button>
@@ -432,15 +373,11 @@ export default function BudgetList() {
                   <div className="space-y-4 py-2">
                     <div className="flex items-center justify-between">
                       <span className="text-base text-muted-foreground">{t("budget.budget")}:</span>
-                      <span className="text-lg font-medium">
-                        <span className="text-green-500">$</span> {summary.amount.toFixed(2)}
-                      </span>
+                      <span className="text-lg font-medium text-green-500">{formatCurrency(summary.amount)}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-base text-muted-foreground">{t("budget.spent")}:</span>
-                      <span className="text-lg font-medium">
-                        <span className="text-red-500">$</span> {summary.spent.toFixed(2)}
-                      </span>
+                      <span className="text-lg font-medium text-red-500">{formatCurrency(summary.spent)}</span>
                     </div>
 
                     {summary.hasItemsInCategories && (
@@ -458,7 +395,7 @@ export default function BudgetList() {
                           <div className="flex flex-wrap gap-1.5">
                             {summary.categoriesWithItems.map((cat: any, index: number) => (
                               <span key={index} className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-full">
-                                {cat.name} (${cat.total.toFixed(2)})
+                                {cat.name} ({formatCurrency(cat.total)})
                               </span>
                             ))}
                           </div>
@@ -503,7 +440,7 @@ export default function BudgetList() {
                   <Button
                     variant="default"
                     onClick={() => router.push(`/budget/${budget.id}`)}
-                    className="w-full bg-teal-600 hover:bg-teal-700 py-5 text-base"
+                    className="w-full bg-teal-600 hover:bg-teal-700 py-5 text-base text-white"
                   >
                     {t("budget.viewBudget")}
                   </Button>
@@ -527,6 +464,62 @@ export default function BudgetList() {
           })}
         </div>
       )}
+
+      {/* Create Budget Dialog */}
+      <AlertDialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("budget.createNewBudget")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("budget.createNewBudgetDesc")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4">
+            <Input
+              value={newBudgetName}
+              onChange={(e) => setNewBudgetName(e.target.value)}
+              placeholder={t("budget.budgetNamePlaceholder")}
+              className="w-full"
+              disabled={isCreating}
+            />
+            <p className="text-sm text-muted-foreground mt-2">{t("budget.budgetNameExamples")}</p>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleCreateBudget}
+              disabled={isCreating || !newBudgetName.trim()}
+              className="bg-teal-600 hover:bg-teal-700 text-white"
+            >
+              {isCreating ? (
+                <span className="flex items-center">
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  {t("budget.creating")}
+                </span>
+              ) : (
+                t("budget.createBudget")
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Diálogo de confirmación para eliminar presupuesto */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>

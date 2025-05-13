@@ -15,7 +15,7 @@ import { useToast } from "@/hooks/use-toast"
 import { useTranslation } from "@/hooks/use-translations"
 import type { OCRResult } from "@/services/ocr-service"
 
-interface ReceiptUploaderProps {
+interface IncomeReceiptUploaderProps {
   onUpload: (file: File, dataUrl: string) => void
   onExtractedData?: (data: {
     name: string
@@ -26,7 +26,7 @@ interface ReceiptUploaderProps {
   initialUrl?: string
 }
 
-export function ReceiptUploader({ onUpload, onExtractedData, initialUrl }: ReceiptUploaderProps) {
+export function IncomeReceiptUploader({ onUpload, onExtractedData, initialUrl }: IncomeReceiptUploaderProps) {
   const { t } = useTranslation()
   const { toast } = useToast()
 
@@ -155,7 +155,7 @@ export function ReceiptUploader({ onUpload, onExtractedData, initialUrl }: Recei
         <CardHeader>
           <CardTitle className="text-xl flex items-center">
             <FileText className="h-5 w-5 mr-2" />
-            {t("expense_receipt")}
+            {t("income_receipt")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">

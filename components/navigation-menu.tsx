@@ -8,6 +8,9 @@ import { useLanguage } from "@/hooks/use-language"
 import { Home, Settings, Target, Accessibility, DollarSign, CreditCard } from "lucide-react"
 import { useState, useEffect } from "react"
 
+// Importar el componente de reconocimiento de voz
+import { VoiceRecognitionIndicator } from "@/components/voice-recognition-indicator"
+
 export function NavigationMenu() {
   const pathname = usePathname()
   const { t } = useLanguage()
@@ -25,7 +28,7 @@ export function NavigationMenu() {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 border-t bg-background z-50 shadow-lg">
+    <div className="fixed bottom-0 left-0 right-0 border-t bg-background z-50 shadow-lg w-full">
       <div className="grid grid-cols-6 h-16 max-w-screen-lg mx-auto">
         <NavItem
           href="/"
@@ -75,6 +78,10 @@ export function NavigationMenu() {
           label="Ajustes"
           isActive={isActive("/opciones")}
         />
+        {/* Añadir el botón de voz entre los otros botones de navegación */}
+        <li>
+          <VoiceRecognitionIndicator variant="minimal" />
+        </li>
       </div>
     </div>
   )
@@ -91,15 +98,16 @@ function NavItem({ href, icon, label, isActive }: NavItemProps) {
   return (
     <Link
       href={href}
-      className={`flex flex-col items-center justify-center py-2 transition-all duration-200 ${isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
-        }`}
+      className={`flex flex-col items-center justify-center py-2 transition-all duration-200 ${
+        isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+      }`}
     >
       <div
-        className={`p-1.5 rounded-full transition-all duration-200 ${isActive ? "bg-primary/10" : "hover:bg-muted/50"}`}
+        className={`p-1.5 rounded-full transition-all duration-200 ${isActive ? "bg-primary/10 animate-pulse-native" : "hover:bg-muted/50"}`}
       >
         {icon}
       </div>
-      <span className="text-[10px] font-medium mt-1 truncate max-w-[90%] text-center">{label}</span>
+      <span className="text-[10px] font-medium mt-1 truncate w-full text-center px-1">{label}</span>
 
       {isActive && <span className="absolute bottom-0.5 h-1 w-6 bg-primary rounded-full" />}
     </Link>

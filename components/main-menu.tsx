@@ -56,7 +56,7 @@ export function MainMenu() {
                   <Button
                     variant={isActive("/") ? "default" : "ghost"}
                     size="sm"
-                    className={`w-full justify-start ${isActive("/") ? "bg-teal-600 hover:bg-teal-700 text-white" : ""}`}
+                    className={`w-full justify-start ${isActive("/") ? "bg-teal-500 hover:bg-teal-600 text-white" : ""}`}
                   >
                     <Home className="h-4 w-4 mr-2" />
                     {t("menu.home")}
@@ -67,7 +67,7 @@ export function MainMenu() {
                   <Button
                     variant={isActive("/ingresos") ? "default" : "ghost"}
                     size="sm"
-                    className={`w-full justify-start ${isActive("/ingresos") ? "bg-teal-600 hover:bg-teal-700 text-white" : ""}`}
+                    className={`w-full justify-start ${isActive("/ingresos") ? "bg-teal-500 hover:bg-teal-600 text-white" : ""}`}
                   >
                     <DollarSign className="h-4 w-4 mr-2" />
                     {t("income.title")}
@@ -78,7 +78,7 @@ export function MainMenu() {
                   <Button
                     variant={isActive("/deudas") ? "default" : "ghost"}
                     size="sm"
-                    className={`w-full justify-start ${isActive("/deudas") ? "bg-teal-600 hover:bg-teal-700 text-white" : ""}`}
+                    className={`w-full justify-start ${isActive("/deudas") ? "bg-teal-500 hover:bg-teal-600 text-white" : ""}`}
                   >
                     <CreditCard className="h-4 w-4 mr-2" />
                     {t("debt.title")}
@@ -141,7 +141,7 @@ export function MainMenu() {
                   <Button
                     variant={isActive("/docs") ? "default" : "ghost"}
                     size="sm"
-                    className={`w-full justify-start ${isActive("/docs") ? "bg-teal-600 hover:bg-teal-700 text-white" : ""}`}
+                    className={`w-full justify-start ${isActive("/docs") ? "bg-teal-500 hover:bg-teal-600 text-white" : ""}`}
                   >
                     <Info className="h-4 w-4 mr-2" />
                     {t("settings.about")}

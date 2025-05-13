@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import "./accessibility-styles.css";
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -10,8 +12,8 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 173 80% 36%; /* teal-600 */
-    --primary-foreground: 210 40% 98%;
+    --primary: 172 66% 40%; /* teal-500: 20, 184, 166 */
+    --primary-foreground: 355.7 100% 97.3%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 210 40% 96.1%;
@@ -22,8 +24,9 @@
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 173 80% 36%; /* teal-600 */
+    --ring: 172 66% 40%; /* teal-500 */
     --radius: 0.5rem;
+    --font-size-multiplier: 1;
   }
 
   .dark {
@@ -33,8 +36,8 @@
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-    --primary: 173 80% 36%; /* teal-600 */
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 142.1 70.6% 45.3%;
+    --primary-foreground: 144.9 80.4% 10%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 17.5%;
@@ -45,8 +48,176 @@
     --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 173 80% 36%; /* teal-600 */
+    --ring: 142.4 71.8% 29.2%;
   }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Aplicar multiplicador de tamaño de fuente */
+  html {
+    font-size: calc(16px * var(--font-size-multiplier));
+  }
+}
+
+/* Estilos para modo de alto contraste */
+.high-contrast {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 0%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 0%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 0%;
+  --primary: 240 100% 50%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 90%;
+  --secondary-foreground: 0 0% 0%;
+  --muted: 0 0% 95%;
+  --muted-foreground: 0 0% 20%;
+  --accent: 240 100% 50%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 100% 40%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 0%;
+  --input: 0 0% 90%;
+  --ring: 240 100% 50%;
+}
+
+.dark.high-contrast {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --card: 0 0% 0%;
+  --card-foreground: 0 0% 100%;
+  --popover: 0 0% 0%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 240 100% 60%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 80%;
+  --accent: 240 100% 60%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 100% 50%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 100%;
+  --input: 0 0% 15%;
+  --ring: 240 100% 60%;
+}
+
+/* Estilos para texto grande */
+.large-text {
+  --font-size-multiplier: 1.25;
+}
+
+/* Estilos para movimiento reducido */
+.reduced-motion * {
+  transition-duration: 0.001ms !important;
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  scroll-behavior: auto !important;
+}
+
+/* Estilos para la barra de navegación */
+.mobile-container {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Estilos para el indicador de modo sin conexión */
+.offline-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #f59e0b;
+  color: white;
+  text-align: center;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  z-index: 50;
+}
+
+/* Animaciones */
+.fade-in-up {
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stagger-item {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+.stagger-delay-1 {
+  animation-delay: 0.1s;
+}
+
+.stagger-delay-2 {
+  animation-delay: 0.2s;
+}
+
+.stagger-delay-3 {
+  animation-delay: 0.3s;
+}
+
+/* Estilos para TabsList con scroll horizontal */
+.TabsList {
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  display: flex;
+  width: 100%;
+  padding-bottom: 4px;
+}
+
+.TabsList::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Prevenir desbordamiento horizontal en todas las páginas */
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+/* Estilos para contenedores de tarjetas */
+.card-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Ajustes para tablas y contenido ancho */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ajustes para imágenes responsivas */
+img {
+  max-width: 100%;
+  height: auto;
 }
 
 @layer base {
@@ -376,11 +547,11 @@ textarea:focus-visible {
 
 /* Variables RGB para animaciones */
 :root {
-  --primary-rgb: 13, 148, 136; /* teal-600 */
+  --primary-rgb: 20, 184, 166; /* teal-500 */
 }
 
 .dark {
-  --primary-rgb: 13, 148, 136; /* teal-600 */
+  --primary-rgb: 20, 184, 166; /* teal-500 */
 }
 
 /* Añadir clases de utilidad para fuentes más pequeñas */
@@ -814,3 +985,35 @@ body {
   background-color: hsl(var(--background));
   transition: background-color 0.3s ease;
 }
+
+/* Estilos para mejorar el espaciado de las pestañas */
+.tabs-container [role="tablist"] {
+  display: grid;
+  gap: 2px;
+}
+
+.tabs-container [role="tab"] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 8px 4px;
+  height: 100%;
+}
+
+.tabs-container [role="tab"] span {
+  display: block;
+  text-align: center;
+  width: 100%;
+  margin-top: 4px;
+}
+
+@media (max-width: 640px) {
+  .tabs-container [role="tab"] {
+    font-size: 0.75rem;
+    padding: 6px 2px;
+  }
+}
+
+@import "./gesture-animations.css";

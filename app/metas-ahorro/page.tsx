@@ -9,9 +9,11 @@ export default function SavingsGoalsPage() {
   const { t } = useTranslation()
 
   return (
-    <div className="container mx-auto px-3 py-3 max-w-md">
+    <div className="max-w-md mx-auto p-4 flex flex-col min-h-[100vh] pb-20">
       <PageHeader title={t("savingsGoals.title")} icon={<Target className="h-6 w-6 text-primary" />} />
-      <SavingsGoalsList />
+      <div className="mt-4 flex-1">
+        <SavingsGoalsList />
+      </div>
     </div>
   )
 }
