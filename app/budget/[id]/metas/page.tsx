@@ -13,7 +13,7 @@ export default function BudgetSavingsGoalsPage() {
   const budgetId = params.id as string
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="max-w-md mx-auto px-4">
       <div className="flex items-center mb-6">
         <Button variant="ghost" size="icon" asChild className="mr-2">
           <Link href={`/budget/${budgetId}`}>

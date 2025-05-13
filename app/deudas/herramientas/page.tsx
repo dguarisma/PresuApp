@@ -22,7 +22,7 @@ export default function DebtToolsPage() {
 
   return (
     <div className="min-h-full">
-      <div className="p-4 flex flex-col min-h-[100vh] pb-20">
+      <div className="max-w-md mx-auto px-4 flex flex-col min-h-[100vh] pb-20">
         <PageHeader title={t("debt.tools")} icon={<Calculator className="h-6 w-6 text-primary" />} />
 
         <main className="flex-1 mt-4">

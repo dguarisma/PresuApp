@@ -28,8 +28,8 @@ export function NavigationMenu() {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 border-t bg-background z-50 shadow-lg w-full">
-      <div className="grid grid-cols-6 h-16 max-w-screen-lg mx-auto">
+    <div className="fixed bottom-0 left-0 right-0 border-t bg-background z-50 shadow-lg w-full pt-2">
+      <div className="grid grid-cols-6 h-18 max-w-screen-lg mx-auto">
         <NavItem
           href="/"
           icon={<Home className="h-5 w-5" />}

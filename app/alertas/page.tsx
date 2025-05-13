@@ -72,7 +72,7 @@ export default function AlertasPage() {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="max-w-md mx-auto px-4">
       <div className="flex items-center mb-6">
         <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
           <ArrowLeft className="h-5 w-5" />

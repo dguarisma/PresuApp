@@ -1,5 +1,7 @@
 import type React from "react"
 import "@/app/globals.css"
+import "@/app/accessibility-styles.css"
+import "@/app/color-blindness.css"
 import type { Metadata, Viewport } from "next"
 import { Inter } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -21,6 +23,9 @@ import { VoiceControlFloating } from "@/components/voice-control-floating"
 
 // Importar el componente GestureTutorial
 import { GestureTutorial } from "@/components/gesture-tutorial"
+
+// Importar el componente de filtros para daltonismo
+import { ColorBlindnessFilters } from "@/components/color-blindness-filters"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -58,6 +63,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="theme-color" content="#10b981" />
       </head>
       <body className={`${inter.className} overflow-x-hidden`}>
+        <ColorBlindnessFilters />
         <TranslationProvider>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
             <LoadingProvider>
@@ -66,7 +72,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <StatusBar />
               <div className="bg-background transition-colors duration-300 overflow-x-hidden">
                 <PageTransition>
-                  <div className="mobile-container pb-16 overflow-x-hidden">{children}</div>
+                  <div className="mobile-container pb-24 overflow-x-hidden">{children}</div>
                 </PageTransition>
                 <GestureTutorial />
               </div>

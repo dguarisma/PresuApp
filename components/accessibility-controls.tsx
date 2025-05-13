@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import { useToast } from "@/hooks/use-toast"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { useLanguage } from "@/hooks/use-language"
 import {
   AlertDialog,
@@ -18,9 +18,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { RefreshCw, Save, Eye, Palette } from "lucide-react"
+import { RefreshCw, Save, Eye, Palette, HelpCircle } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import Link from "next/link"
 
 interface AccessibilityControlsProps {
   inMenu?: boolean
@@ -112,6 +113,31 @@ export function AccessibilityControls({ inMenu = false }: AccessibilityControlsP
     // Aplicar tipo de daltonismo
     if (colorBlindnessType !== "none") {
       document.documentElement.classList.add(colorBlindnessType)
+
+      // Aplicar filtros CSS específicos según el tipo de daltonismo
+      let filterValue = ""
+      switch (colorBlindnessType) {
+        case "protanopia":
+          filterValue = "url('#protanopia-filter')"
+          break
+        case "deuteranopia":
+          filterValue = "url('#deuteranopia-filter')"
+          break
+        case "tritanopia":
+          filterValue = "url('#tritanopia-filter')"
+          break
+        case "achromatopsia":
+          filterValue = "grayscale(100%)"
+          break
+      }
+
+      // Aplicar el filtro al elemento html
+      if (filterValue) {
+        document.documentElement.style.filter = filterValue
+      }
+    } else {
+      // Eliminar cualquier filtro si se selecciona "ninguno"
+      document.documentElement.style.filter = ""
     }
 
     // Aplicar otras configuraciones
@@ -284,87 +310,90 @@ export function AccessibilityControls({ inMenu = false }: AccessibilityControlsP
   const renderPageContent = () => {
     return (
       <div className="space-y-6">
-        <Tabs defaultValue="visual" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-2 mb-4">
-            <TabsTrigger value="visual" className="flex items-center gap-2">
-              <Eye className="h-4 w-4" />
-              <span>{t("accessibility.visualOptions")}</span>
-            </TabsTrigger>
-            <TabsTrigger value="contrast" className="flex items-center gap-2">
-              <Palette className="h-4 w-4" />
-              <span>{t("accessibility.contrastOptions")}</span>
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="visual" className="space-y-4">
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="text-sm font-medium mb-3">{t("accessibility.visualOptions")}</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="large-text" className="text-sm">
-                      {t("accessibility.largeText")}
-                    </Label>
-                    <Switch
-                      id="large-text"
-                      checked={largeText}
-                      onCheckedChange={(checked) => {
-                        setLargeText(checked)
-                        // Guardar inmediatamente
-                        const settings = JSON.parse(localStorage.getItem("accessibility") || "{}")
-                        settings.largeText = checked
-                        localStorage.setItem("accessibility", JSON.stringify(settings))
-                      }}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="increased-text-spacing" className="text-sm">
-                      {t("accessibility.increasedTextSpacing")}
-                    </Label>
-                    <Switch
-                      id="increased-text-spacing"
-                      checked={increasedTextSpacing}
-                      onCheckedChange={(checked) => {
-                        setIncreasedTextSpacing(checked)
-                        // Guardar inmediatamente
-                        const settings = JSON.parse(localStorage.getItem("accessibility") || "{}")
-                        settings.increasedTextSpacing = checked
-                        localStorage.setItem("accessibility", JSON.stringify(settings))
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="font-size" className="text-sm block mb-2">
-                      {t("accessibility.fontSize", { size: fontSize })}
-                    </Label>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm">{t("accessibility.smaller")}</span>
-                      <span className="text-sm">{t("accessibility.larger")}</span>
-                    </div>
-                    <Slider
-                      id="font-size"
-                      min={80}
-                      max={150}
-                      step={5}
-                      value={[fontSize]}
-                      onValueChange={(value) => {
-                        setFontSize(value[0])
-                        // Guardar inmediatamente
-                        const settings = JSON.parse(localStorage.getItem("accessibility") || "{}")
-                        settings.fontSize = value[0]
-                        localStorage.setItem("accessibility", JSON.stringify(settings))
-                      }}
-                    />
-                    <div className="text-center mt-2 text-sm font-medium">{fontSize}%</div>
-                  </div>
+        <Card className="overflow-hidden border-0 shadow-sm">
+          <Tabs defaultValue="visual" value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="w-full grid grid-cols-2 rounded-none bg-muted/80">
+              <TabsTrigger
+                value="visual"
+                className="rounded-none data-[state=active]:bg-background h-12 flex items-center justify-center"
+              >
+                <div className="flex items-center gap-1.5 text-sm">
+                  <Eye className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">{t("accessibility.visualOptions")}</span>
                 </div>
-              </CardContent>
-            </Card>
+              </TabsTrigger>
+              <TabsTrigger
+                value="contrast"
+                className="rounded-none data-[state=active]:bg-background h-12 flex items-center justify-center"
+              >
+                <div className="flex items-center gap-1.5 text-sm">
+                  <Palette className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">{t("accessibility.contrastOptions")}</span>
+                </div>
+              </TabsTrigger>
+            </TabsList>
 
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="text-sm font-medium mb-3">{t("accessibility.motionAndAnimations")}</h3>
-                <div className="space-y-4">
+            <TabsContent value="visual" className="p-0 m-0">
+              <div className="p-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="large-text" className="text-sm">
+                    {t("accessibility.largeText")}
+                  </Label>
+                  <Switch
+                    id="large-text"
+                    checked={largeText}
+                    onCheckedChange={(checked) => {
+                      setLargeText(checked)
+                      // Guardar inmediatamente
+                      const settings = JSON.parse(localStorage.getItem("accessibility") || "{}")
+                      settings.largeText = checked
+                      localStorage.setItem("accessibility", JSON.stringify(settings))
+                    }}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="increased-text-spacing" className="text-sm">
+                    {t("accessibility.increasedTextSpacing")}
+                  </Label>
+                  <Switch
+                    id="increased-text-spacing"
+                    checked={increasedTextSpacing}
+                    onCheckedChange={(checked) => {
+                      setIncreasedTextSpacing(checked)
+                      // Guardar inmediatamente
+                      const settings = JSON.parse(localStorage.getItem("accessibility") || "{}")
+                      settings.increasedTextSpacing = checked
+                      localStorage.setItem("accessibility", JSON.stringify(settings))
+                    }}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="font-size" className="text-sm block mb-2">
+                    {t("accessibility.fontSize", { size: fontSize })}
+                  </Label>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm">{t("accessibility.smaller")}</span>
+                    <span className="text-sm">{t("accessibility.larger")}</span>
+                  </div>
+                  <Slider
+                    id="font-size"
+                    min={80}
+                    max={150}
+                    step={5}
+                    value={[fontSize]}
+                    onValueChange={(value) => {
+                      setFontSize(value[0])
+                      // Guardar inmediatamente
+                      const settings = JSON.parse(localStorage.getItem("accessibility") || "{}")
+                      settings.fontSize = value[0]
+                      localStorage.setItem("accessibility", JSON.stringify(settings))
+                    }}
+                  />
+                  <div className="text-center mt-2 text-sm font-medium">{fontSize}%</div>
+                </div>
+
+                <div className="pt-2 border-t">
+                  <h3 className="text-sm font-medium mb-3">{t("accessibility.motionAndAnimations")}</h3>
                   <div className="flex items-center justify-between">
                     <Label htmlFor="reduced-motion" className="text-sm">
                       {t("accessibility.reducedMotion")}
@@ -382,13 +411,9 @@ export function AccessibilityControls({ inMenu = false }: AccessibilityControlsP
                     />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
 
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="text-sm font-medium mb-3">{t("accessibility.focusIndicators")}</h3>
-                <div className="space-y-4">
+                <div className="pt-2 border-t">
+                  <h3 className="text-sm font-medium mb-3">{t("accessibility.focusIndicators")}</h3>
                   <div className="flex items-center justify-between">
                     <div>
                       <Label htmlFor="enhanced-focus" className="text-sm block">
@@ -411,107 +436,111 @@ export function AccessibilityControls({ inMenu = false }: AccessibilityControlsP
                     />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </div>
+            </TabsContent>
 
-          <TabsContent value="contrast" className="space-y-4">
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="text-sm font-medium mb-3">{t("accessibility.contrastMode")}</h3>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="contrast-mode" className="text-sm block mb-2">
-                      {t("accessibility.contrastMode")}
-                    </Label>
-                    <p className="text-xs text-muted-foreground mb-2">{t("accessibility.contrastDescription")}</p>
-                    <Select
-                      value={contrastMode}
-                      onValueChange={(value) => {
-                        setContrastMode(value)
-                        // Guardar inmediatamente
-                        const settings = JSON.parse(localStorage.getItem("accessibility") || "{}")
-                        settings.contrastMode = value
-                        localStorage.setItem("accessibility", JSON.stringify(settings))
-                      }}
-                    >
-                      <SelectTrigger id="contrast-mode">
-                        <SelectValue placeholder={t("accessibility.contrastMode")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {CONTRAST_MODES.map((mode) => (
-                          <SelectItem key={mode} value={mode}>
-                            {t(`accessibility.contrastModes.${mode}`)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+            <TabsContent value="contrast" className="p-0 m-0">
+              <div className="p-4 space-y-4">
+                <div>
+                  <h3 className="text-sm font-medium mb-3">{t("accessibility.contrastMode")}</h3>
+                  <Label htmlFor="contrast-mode" className="text-sm block mb-2">
+                    {t("accessibility.selectContrastMode")}
+                  </Label>
+                  <p className="text-xs text-muted-foreground mb-2">{t("accessibility.contrastDescription")}</p>
+                  <Select
+                    value={contrastMode}
+                    onValueChange={(value) => {
+                      setContrastMode(value)
+                      // Guardar inmediatamente
+                      const settings = JSON.parse(localStorage.getItem("accessibility") || "{}")
+                      settings.contrastMode = value
+                      localStorage.setItem("accessibility", JSON.stringify(settings))
+                    }}
+                  >
+                    <SelectTrigger id="contrast-mode">
+                      <SelectValue placeholder={t("accessibility.selectContrastMode")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CONTRAST_MODES.map((mode) => (
+                        <SelectItem key={mode} value={mode}>
+                          {t(`accessibility.contrastModes.${mode}`)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="pt-2 border-t">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-medium">{t("accessibility.colorBlindness")}</h3>
+                    <Link href="/accesibilidad/guia-daltonismo" className="flex items-center text-xs text-primary">
+                      <HelpCircle className="h-3.5 w-3.5 mr-1" />
+                      Ver guía
+                    </Link>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-2">{t("accessibility.colorBlindnessDescription")}</p>
+                  <Select
+                    value={colorBlindnessType}
+                    onValueChange={(value) => {
+                      setColorBlindnessType(value)
+                      // Guardar inmediatamente
+                      const settings = JSON.parse(localStorage.getItem("accessibility") || "{}")
+                      settings.colorBlindnessType = value
+                      localStorage.setItem("accessibility", JSON.stringify(settings))
+                    }}
+                  >
+                    <SelectTrigger id="color-blindness-type">
+                      <SelectValue placeholder={t("accessibility.colorBlindness")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {COLOR_BLINDNESS_TYPES.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {t(`accessibility.colorBlindnessTypes.${type}`)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="pt-2 border-t">
+                  <h3 className="text-sm font-medium mb-3">{t("accessibility.previewSection")}</h3>
+                  <p className="text-sm mb-3">{t("accessibility.previewDescription")}</p>
+
+                  <div className="space-y-4 border p-4 rounded-md">
+                    <h4 className="text-lg font-bold">PresuApp</h4>
+
+                    <div className="color-blindness-preview">
+                      <p className="text-sm font-medium mb-2">Muestras de color:</p>
+                      <div className="color-sample">
+                        <div className="red" title="Rojo"></div>
+                        <div className="green" title="Verde"></div>
+                        <div className="blue" title="Azul"></div>
+                        <div className="yellow" title="Amarillo"></div>
+                        <div className="purple" title="Púrpura"></div>
+                      </div>
+                    </div>
+
+                    <p>
+                      Este es un ejemplo de texto para mostrar cómo se verá el contenido con la configuración de
+                      accesibilidad actual.
+                    </p>
+                    <div className="flex gap-2">
+                      <Button variant="default">Botón primario</Button>
+                      <Button variant="outline">Botón secundario</Button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Switch id="example-switch" />
+                      <Label htmlFor="example-switch">Ejemplo de interruptor</Label>
+                    </div>
+                    <a href="#" className="text-primary underline">
+                      Ejemplo de enlace
+                    </a>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="text-sm font-medium mb-3">{t("accessibility.colorBlindness")}</h3>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="color-blindness-type" className="text-sm block mb-2">
-                      {t("accessibility.colorBlindness")}
-                    </Label>
-                    <p className="text-xs text-muted-foreground mb-2">{t("accessibility.colorBlindnessDescription")}</p>
-                    <Select
-                      value={colorBlindnessType}
-                      onValueChange={(value) => {
-                        setColorBlindnessType(value)
-                        // Guardar inmediatamente
-                        const settings = JSON.parse(localStorage.getItem("accessibility") || "{}")
-                        settings.colorBlindnessType = value
-                        localStorage.setItem("accessibility", JSON.stringify(settings))
-                      }}
-                    >
-                      <SelectTrigger id="color-blindness-type">
-                        <SelectValue placeholder={t("accessibility.colorBlindness")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {COLOR_BLINDNESS_TYPES.map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {t(`accessibility.colorBlindnessTypes.${type}`)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="text-sm font-medium mb-3">{t("accessibility.previewSection")}</h3>
-                <p className="text-sm mb-3">{t("accessibility.previewDescription")}</p>
-                <div className="space-y-4 border p-4 rounded-md">
-                  <h4 className="text-lg font-bold">PresuApp</h4>
-                  <p>
-                    Este es un ejemplo de texto para mostrar cómo se verá el contenido con la configuración de
-                    accesibilidad actual.
-                  </p>
-                  <div className="flex gap-2">
-                    <Button variant="default">Botón primario</Button>
-                    <Button variant="outline">Botón secundario</Button>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch id="example-switch" />
-                    <Label htmlFor="example-switch">Ejemplo de interruptor</Label>
-                  </div>
-                  <a href="#" className="text-primary underline">
-                    Ejemplo de enlace
-                  </a>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </Card>
 
         <div className="flex gap-4 justify-between">
           <Button onClick={handleSaveSettings} className="flex-1 bg-teal-600 hover:bg-teal-700 text-white">

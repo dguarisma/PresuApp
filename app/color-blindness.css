@@ -1,0 +1,55 @@
+/* Filtros para simular daltonismo */
+.filter-protanopia {
+  filter: url("#protanopia-filter");
+}
+
+.filter-deuteranopia {
+  filter: url("#deuteranopia-filter");
+}
+
+.filter-tritanopia {
+  filter: url("#tritanopia-filter");
+}
+
+.filter-achromatopsia {
+  filter: grayscale(100%);
+}
+
+/* Estilos para la guía de daltonismo */
+.color-guide-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.color-guide-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+}
+
+.color-guide-item h4 {
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.color-guide-item .color-samples {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.color-guide-item .color-sample {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.25rem;
+}
+
+.color-guide-item p {
+  font-size: 0.75rem;
+  text-align: center;
+}

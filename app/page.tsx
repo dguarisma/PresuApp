@@ -60,7 +60,7 @@ export default function Home() {
         </div>
       )}
 
-      <div className="max-w-md mx-auto p-4 flex flex-col min-h-[100vh]">
+      <div className="max-w-md mx-auto px-4 flex flex-col min-h-[100vh]">
         <header className="flex justify-center items-center py-4 mb-4 fade-in-up">
           <div className="flex flex-col items-center">
             <img src="/logo.png" alt="PresuApp Logo" className="h-16 mb-2" />
@@ -72,7 +72,7 @@ export default function Home() {
         </header>
         <PWAInstaller />
         <main className="flex-1">
-          <main className="container mx-auto px-4 py-6 max-w-5xl">
+          <main className="container mx-auto py-6 max-w-5xl">
             <div className="stagger-item stagger-delay-1">
               <Suspense fallback={<SkeletonLoader type="list" />}>
                 <BudgetList key={key} /> {/* Usamos key para forzar re-renderizado */}

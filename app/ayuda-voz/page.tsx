@@ -24,7 +24,7 @@ export default function VoiceHelpPage() {
 
   if (!isSupported) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="max-w-md mx-auto px-4 py-8">
         <PageHeader
           title={t("voice.helpTitle")}
           description={t("voice.helpDescription")}
@@ -45,7 +45,7 @@ export default function VoiceHelpPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 pb-20">
+    <div className="max-w-md mx-auto px-4 py-8 pb-20">
       <PageHeader
         title={t("voice.helpTitle")}
         description={t("voice.helpDescription")}

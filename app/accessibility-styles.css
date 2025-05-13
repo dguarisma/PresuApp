@@ -160,3 +160,65 @@
 .enhanced-focus textarea:focus {
   box-shadow: 0 0 0 3px var(--focus-outline-color) !important;
 }
+
+/* Estilos específicos para las pestañas de accesibilidad */
+.accessibility-tabs .tabs-trigger {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.accessibility-tabs .tabs-trigger-content {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+}
+
+.accessibility-tabs .tabs-trigger-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
+}
+
+/* Estilos para la vista previa de daltonismo */
+.color-blindness-preview {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+  border: 1px solid var(--border);
+}
+
+.color-blindness-preview .color-sample {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.color-blindness-preview .color-sample div {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.25rem;
+}
+
+.color-blindness-preview .red {
+  background-color: #ff0000;
+}
+
+.color-blindness-preview .green {
+  background-color: #00ff00;
+}
+
+.color-blindness-preview .blue {
+  background-color: #0000ff;
+}
+
+.color-blindness-preview .yellow {
+  background-color: #ffff00;
+}
+
+.color-blindness-preview .purple {
+  background-color: #800080;
+}

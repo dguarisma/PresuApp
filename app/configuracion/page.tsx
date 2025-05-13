@@ -21,7 +21,7 @@ export default function ConfiguracionPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-md mx-auto p-4 flex flex-col min-h-[calc(100vh-4rem)]">
+      <div className="max-w-md mx-auto px-4 flex flex-col min-h-[calc(100vh-4rem)]">
         <PageHeader title={t("accessibility.title")} icon={<Settings className="h-6 w-6 text-primary" />} />
 
         <main className="flex-1">

@@ -118,7 +118,7 @@ export default function BudgetPage() {
         </div>
       )}
 
-      <div className="p-4 flex flex-col min-h-[100vh]">
+      <div className="max-w-md mx-auto px-4 flex flex-col min-h-[100vh]">
         <div className="flex justify-center py-2 mb-2">
           <Link href="/">
             <img src="/logo.png" alt="PresuApp Logo" className="h-10" />

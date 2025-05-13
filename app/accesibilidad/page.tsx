@@ -5,7 +5,7 @@ import { AccessibilityControls } from "@/components/accessibility-controls"
 import { Toaster } from "@/components/ui/toaster"
 import { useLanguage } from "@/hooks/use-language"
 import { PageHeader } from "@/components/page-header"
-import { Accessibility } from "lucide-react"
+import { Settings } from "lucide-react"
 
 export default function AccesibilidadPage() {
   const [mounted, setMounted] = useState(false)
@@ -21,8 +21,8 @@ export default function AccesibilidadPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-md mx-auto p-4 flex flex-col min-h-[calc(100vh-4rem)]">
-        <PageHeader title={t("accessibility.title")} icon={<Accessibility className="h-6 w-6 text-primary" />} />
+      <div className="max-w-md mx-auto px-4 flex flex-col min-h-[calc(100vh-4rem)]">
+        <PageHeader title={t("accessibility.title")} icon={<Settings className="h-6 w-6 text-primary" />} />
 
         <main className="flex-1">
           <AccessibilityControls inMenu={false} />

@@ -29,11 +29,11 @@ export default function BudgetDebtsPage() {
   }
 
   if (!budget) {
-    return <div className="p-4">Cargando...</div>
+    return <div className="max-w-md mx-auto px-4">Cargando...</div>
   }
 
   return (
-    <div className="p-4 pb-20">
+    <div className="max-w-md mx-auto px-4 pb-20">
       <PageHeader
         title={`${budget.name} - ${t("debt.title")}`}
         icon={<CreditCard className="h-6 w-6 text-primary" />}

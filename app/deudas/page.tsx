@@ -17,7 +17,7 @@ export default function DebtGlobalPage() {
   if (!mounted) return null
 
   return (
-    <div className="max-w-md mx-auto p-4 flex flex-col min-h-[100vh] pb-20">
+    <div className="max-w-md mx-auto px-4 flex flex-col min-h-[100vh] pb-20">
       <PageHeader title={t("debt.title")} icon={<CreditCard className="h-6 w-6 text-primary" />} />
 
       <div className="mt-4 flex-1">
