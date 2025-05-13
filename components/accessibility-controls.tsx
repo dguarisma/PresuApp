@@ -309,7 +309,7 @@ export function AccessibilityControls({ inMenu = false }: AccessibilityControlsP
 
   const renderPageContent = () => {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 pb-24">
         <Card className="overflow-hidden border-0 shadow-sm">
           <Tabs defaultValue="visual" value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="w-full grid grid-cols-2 rounded-none bg-muted/80">
@@ -440,7 +440,7 @@ export function AccessibilityControls({ inMenu = false }: AccessibilityControlsP
             </TabsContent>
 
             <TabsContent value="contrast" className="p-0 m-0">
-              <div className="p-4 space-y-4">
+              <div className="p-4 pb-16 space-y-4">
                 <div>
                   <h3 className="text-sm font-medium mb-3">{t("accessibility.contrastMode")}</h3>
                   <Label htmlFor="contrast-mode" className="text-sm block mb-2">
