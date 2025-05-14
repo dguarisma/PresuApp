@@ -1,24 +1,17 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import dynamic from "next/dynamic"
+import { SpeedInsights } from "@vercel/speed-insights/next"
+import { ErrorBoundary } from "react-error-boundary"
 
-// Dynamically import SpeedInsights with no SSR
-const SpeedInsights = dynamic(() => import("@vercel/speed-insights/next").then((mod) => mod.SpeedInsights), {
-  ssr: false,
-})
+// Fallback component that renders nothing
+function ErrorFallback() {
+  return null
+}
 
 export function AnalyticsProvider() {
-  // Check if we're in production environment (client-side)
-  const [isProduction, setIsProduction] = useState(false)
-
-  useEffect(() => {
-    // Only set to true in production environment
-    setIsProduction(process.env.NODE_ENV === "production")
-  }, [])
-
-  // Only render in production
-  if (!isProduction) return null
-
-  return <SpeedInsights />
+  return (
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <SpeedInsights />
+    </ErrorBoundary>
+  )
 }

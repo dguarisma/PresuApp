@@ -16,8 +16,8 @@ import { PageTransition } from "@/components/page-transition"
 import { RoutePrefetcher } from "@/components/route-prefetcher"
 import { Suspense } from "react"
 
-// Import our client component for analytics
-import { AnalyticsProvider } from "@/components/analytics-provider"
+// Import the client component without dynamic imports
+import { AnalyticsLoader } from "@/components/analytics-loader"
 
 // Importar el NotificationProvider en lugar del NotificationChecker
 import { NotificationProvider } from "@/components/notification-provider"
@@ -151,7 +151,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   `}
         </Script>
         {/* Use our client component for analytics */}
-        <AnalyticsProvider />
+        <AnalyticsLoader />
       </body>
     </html>
   )
