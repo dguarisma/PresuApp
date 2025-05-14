@@ -14,6 +14,8 @@ import { SplashScreen } from "@/components/splash-screen"
 import { StatusBar } from "@/components/status-bar"
 import { PageTransition } from "@/components/page-transition"
 import { RoutePrefetcher } from "@/components/route-prefetcher"
+import { Analytics } from "@vercel/analytics/react"
+import { Suspense } from "react"
 
 // Importar el NotificationProvider en lugar del NotificationChecker
 import { NotificationProvider } from "@/components/notification-provider"
@@ -72,7 +74,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <StatusBar />
               <div className="bg-background transition-colors duration-300 overflow-x-hidden">
                 <PageTransition>
-                  <div className="mobile-container pb-24 overflow-x-hidden">{children}</div>
+                  <div className="mobile-container pb-24 overflow-x-hidden">
+                    <Suspense>{children}</Suspense>
+                  </div>
                 </PageTransition>
                 <GestureTutorial />
               </div>
@@ -98,15 +102,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 sessionStorage.removeItem('appHasLoaded');
               }
             });
-          `}
-        </Script>
-        <Script id="speed-insights" strategy="afterInteractive">
-          {`
-            (function(c,l,a,r,i,t,y){
-              c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-              t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-              y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-            })(window, document, "clarity", "script", "jnizlsyf9n");
           `}
         </Script>
         {/* Filtros SVG para daltonismo */}
@@ -144,6 +139,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </filter>
           </defs>
         </svg>
+        <Script id="clarity-script" strategy="afterInteractive">
+          {`
+    (function(c,l,a,r,i,t,y){
+      c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+      t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+      y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "jnizlsyf9n");
+  `}
+        </Script>
+        <Analytics />
       </body>
     </html>
   )
