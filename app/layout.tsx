@@ -14,6 +14,7 @@ import { SplashScreen } from "@/components/splash-screen"
 import { StatusBar } from "@/components/status-bar"
 import { PageTransition } from "@/components/page-transition"
 import { RoutePrefetcher } from "@/components/route-prefetcher"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/react"
 import { Suspense } from "react"
 
@@ -148,6 +149,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     })(window, document, "clarity", "script", "jnizlsyf9n");
   `}
         </Script>
+        <SpeedInsights />
         <Analytics />
       </body>
     </html>
