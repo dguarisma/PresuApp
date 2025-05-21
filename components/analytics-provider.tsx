@@ -9,6 +9,11 @@ function ErrorFallback() {
 }
 
 export function AnalyticsProvider() {
+  // Only render in production and in the browser
+  if (process.env.NODE_ENV !== "production") {
+    return null
+  }
+
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <SpeedInsights />
