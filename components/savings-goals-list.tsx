@@ -139,7 +139,7 @@ export function SavingsGoalsList({ budgetId }: SavingsGoalsListProps) {
   }
 
   return (
-    <div className="space-y-4 pb-16">
+    <div className="space-y-4 pb-28">
       <div className="flex flex-col space-y-2">
         <div className="flex items-center">
           <h2 className="text-xl font-bold tracking-tight">{t("savingsGoals.title")}</h2>
@@ -312,7 +312,7 @@ export function SavingsGoalsList({ budgetId }: SavingsGoalsListProps) {
       {/* Floating Action Button */}
       <Button
         onClick={handleCreateGoal}
-        className="fixed bottom-28 right-4 z-10 rounded-full w-14 h-14 shadow-lg bg-teal-500 hover:bg-teal-600 text-white"
+        className="fixed bottom-32 right-4 z-10 rounded-full w-14 h-14 shadow-lg bg-teal-500 hover:bg-teal-600 text-white"
         aria-label={t("savingsGoals.create")}
       >
         <Plus className="h-6 w-6" />

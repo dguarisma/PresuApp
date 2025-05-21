@@ -4,7 +4,6 @@ import { useParams, useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import ExpenseTracker from "@/components/expense-tracker"
 import { Button } from "@/components/ui/button"
-// Añadir el import para CreditCard
 import { Edit, Save, BarChart2, Share2, FileSpreadsheet, ArrowLeft, Target, DollarSign, CreditCard } from "lucide-react"
 import { ModeToggle } from "@/components/mode-toggle"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -160,7 +159,7 @@ export default function BudgetPage() {
                 </div>
               ) : (
                 <div className="flex items-center gap-2 ml-2">
-                  <h1 className="text-xl font-bold truncate">{budgetName}</h1>
+                  <h1 className="text-xl font-bold truncate max-w-[180px]">{budgetName}</h1>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -185,7 +184,7 @@ export default function BudgetPage() {
                   className="flex items-center justify-center gap-2"
                 >
                   <BarChart2 className="h-4 w-4" />
-                  <span>{t("budget.analysis")}</span>
+                  <span className="text-xs sm:text-sm">{t("budget.analysis")}</span>
                 </Button>
                 <Button
                   variant="outline"
@@ -194,7 +193,7 @@ export default function BudgetPage() {
                   onClick={exportToCSV}
                 >
                   <FileSpreadsheet className="h-4 w-4" />
-                  <span>{t("budget.exportToExcel")}</span>
+                  <span className="text-xs sm:text-sm">{t("budget.exportToExcel")}</span>
                 </Button>
               </div>
               <div className="grid grid-cols-1 gap-2">
@@ -214,11 +213,11 @@ export default function BudgetPage() {
                   }}
                 >
                   <Share2 className="h-4 w-4" />
-                  <span>{t("budget.shareWhatsApp")}</span>
+                  <span className="text-xs sm:text-sm">{t("budget.shareWhatsApp")}</span>
                 </Button>
                 <Link
                   href={`/budget/${params.id}/metas`}
-                  className="flex items-center justify-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 outline-none"
+                  className="flex items-center justify-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-xs sm:text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 outline-none"
                 >
                   <Target className="h-4 w-4" />
                   <span>{t("savingsGoals.title")}</span>
@@ -227,14 +226,14 @@ export default function BudgetPage() {
               <div className="grid grid-cols-2 gap-2">
                 <Link
                   href={`/budget/${params.id}/ingresos`}
-                  className="flex items-center justify-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 outline-none"
+                  className="flex items-center justify-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-xs sm:text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 outline-none"
                 >
                   <DollarSign className="h-4 w-4" />
                   <span>{t("income.title")}</span>
                 </Link>
                 <Link
                   href={`/budget/${params.id}/deudas`}
-                  className="flex items-center justify-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 outline-none"
+                  className="flex items-center justify-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-xs sm:text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 outline-none"
                 >
                   <CreditCard className="h-4 w-4" />
                   <span>{t("debt.title")}</span>
@@ -248,7 +247,7 @@ export default function BudgetPage() {
             </div>
           </div>
         </header>
-        <main>
+        <main className="pb-20">
           <ExpenseTracker budgetId={budgetId} />
         </main>
       </div>

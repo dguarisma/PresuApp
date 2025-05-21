@@ -38,7 +38,7 @@ export default function CategoryList({ categories, onAddItem, onDeleteItem, onDe
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20">
       {categories.length === 0 ? (
         <div className="text-center p-8 border rounded-lg bg-muted/30 border-dashed">
           <p className="text-muted-foreground">{t("categories.noCategories")}</p>
@@ -222,7 +222,7 @@ function CategoryCard({
                   className="mb-1"
                 >
                   <div className="flex items-center justify-between py-1.5 px-3 rounded-md hover:bg-muted/20 transition-colors text-sm">
-                    <span className="font-medium truncate">{item.name}</span>
+                    <span className="font-medium truncate max-w-[60%]">{item.name}</span>
                     <span className="font-medium whitespace-nowrap text-primary">${item.amount.toFixed(2)}</span>
                   </div>
                 </SwipeableItem>
@@ -243,7 +243,7 @@ function CategoryCard({
         {/* Floating Action Button */}
         <Button
           onClick={onToggleForm}
-          className="absolute bottom-28 right-4 z-10 rounded-full w-10 h-10 shadow-md bg-teal-500 hover:bg-teal-600 text-white"
+          className="absolute bottom-4 right-4 z-10 rounded-full w-10 h-10 shadow-md bg-teal-500 hover:bg-teal-600 text-white"
           aria-label={isFormActive ? t("actions.close") : t("expenses.addExpense")}
         >
           {isFormActive ? (

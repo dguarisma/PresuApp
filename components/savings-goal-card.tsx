@@ -154,8 +154,10 @@ export function SavingsGoalCard({ goal, onUpdate, onEdit }: SavingsGoalCardProps
           <div className="flex items-start gap-2">
             {isCompleted && <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />}
             <div>
-              <h3 className="text-lg font-semibold leading-none tracking-tight">{goal.name}</h3>
-              {goal.description && <p className="text-sm text-muted-foreground mt-1">{goal.description}</p>}
+              <h3 className="text-lg font-semibold leading-none tracking-tight truncate max-w-[200px]">{goal.name}</h3>
+              {goal.description && (
+                <p className="text-sm text-muted-foreground mt-1 truncate max-w-[220px]">{goal.description}</p>
+              )}
             </div>
           </div>
           <div className="flex space-x-1 flex-shrink-0">

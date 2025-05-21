@@ -89,12 +89,12 @@ export default function ExpenseTracker({ budgetId }: ExpenseTrackerProps) {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1 space-y-6">
+        <div className="grid grid-cols-1 gap-6">
+          <div className="space-y-6">
             <Skeleton className="h-[200px] w-full" />
             <Skeleton className="h-[200px] w-full" />
           </div>
-          <div className="lg:col-span-2">
+          <div>
             <Skeleton className="h-[400px] w-full" />
           </div>
         </div>
@@ -103,7 +103,7 @@ export default function ExpenseTracker({ budgetId }: ExpenseTrackerProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-28">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-6">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
@@ -111,8 +111,8 @@ export default function ExpenseTracker({ budgetId }: ExpenseTrackerProps) {
         </TabsList>
 
         <TabsContent value="dashboard" className="animate-in">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-1 space-y-6">
+          <div className="grid grid-cols-1 gap-6">
+            <div className="space-y-6">
               <BudgetForm budget={budgetData.amount} budgetId={budgetId} onBudgetChange={handleBudgetChange} />
               <ExpenseSummary
                 budget={budgetData.amount}
@@ -121,7 +121,7 @@ export default function ExpenseTracker({ budgetId }: ExpenseTrackerProps) {
                 totalIncome={totalIncome}
               />
             </div>
-            <div className="lg:col-span-2">
+            <div>
               <ExpenseCharts
                 categories={budgetData.categories}
                 totalBudget={budgetData.amount}
@@ -136,11 +136,11 @@ export default function ExpenseTracker({ budgetId }: ExpenseTrackerProps) {
         </TabsContent>
 
         <TabsContent value="categories" className="animate-in">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-1 space-y-6">
+          <div className="grid grid-cols-1 gap-6">
+            <div className="space-y-6">
               <AddCategoryForm onAddCategory={handleAddCategory} />
             </div>
-            <div className="lg:col-span-2">
+            <div>
               <CategoryList
                 categories={budgetData.categories}
                 onAddItem={handleAddItem}
