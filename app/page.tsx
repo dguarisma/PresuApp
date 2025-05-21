@@ -49,6 +49,13 @@ export default function Home() {
     }
   }, [])
 
+  // Function to handle the floating action button click
+  const handleCreateBudgetClick = () => {
+    // Dispatch a custom event that BudgetList will listen for
+    const event = new CustomEvent("openCreateBudgetDialog")
+    window.dispatchEvent(event)
+  }
+
   return (
     <div className="min-h-full bg-background">
       {/* Componente invisible para precargar datos */}
@@ -83,11 +90,9 @@ export default function Home() {
       </div>
       {/* Floating Action Button */}
       <Button
-        onClick={() => {
-          /* Add your action here */
-        }}
+        onClick={handleCreateBudgetClick}
         className="fixed bottom-28 right-6 z-50 rounded-full w-14 h-14 shadow-lg bg-teal-500 hover:bg-teal-600 text-white"
-        aria-label="Add new item"
+        aria-label="Add new budget"
       >
         <Plus className="h-6 w-6" />
       </Button>

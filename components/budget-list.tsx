@@ -66,11 +66,18 @@ export default function BudgetList() {
       loadBudgets()
     }
 
+    // Add listener for the custom event to open the create budget dialog
+    const handleOpenCreateBudgetDialog = () => {
+      setIsCreateDialogOpen(true)
+    }
+
     if (typeof window !== "undefined") {
       window.addEventListener("focus", handleFocus)
+      window.addEventListener("openCreateBudgetDialog", handleOpenCreateBudgetDialog)
 
       return () => {
         window.removeEventListener("focus", handleFocus)
+        window.removeEventListener("openCreateBudgetDialog", handleOpenCreateBudgetDialog)
       }
     }
   }, [])
