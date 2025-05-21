@@ -238,7 +238,7 @@ export function SavingsGoalsList({ budgetId }: SavingsGoalsListProps) {
                   <Target className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                   <p className="text-base font-medium mb-2">{t("savingsGoals.noGoalsFound")}</p>
                   <p className="text-sm text-muted-foreground mb-4">{t("savingsGoals.createYourFirstGoal")}</p>
-                  <Button onClick={handleCreateGoal}>
+                  <Button onClick={handleCreateGoal} className="bg-teal-500 hover:bg-teal-600 text-white">
                     <PlusCircle className="h-4 w-4 mr-2" />
                     {t("savingsGoals.createGoal")}
                   </Button>
@@ -264,7 +264,7 @@ export function SavingsGoalsList({ budgetId }: SavingsGoalsListProps) {
                   <Target className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                   <p className="text-base font-medium mb-2">{t("savingsGoals.noActiveGoals")}</p>
                   <p className="text-sm text-muted-foreground mb-4">{t("savingsGoals.createActiveGoal")}</p>
-                  <Button onClick={handleCreateGoal}>
+                  <Button onClick={handleCreateGoal} className="bg-teal-500 hover:bg-teal-600 text-white">
                     <PlusCircle className="h-4 w-4 mr-2" />
                     {t("savingsGoals.createGoal")}
                   </Button>
@@ -318,16 +318,18 @@ export function SavingsGoalsList({ budgetId }: SavingsGoalsListProps) {
         <Plus className="h-6 w-6" />
       </Button>
 
-      {/* Reemplazamos el Dialog por un Sheet para móviles y tablets */}
+      {/* Sheet with improved scrolling */}
       <Sheet open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
-          <SheetHeader className="mb-4">
-            <SheetTitle>{goalToEdit ? t("savingsGoals.editGoal") : t("savingsGoals.createGoal")}</SheetTitle>
-            <SheetDescription>
-              {goalToEdit ? t("savingsGoals.editGoalDesc") : t("savingsGoals.createGoalDesc")}
-            </SheetDescription>
-          </SheetHeader>
-          <div className="pb-10">
+        <SheetContent side="bottom" className="h-[85vh] p-0 pt-6 flex flex-col">
+          <div className="px-6">
+            <SheetHeader className="mb-4">
+              <SheetTitle>{goalToEdit ? t("savingsGoals.editGoal") : t("savingsGoals.createGoal")}</SheetTitle>
+              <SheetDescription>
+                {goalToEdit ? t("savingsGoals.editGoalDesc") : t("savingsGoals.createGoalDesc")}
+              </SheetDescription>
+            </SheetHeader>
+          </div>
+          <div className="flex-1 overflow-y-auto px-6 pb-8">
             <SavingsGoalForm
               budgetId={budgetId}
               goalToEdit={goalToEdit}
