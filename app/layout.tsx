@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     { rel: "icon", url: "/favicon.png" },
     { rel: "apple-touch-icon", url: "/icons/icon-192x192.png" },
   ],
-    generator: 'v0.dev'
+    generator: 'v0.app'
 }
 
 // Modificar la etiqueta meta viewport para permitir escalado en iOS
