@@ -94,17 +94,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </ThemeProvider>
         </TranslationProvider>
         <Script src="/register-sw.js" strategy="afterInteractive" />
-
-        {/* Script para limpiar sessionStorage al cerrar la pestaña o navegador */}
-        <Script id="clear-session-on-unload">
-          {`
-            window.addEventListener('beforeunload', function() {
-              // Si el usuario cierra la pestaña o navegador, limpiar para que la próxima vez se muestre el splash
-              if (!window.performance.navigation.type === 1) { // No es una recarga
-                sessionStorage.removeItem('appHasLoaded');
-              }
-            });
-          `}
+        <Script
+          id="clear-session-on-unload"
+          strategy="afterInteractive"
+          dangerouslyAllowHTML
+        >
+          {`window.addEventListener('beforeunload', function() { if (!window.performance.navigation.type === 1) { sessionStorage.removeItem('appHasLoaded'); } });`}
         </Script>
         {/* Filtros SVG para daltonismo */}
         <svg className="absolute w-0 h-0 overflow-hidden">
@@ -141,14 +136,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </filter>
           </defs>
         </svg>
-        <Script id="clarity-script" strategy="afterInteractive">
-          {`
-    (function(c,l,a,r,i,t,y){
-      c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-      t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-      y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "jnizlsyf9n");
-  `}
+        <Script
+          id="clarity-script"
+          strategy="afterInteractive"
+          dangerouslyAllowHTML
+        >
+          {`(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window, document, "clarity", "script", "jnizlsyf9n");`}
         </Script>
         {/* Use our client component for analytics */}
         <AnalyticsLoader />
