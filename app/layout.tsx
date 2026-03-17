@@ -94,21 +94,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </ThemeProvider>
         </TranslationProvider>
         <Script src="/register-sw.js" strategy="afterInteractive" />
-
-        {/* Script para limpiar sessionStorage al cerrar la pestaña o navegador */}
         <Script
           id="clear-session-on-unload"
           strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.addEventListener('beforeunload', function() {
-                if (!window.performance.navigation.type === 1) {
-                  sessionStorage.removeItem('appHasLoaded');
-                }
-              });
-            `,
-          }}
-        />
+          dangerouslyAllowHTML
+        >
+          {`window.addEventListener('beforeunload', function() { if (!window.performance.navigation.type === 1) { sessionStorage.removeItem('appHasLoaded'); } });`}
+        </Script>
         {/* Filtros SVG para daltonismo */}
         <svg className="absolute w-0 h-0 overflow-hidden">
           <defs>
@@ -147,16 +139,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Script
           id="clarity-script"
           strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(c,l,a,r,i,t,y){
-                c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-                t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-                y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-              })(window, document, "clarity", "script", "jnizlsyf9n");
-            `,
-          }}
-        />
+          dangerouslyAllowHTML
+        >
+          {`(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window, document, "clarity", "script", "jnizlsyf9n");`}
+        </Script>
         {/* Use our client component for analytics */}
         <AnalyticsLoader />
       </body>
